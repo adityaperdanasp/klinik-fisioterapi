@@ -41,6 +41,11 @@ export default async function AppLayout({
                   Kasir
                 </a>
               )}
+              {profile?.role === "admin" && (
+                <a href="/dashboard" className="hover:text-slate-900">
+                  Dashboard
+                </a>
+              )}
             </nav>
           </div>
           <div className="flex items-center gap-3 text-sm">
