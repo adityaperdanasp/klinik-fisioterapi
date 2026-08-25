@@ -1,6 +1,8 @@
 import { createClient } from "@/lib/supabase/server";
+import { getCurrentProfile } from "@/lib/current-user";
 import { DAY_NAMES_ID, formatTime, getWeekRange, toDateKey } from "@/lib/week";
 import { BookingForm } from "./BookingForm";
+import { BookingStatusActions } from "./BookingStatusActions";
 
 const STATUS_LABEL: Record<string, string> = {
   scheduled: "Terjadwal",
@@ -29,6 +31,8 @@ export default async function JadwalPage({
   const { monday, sunday, days } = getWeekRange(anchor);
 
   const supabase = await createClient();
+  const profile = await getCurrentProfile();
+  const canManageBookings = profile?.role === "admin" || profile?.role === "resepsionis";
 
   const [bookingsRes, patientsRes, physiosRes, roomsRes] = await Promise.all([
     supabase
@@ -130,6 +134,9 @@ export default async function JadwalPage({
                       {b.physiotherapists?.full_name} · {b.rooms?.name}
                     </div>
                     <div className="text-slate-400">{STATUS_LABEL[b.status]}</div>
+                    {canManageBookings && b.status === "scheduled" && (
+                      <BookingStatusActions bookingId={b.id} />
+                    )}
                   </div>
                 ))}
               </div>

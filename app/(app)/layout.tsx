@@ -36,6 +36,11 @@ export default async function AppLayout({
               <a href="/pasien" className="hover:text-slate-900">
                 Pasien
               </a>
+              {profile?.role !== "fisioterapis" && (
+                <a href="/kasir" className="hover:text-slate-900">
+                  Kasir
+                </a>
+              )}
             </nav>
           </div>
           <div className="flex items-center gap-3 text-sm">

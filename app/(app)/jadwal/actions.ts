@@ -48,3 +48,13 @@ export async function createBooking(
   revalidatePath("/jadwal");
   return {};
 }
+
+export async function updateBookingStatus(
+  bookingId: string,
+  status: "completed" | "cancelled" | "no_show"
+) {
+  const supabase = await createClient();
+  await supabase.from("bookings").update({ status }).eq("id", bookingId);
+  revalidatePath("/jadwal");
+  revalidatePath("/kasir");
+}
