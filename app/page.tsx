@@ -79,7 +79,8 @@ const SERVICES = [
   },
 ];
 
-const HERO_IMAGE = "photo-1649751361457-01d3a696c7e6";
+const HERO_IMAGE =
+  "https://images.pexels.com/photos/5473177/pexels-photo-5473177.jpeg?auto=compress&cs=tinysrgb&w=800&h=1000&fit=crop";
 
 const RIBBON_TAGS = ["Cedera Otot", "Rehabilitasi Olahraga", "Nyeri Sendi", "Evaluasi Awal"];
 
@@ -199,7 +200,7 @@ export default function LandingPage() {
           <div className="rounded-3xl bg-white/5 p-3">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src={unsplash(HERO_IMAGE, 800)}
+              src={HERO_IMAGE}
               alt="Fisioterapis menangani pasien"
               className="h-[420px] w-full rounded-2xl object-cover"
             />
