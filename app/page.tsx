@@ -1,14 +1,31 @@
-import { Plus_Jakarta_Sans } from "next/font/google";
+import { Fraunces, Inter } from "next/font/google";
 import { Logo } from "./components/Logo";
 
 const WHATSAPP_NUMBER = "6281322043022";
 const CLINIC_ADDRESS =
   "Ruko Concordia & Trafalgar Blok SE1 No. 29, Ciangsana, Kec. Gn. Putri, Kabupaten Bogor, Jawa Barat 16968";
 
-const jakartaSans = Plus_Jakarta_Sans({
+// Design system: hex values + font families from user reference (facts, not copyrightable) —
+// layout, copy, and photos below are original.
+const COLOR = {
+  primary: "#2F723D",
+  secondary: "#7CEA99",
+  tertiary: "#729AA8",
+  natural: "#1C2D2D",
+  naturalBlack: "#0C1313",
+};
+
+const fraunces = Fraunces({
   subsets: ["latin"],
-  weight: ["500", "600", "700", "800"],
+  weight: ["500", "600", "700"],
+  style: ["normal", "italic"],
   variable: "--font-display",
+});
+
+const inter = Inter({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-body",
 });
 
 const STEPS = [
@@ -64,6 +81,8 @@ const SERVICES = [
 
 const HERO_IMAGE = "photo-1649751361457-01d3a696c7e6";
 
+const RIBBON_TAGS = ["Cedera Otot", "Rehabilitasi Olahraga", "Nyeri Sendi", "Evaluasi Awal"];
+
 function whatsappLink(text: string) {
   return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`;
 }
@@ -72,108 +91,154 @@ function unsplash(id: string, width: number) {
   return `https://images.unsplash.com/${id}?w=${width}&q=80&auto=format&fit=crop`;
 }
 
+function ServiceRibbon() {
+  const repeated = Array(3).fill(RIBBON_TAGS.join("   •   ")).join("   •   ");
+  return (
+    <svg viewBox="0 0 1200 130" className="w-full" aria-hidden="true">
+      <path
+        id="wavePath"
+        d="M-50,65 C100,20 200,110 350,65 C500,20 600,110 750,65 C900,20 1000,110 1150,65 C1250,40 1250,40 1250,40"
+        fill="none"
+        stroke={COLOR.secondary}
+        strokeWidth={92}
+        strokeLinecap="round"
+      />
+      <text
+        fill={COLOR.natural}
+        fontSize="22"
+        fontWeight={700}
+        letterSpacing="0.5"
+        style={{ fontFamily: "var(--font-body)" }}
+      >
+        <textPath href="#wavePath" startOffset="2%">
+          {repeated}
+        </textPath>
+      </text>
+    </svg>
+  );
+}
+
 export default function LandingPage() {
   return (
-    <div className={`${jakartaSans.variable} min-h-screen bg-white text-[#0F172A]`}>
-      <header className="border-b border-slate-100">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
+    <div className={`${fraunces.variable} ${inter.variable} min-h-screen bg-white`} style={{ fontFamily: "var(--font-body)" }}>
+      <div style={{ backgroundColor: COLOR.natural }}>
+        <header className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
           <Logo />
-          <nav className="hidden items-center gap-8 text-sm font-semibold text-slate-600 sm:flex">
-            <a href="#layanan" className="hover:text-[#0E4A6B]">
+          <nav className="hidden items-center gap-8 text-sm font-semibold text-white/70 sm:flex">
+            <a href="#layanan" className="hover:text-white">
               Layanan
             </a>
-            <a href="#alur" className="hover:text-[#0E4A6B]">
+            <a href="#alur" className="hover:text-white">
               Alur Pelayanan
             </a>
-            <a href="#lokasi" className="hover:text-[#0E4A6B]">
+            <a href="#lokasi" className="hover:text-white">
               Lokasi
             </a>
           </nav>
           <a
             href={whatsappLink("Halo, saya ingin booking sesi fisioterapi.")}
-            className="rounded-full bg-[#0E9F6E] px-5 py-2.5 text-sm font-bold text-white hover:bg-[#0C8A5F]"
+            className="rounded-full px-5 py-2.5 text-sm font-bold"
+            style={{ backgroundColor: COLOR.secondary, color: COLOR.naturalBlack }}
           >
             Booking via WhatsApp
           </a>
-        </div>
-      </header>
+        </header>
 
-      <section className="relative overflow-hidden">
-        <div className="mx-auto grid max-w-6xl grid-cols-1 items-center gap-12 px-4 py-16 sm:py-24 lg:grid-cols-2">
+        <section className="mx-auto grid max-w-6xl grid-cols-1 items-center gap-12 px-4 py-16 sm:py-20 lg:grid-cols-2">
           <div>
-            <p className="inline-flex items-center gap-2 rounded-full bg-[#E6F6EE] px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-[#0C8A5F]">
-              Spesialis Cedera Otot · Bekasi
-            </p>
             <h1
-              className="mt-5 text-4xl font-extrabold leading-[1.05] tracking-tight text-[#0F172A] sm:text-5xl lg:text-6xl"
+              className="text-5xl font-semibold leading-[1.05] text-white sm:text-6xl"
               style={{ fontFamily: "var(--font-display)" }}
             >
-              Pulih dari Cedera Otot,{" "}
-              <span className="text-[#0E4A6B]">Ditangani Profesional</span>
+              Pulih.
+              <span style={{ color: COLOR.secondary }}>●</span>
+              <br />
+              Bergerak.
+              <span style={{ color: COLOR.secondary }}>●</span>
+              <br />
+              <span className="italic">Kembali Aktif.</span>
+              <span style={{ color: COLOR.secondary }}>●</span>
             </h1>
-            <p className="mt-6 max-w-lg text-base text-slate-600 sm:text-lg">
-              Ditangani langsung oleh fisioterapis berpengalaman dan berlisensi (STR). Kami
-              membantu Anda pulih dari cedera otot, nyeri sendi, dan rehabilitasi pasca cedera
-              olahraga.
+            <p className="mt-6 max-w-md text-base text-white/70">
+              Fisioterapi spesialis cedera otot untuk memulihkan mobilitas dan kualitas hidup
+              Anda, ditangani langsung oleh fisioterapis berlisensi (STR).
             </p>
-            <div className="mt-8 flex flex-wrap gap-3">
-              <a
-                href={whatsappLink("Halo, saya ingin booking sesi fisioterapi.")}
-                className="rounded-full bg-[#0E9F6E] px-7 py-3.5 text-sm font-bold text-white hover:bg-[#0C8A5F]"
-              >
-                Booking Sekarang
-              </a>
-              <a
-                href="#layanan"
-                className="rounded-full border-2 border-slate-200 px-7 py-3.5 text-sm font-bold text-slate-700 hover:border-slate-300"
-              >
-                Lihat Layanan
-              </a>
-            </div>
+            <a
+              href={whatsappLink("Halo, saya ingin booking sesi fisioterapi.")}
+              className="mt-8 inline-block rounded-md px-7 py-3.5 text-sm font-bold"
+              style={{ backgroundColor: COLOR.secondary, color: COLOR.naturalBlack }}
+            >
+              Jadwalkan Konsultasi
+            </a>
           </div>
 
-          <div className="relative mx-auto w-full max-w-md">
-            <div className="absolute -right-6 -top-6 h-40 w-40 rounded-full bg-[#0E9F6E]/15 blur-2xl" />
-            <div className="absolute -bottom-8 -left-8 h-48 w-48 rounded-full bg-[#0E4A6B]/15 blur-2xl" />
-            <div className="relative overflow-hidden rounded-3xl border border-slate-100 shadow-xl shadow-slate-200/60">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={unsplash(HERO_IMAGE, 800)}
-                alt="Fisioterapis menangani pasien"
-                className="h-[420px] w-full object-cover"
-              />
-            </div>
+          <div className="rounded-3xl bg-white/5 p-3">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={unsplash(HERO_IMAGE, 800)}
+              alt="Fisioterapis menangani pasien"
+              className="h-[420px] w-full rounded-2xl object-cover"
+            />
           </div>
+        </section>
+      </div>
+
+      <section className="mx-auto grid max-w-6xl grid-cols-1 items-center gap-12 px-4 py-20 lg:grid-cols-2">
+        <div className="text-center lg:text-left">
+          <span
+            className="text-8xl font-semibold sm:text-9xl"
+            style={{ fontFamily: "var(--font-display)", color: COLOR.primary }}
+          >
+            STR
+          </span>
+          <p className="mt-2 text-sm font-semibold text-slate-500">
+            Fisioterapis Bersertifikat &amp; Berlisensi Resmi
+          </p>
+        </div>
+        <div>
+          <h2
+            className="text-3xl font-semibold sm:text-4xl"
+            style={{ fontFamily: "var(--font-display)", color: COLOR.naturalBlack }}
+          >
+            Fisioterapi yang Disesuaikan untuk Anda
+          </h2>
+          <p className="mt-4 text-slate-600">
+            Setiap pasien punya riwayat dan kondisi yang berbeda. Kami menyusun evaluasi dan
+            rencana terapi secara personal — bukan satu program untuk semua orang — supaya
+            pemulihan Anda lebih tepat sasaran.
+          </p>
+          <a
+            href="#layanan"
+            className="mt-4 inline-flex items-center gap-1 text-sm font-bold"
+            style={{ color: COLOR.primary }}
+          >
+            Lihat layanan kami →
+          </a>
         </div>
       </section>
 
-      <section id="alur" className="bg-[#F7FAFC] py-20">
+      <div className="py-6">
+        <ServiceRibbon />
+      </div>
+
+      <section id="alur" className="py-20">
         <div className="mx-auto max-w-6xl px-4">
-          <p className="text-center text-xs font-bold uppercase tracking-widest text-[#0C8A5F]">
-            Alur Pelayanan
-          </p>
           <h2
-            className="mt-2 text-center text-3xl font-extrabold tracking-tight text-[#0F172A] sm:text-4xl"
-            style={{ fontFamily: "var(--font-display)" }}
+            className="text-center text-3xl font-semibold sm:text-4xl"
+            style={{ fontFamily: "var(--font-display)", color: COLOR.naturalBlack }}
           >
             Empat Langkah Menuju Pulih
           </h2>
           <div className="mt-12 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
             {STEPS.map((s) => (
-              <div
-                key={s.number}
-                className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm shadow-slate-100"
-              >
+              <div key={s.number} className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
                 <span
-                  className="text-3xl font-extrabold text-[#0E9F6E]"
-                  style={{ fontFamily: "var(--font-display)" }}
+                  className="text-3xl font-semibold"
+                  style={{ fontFamily: "var(--font-display)", color: COLOR.primary }}
                 >
                   {s.number}
                 </span>
-                <h3
-                  className="mt-3 text-lg font-bold text-[#0F172A]"
-                  style={{ fontFamily: "var(--font-display)" }}
-                >
+                <h3 className="mt-3 text-lg font-bold" style={{ color: COLOR.naturalBlack }}>
                   {s.title}
                 </h3>
                 <p className="mt-2 text-sm text-slate-500">{s.description}</p>
@@ -183,20 +248,17 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <section id="layanan" className="py-20">
+      <section id="layanan" className="py-16" style={{ backgroundColor: "#F5F7F5" }}>
         <div className="mx-auto max-w-6xl px-4">
           <h2
-            className="text-3xl font-extrabold tracking-tight text-[#0F172A] sm:text-4xl"
-            style={{ fontFamily: "var(--font-display)" }}
+            className="text-3xl font-semibold sm:text-4xl"
+            style={{ fontFamily: "var(--font-display)", color: COLOR.naturalBlack }}
           >
             Layanan Kami
           </h2>
           <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2">
             {SERVICES.map((s) => (
-              <div
-                key={s.title}
-                className="overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm shadow-slate-100"
-              >
+              <div key={s.title} className="overflow-hidden rounded-2xl bg-white shadow-sm">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={unsplash(s.image, 640)}
@@ -204,16 +266,14 @@ export default function LandingPage() {
                   className="h-48 w-full object-cover"
                 />
                 <div className="p-6">
-                  <h3
-                    className="text-lg font-bold text-[#0F172A]"
-                    style={{ fontFamily: "var(--font-display)" }}
-                  >
+                  <h3 className="text-lg font-bold" style={{ color: COLOR.naturalBlack }}>
                     {s.title}
                   </h3>
                   <p className="mt-2 text-sm text-slate-500">{s.description}</p>
                   <a
                     href={whatsappLink(`Halo, saya ingin konsultasi soal ${s.title.toLowerCase()}.`)}
-                    className="mt-4 inline-block rounded-full border-2 border-[#0E9F6E] px-5 py-2 text-xs font-bold uppercase tracking-wide text-[#0C8A5F] hover:bg-[#0E9F6E] hover:text-white"
+                    className="mt-4 inline-block rounded-full border-2 px-5 py-2 text-xs font-bold uppercase tracking-wide hover:bg-[#2F723D] hover:text-white"
+                    style={{ borderColor: COLOR.primary, color: COLOR.primary }}
                   >
                     Konsultasi Sekarang
                   </a>
@@ -224,19 +284,17 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <section id="lokasi" className="bg-[#0E4A6B] py-20 text-center text-white">
+      <section id="lokasi" className="py-20 text-center text-white" style={{ backgroundColor: COLOR.natural }}>
         <div className="mx-auto max-w-2xl px-4">
-          <h2
-            className="text-3xl font-extrabold tracking-tight sm:text-4xl"
-            style={{ fontFamily: "var(--font-display)" }}
-          >
+          <h2 className="text-3xl font-semibold sm:text-4xl" style={{ fontFamily: "var(--font-display)" }}>
             Lokasi
           </h2>
-          <p className="mt-3 text-slate-200">{CLINIC_ADDRESS}</p>
+          <p className="mt-3 text-white/70">{CLINIC_ADDRESS}</p>
           <div className="mt-8">
             <a
               href={whatsappLink("Halo, saya ingin tanya-tanya soal fisioterapi.")}
-              className="inline-block rounded-full bg-[#0E9F6E] px-8 py-3.5 text-sm font-bold text-white hover:bg-[#0C8A5F]"
+              className="inline-block rounded-md px-8 py-3.5 text-sm font-bold"
+              style={{ backgroundColor: COLOR.secondary, color: COLOR.naturalBlack }}
             >
               Chat WhatsApp
             </a>
@@ -244,9 +302,12 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <footer className="border-t border-slate-100 py-6 text-center text-xs text-slate-400">
+      <footer
+        className="py-6 text-center text-xs text-white/50"
+        style={{ backgroundColor: COLOR.naturalBlack }}
+      >
         © {new Date().getFullYear()} Pulih Fisioterapi ·{" "}
-        <a href="/login" className="hover:text-slate-600">
+        <a href="/login" className="hover:text-white">
           Login Staff
         </a>
       </footer>
