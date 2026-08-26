@@ -4,6 +4,7 @@ import { getCurrentProfile } from "@/lib/current-user";
 import { formatTime } from "@/lib/week";
 import { DiagnosisForm } from "./DiagnosisForm";
 import { SessionNoteForm } from "./SessionNoteForm";
+import { EditPatientForm } from "./EditPatientForm";
 
 const STATUS_LABEL: Record<string, string> = {
   scheduled: "Terjadwal",
@@ -18,7 +19,7 @@ type VisitRow = {
   status: string;
   physiotherapists: { full_name: string } | null;
   rooms: { name: string } | null;
-  session_notes: { complaint: string | null; progress_notes: string | null }[] | null;
+  session_notes: { complaint: string | null; progress_notes: string | null } | null;
 };
 
 export default async function PatientDetailPage({
@@ -30,6 +31,7 @@ export default async function PatientDetailPage({
   const supabase = await createClient();
   const profile = await getCurrentProfile();
   const canSeeClinical = profile?.role === "admin" || profile?.role === "fisioterapis";
+  const canEditPatient = profile?.role === "admin" || profile?.role === "resepsionis";
 
   const { data: patient } = await supabase
     .from("patients")
@@ -104,6 +106,11 @@ export default async function PatientDetailPage({
             </dd>
           </div>
         </dl>
+        {canEditPatient && (
+          <div className="mt-3 border-t border-slate-100 pt-3">
+            <EditPatientForm patient={patient} />
+          </div>
+        )}
       </div>
 
       {canSeeClinical && (
@@ -123,7 +130,7 @@ export default async function PatientDetailPage({
             )}
             <div className="space-y-4">
               {visits.map((v) => {
-                const note = v.session_notes?.[0];
+                const note = v.session_notes;
                 return (
                   <div key={v.id} className="rounded-md border border-slate-100 p-3">
                     <div className="flex items-center justify-between text-sm">

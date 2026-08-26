@@ -96,16 +96,21 @@ export default async function KasirPage({
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-lg font-semibold text-slate-900">Kasir</h1>
-        <p className="text-sm text-slate-500">
-          {selectedDate.toLocaleDateString("id-ID", {
-            weekday: "long",
-            day: "numeric",
-            month: "long",
-            year: "numeric",
-          })}
-        </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-lg font-semibold text-slate-900">Kasir</h1>
+          <p className="text-sm text-slate-500">
+            {selectedDate.toLocaleDateString("id-ID", {
+              weekday: "long",
+              day: "numeric",
+              month: "long",
+              year: "numeric",
+            })}
+          </p>
+        </div>
+        <a href="/kasir/rekap" className="text-sm text-slate-500 hover:text-slate-900">
+          Rekap Bulanan &rarr;
+        </a>
       </div>
 
       <div className="flex items-center justify-between">

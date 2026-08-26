@@ -33,6 +33,46 @@ export async function updateDiagnosis(
   return {};
 }
 
+export async function updatePatient(
+  _prev: FormResult,
+  formData: FormData
+): Promise<FormResult> {
+  const patientId = formData.get("patient_id") as string;
+  const full_name = (formData.get("full_name") as string)?.trim();
+  const date_of_birth = (formData.get("date_of_birth") as string) || null;
+  const gender = (formData.get("gender") as string) || null;
+  const phone = (formData.get("phone") as string) || null;
+  const address = (formData.get("address") as string) || null;
+  const emergency_contact_name = (formData.get("emergency_contact_name") as string) || null;
+  const emergency_contact_phone = (formData.get("emergency_contact_phone") as string) || null;
+
+  if (!full_name) {
+    return { error: "Nama pasien wajib diisi." };
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("patients")
+    .update({
+      full_name,
+      date_of_birth,
+      gender,
+      phone,
+      address,
+      emergency_contact_name,
+      emergency_contact_phone,
+    })
+    .eq("id", patientId);
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  revalidatePath(`/pasien/${patientId}`);
+  revalidatePath("/pasien");
+  return {};
+}
+
 export async function saveSessionNote(
   _prev: FormResult,
   formData: FormData
