@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { logout } from "./actions";
+import { Logo } from "@/app/components/Logo";
 
 export default async function AppLayout({
   children,
@@ -25,10 +26,8 @@ export default async function AppLayout({
     <div className="min-h-full flex flex-col">
       <header className="border-b border-slate-200 bg-white">
         <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
-          <div>
-            <span className="text-sm font-semibold text-slate-900">
-              Pulih Fisioterapi
-            </span>
+          <div className="flex items-center">
+            <Logo size="compact" />
             <nav className="ml-6 inline-flex gap-4 text-sm text-slate-500">
               <a href="/jadwal" className="hover:text-slate-900">
                 Jadwal

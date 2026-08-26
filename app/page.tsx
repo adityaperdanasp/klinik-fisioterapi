@@ -1,4 +1,5 @@
 import { Plus_Jakarta_Sans } from "next/font/google";
+import { Logo } from "./components/Logo";
 
 const WHATSAPP_NUMBER = "6281322043022";
 const CLINIC_ADDRESS =
@@ -76,12 +77,7 @@ export default function LandingPage() {
     <div className={`${jakartaSans.variable} min-h-screen bg-white text-[#0F172A]`}>
       <header className="border-b border-slate-100">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
-          <span
-            className="text-lg font-extrabold tracking-tight text-[#0E4A6B]"
-            style={{ fontFamily: "var(--font-display)" }}
-          >
-            Pulih Fisioterapi
-          </span>
+          <Logo />
           <nav className="hidden items-center gap-8 text-sm font-semibold text-slate-600 sm:flex">
             <a href="#layanan" className="hover:text-[#0E4A6B]">
               Layanan
