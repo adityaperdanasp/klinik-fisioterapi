@@ -60,22 +60,22 @@ const SERVICES = [
     title: "Terapi Cedera Otot",
     description:
       "Penanganan cedera otot akut maupun kronis dengan pendekatan berbasis evaluasi fisioterapis.",
-    image: "photo-1540205895360-4ad4cffb3aa8",
+    image: "https://images.pexels.com/photos/20860597/pexels-photo-20860597.jpeg?auto=compress&cs=tinysrgb&w=640",
   },
   {
     title: "Rehabilitasi Pasca Cedera Olahraga",
     description: "Program pemulihan bertahap untuk kembali beraktivitas dan berolahraga dengan aman.",
-    image: "photo-1522898467493-49726bf28798",
+    image: "https://images.pexels.com/photos/20860619/pexels-photo-20860619.jpeg?auto=compress&cs=tinysrgb&w=640",
   },
   {
     title: "Terapi Nyeri Otot & Sendi",
     description: "Penanganan nyeri punggung, bahu, lutut, dan sendi lain akibat aktivitas atau postur.",
-    image: "photo-1706353399656-210cca727a33",
+    image: "https://images.pexels.com/photos/30483023/pexels-photo-30483023.jpeg?auto=compress&cs=tinysrgb&w=640",
   },
   {
     title: "Konsultasi & Evaluasi Awal",
     description: "Pemeriksaan awal untuk menentukan diagnosa dan rencana terapi yang tepat.",
-    image: "photo-1519823551278-64ac92734fb1",
+    image: "https://images.pexels.com/photos/4506075/pexels-photo-4506075.jpeg?auto=compress&cs=tinysrgb&w=640",
   },
 ];
 
@@ -107,10 +107,6 @@ const TEAM = [
 
 function whatsappLink(text: string) {
   return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`;
-}
-
-function unsplash(id: string, width: number) {
-  return `https://images.unsplash.com/${id}?w=${width}&q=80&auto=format&fit=crop`;
 }
 
 function ServiceRibbon() {
@@ -302,7 +298,7 @@ export default function LandingPage() {
               <div key={s.title} className="overflow-hidden rounded-2xl bg-white shadow-sm">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
-                  src={unsplash(s.image, 640)}
+                  src={s.image}
                   alt={s.title}
                   className="h-48 w-full object-cover"
                 />
