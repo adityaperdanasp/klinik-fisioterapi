@@ -83,6 +83,27 @@ const HERO_IMAGE = "photo-1649751361457-01d3a696c7e6";
 
 const RIBBON_TAGS = ["Cedera Otot", "Rehabilitasi Olahraga", "Nyeri Sendi", "Evaluasi Awal"];
 
+const FEATURES = [
+  {
+    title: "Sesi 1-on-1",
+    description: "Setiap sesi ditangani langsung oleh satu fisioterapis, fokus penuh ke kondisi Anda.",
+  },
+  {
+    title: "Program Personal",
+    description: "Rencana terapi disusun sesuai kondisi dan target pemulihan — bukan program generik.",
+  },
+  {
+    title: "Fisioterapis Berlisensi",
+    description: "Ditangani oleh fisioterapis dengan STR (Surat Tanda Registrasi) resmi.",
+  },
+];
+
+const TEAM = [
+  { name: "Adit", initials: "AD" },
+  { name: "Erwin", initials: "ER" },
+  { name: "Maikel", initials: "MK" },
+];
+
 function whatsappLink(text: string) {
   return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`;
 }
@@ -130,6 +151,9 @@ export default function LandingPage() {
             </a>
             <a href="#alur" className="hover:text-white">
               Alur Pelayanan
+            </a>
+            <a href="#tim" className="hover:text-white">
+              Tim
             </a>
             <a href="#lokasi" className="hover:text-white">
               Lokasi
@@ -182,6 +206,22 @@ export default function LandingPage() {
           </div>
         </section>
       </div>
+
+      <section className="py-16" style={{ backgroundColor: "#F5F7F5" }}>
+        <div className="mx-auto grid max-w-6xl grid-cols-1 gap-8 px-4 sm:grid-cols-3">
+          {FEATURES.map((f) => (
+            <div key={f.title}>
+              <h3
+                className="text-lg font-bold"
+                style={{ fontFamily: "var(--font-display)", color: COLOR.naturalBlack }}
+              >
+                {f.title}
+              </h3>
+              <p className="mt-2 text-sm text-slate-500">{f.description}</p>
+            </div>
+          ))}
+        </div>
+      </section>
 
       <section className="mx-auto grid max-w-6xl grid-cols-1 items-center gap-12 px-4 py-20 lg:grid-cols-2">
         <div className="text-center lg:text-left">
@@ -284,6 +324,50 @@ export default function LandingPage() {
         </div>
       </section>
 
+      <section className="py-20">
+        <div className="mx-auto max-w-3xl px-4 text-center">
+          <h2
+            className="text-3xl font-semibold sm:text-4xl"
+            style={{ fontFamily: "var(--font-display)", color: COLOR.naturalBlack }}
+          >
+            Tentang Pulih Fisioterapi
+          </h2>
+          <p className="mt-4 text-slate-600">
+            Kami klinik fisioterapi yang fokus menangani cedera otot — dari cedera olahraga
+            sampai nyeri akibat aktivitas harian. Pendekatan kami mengutamakan evaluasi
+            menyeluruh dan gerak aktif sebagai bagian dari proses pemulihan, bukan sekadar
+            modalitas pasif.
+          </p>
+        </div>
+      </section>
+
+      <section id="tim" className="py-16" style={{ backgroundColor: "#F5F7F5" }}>
+        <div className="mx-auto max-w-6xl px-4">
+          <h2
+            className="text-3xl font-semibold sm:text-4xl"
+            style={{ fontFamily: "var(--font-display)", color: COLOR.naturalBlack }}
+          >
+            Tim Fisioterapis Kami
+          </h2>
+          <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-3">
+            {TEAM.map((t) => (
+              <div key={t.name} className="rounded-2xl bg-white p-6 text-center shadow-sm">
+                <div
+                  className="mx-auto flex h-16 w-16 items-center justify-center rounded-full text-lg font-bold"
+                  style={{ backgroundColor: COLOR.secondary, color: COLOR.naturalBlack }}
+                >
+                  {t.initials}
+                </div>
+                <h3 className="mt-3 text-base font-bold" style={{ color: COLOR.naturalBlack }}>
+                  {t.name}
+                </h3>
+                <p className="mt-1 text-sm text-slate-500">Fisioterapis</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       <section id="lokasi" className="py-20 text-center text-white" style={{ backgroundColor: COLOR.natural }}>
         <div className="mx-auto max-w-2xl px-4">
           <h2 className="text-3xl font-semibold sm:text-4xl" style={{ fontFamily: "var(--font-display)" }}>
@@ -302,14 +386,57 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <footer
-        className="py-6 text-center text-xs text-white/50"
-        style={{ backgroundColor: COLOR.naturalBlack }}
-      >
-        © {new Date().getFullYear()} Pulih Fisioterapi ·{" "}
-        <a href="/login" className="hover:text-white">
-          Login Staff
-        </a>
+      <footer className="py-16 text-white" style={{ backgroundColor: COLOR.naturalBlack }}>
+        <div className="mx-auto grid max-w-6xl grid-cols-1 gap-8 px-4 sm:grid-cols-3">
+          <div>
+            <Logo />
+            <p className="mt-3 max-w-xs text-sm text-white/50">
+              Klinik fisioterapi spesialis cedera otot, ditangani fisioterapis berlisensi (STR).
+            </p>
+          </div>
+          <div>
+            <h4 className="text-sm font-bold uppercase tracking-wide text-white/70">Navigasi</h4>
+            <ul className="mt-3 space-y-2 text-sm text-white/50">
+              <li>
+                <a href="#layanan" className="hover:text-white">
+                  Layanan
+                </a>
+              </li>
+              <li>
+                <a href="#alur" className="hover:text-white">
+                  Alur Pelayanan
+                </a>
+              </li>
+              <li>
+                <a href="#tim" className="hover:text-white">
+                  Tim
+                </a>
+              </li>
+              <li>
+                <a href="#lokasi" className="hover:text-white">
+                  Lokasi
+                </a>
+              </li>
+            </ul>
+          </div>
+          <div>
+            <h4 className="text-sm font-bold uppercase tracking-wide text-white/70">Kontak</h4>
+            <ul className="mt-3 space-y-2 text-sm text-white/50">
+              <li>
+                <a href={whatsappLink("Halo, saya ingin tanya-tanya soal fisioterapi.")} className="hover:text-white">
+                  WhatsApp: {WHATSAPP_NUMBER}
+                </a>
+              </li>
+              <li>{CLINIC_ADDRESS}</li>
+            </ul>
+          </div>
+        </div>
+        <div className="mx-auto mt-10 max-w-6xl border-t border-white/10 px-4 pt-6 text-center text-xs text-white/40">
+          © {new Date().getFullYear()} Pulih Fisioterapi ·{" "}
+          <a href="/login" className="hover:text-white">
+            Login Staff
+          </a>
+        </div>
       </footer>
     </div>
   );
