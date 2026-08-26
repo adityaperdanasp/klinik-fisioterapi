@@ -10,7 +10,7 @@ export function Logo({
   /** Text color of the logo file: "dark" for light backgrounds, "light" for dark backgrounds. */
   variant?: "dark" | "light";
 }) {
-  const height = size === "compact" ? 32 : 44;
+  const height = size === "compact" ? 42 : 57;
   const width = Math.round(height * (1022 / 428));
   const src = variant === "light" ? "/logo-white.png" : "/logo-dark.png";
 
