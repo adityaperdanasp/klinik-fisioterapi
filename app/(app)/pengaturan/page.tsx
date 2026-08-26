@@ -19,9 +19,14 @@ export default async function PengaturanPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-lg font-semibold text-slate-900">Pengaturan</h1>
-        <p className="text-sm text-slate-500">Kelola data ruang dan fisioterapis.</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-lg font-semibold text-slate-900">Pengaturan</h1>
+          <p className="text-sm text-slate-500">Kelola data ruang dan fisioterapis.</p>
+        </div>
+        <a href="/pengaturan/staff" className="text-sm text-slate-500 hover:text-slate-900">
+          Kelola Staff &rarr;
+        </a>
       </div>
 
       <div className="rounded-lg border border-slate-200 bg-white p-4">
