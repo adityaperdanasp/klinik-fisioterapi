@@ -46,6 +46,11 @@ export default async function AppLayout({
                   Dashboard
                 </a>
               )}
+              {profile?.role === "admin" && (
+                <a href="/pengaturan" className="hover:text-slate-900">
+                  Pengaturan
+                </a>
+              )}
             </nav>
           </div>
           <div className="flex items-center gap-3 text-sm">
