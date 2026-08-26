@@ -144,7 +144,7 @@ export default function LandingPage() {
     <div className={`${fraunces.variable} ${inter.variable} min-h-screen bg-white`} style={{ fontFamily: "var(--font-body)" }}>
       <div style={{ backgroundColor: COLOR.natural }}>
         <header className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
-          <Logo />
+          <Logo variant="light" />
           <nav className="hidden items-center gap-8 text-sm font-semibold text-white/70 sm:flex">
             <a href="#layanan" className="hover:text-white">
               Layanan
@@ -389,7 +389,7 @@ export default function LandingPage() {
       <footer className="py-16 text-white" style={{ backgroundColor: COLOR.naturalBlack }}>
         <div className="mx-auto grid max-w-6xl grid-cols-1 gap-8 px-4 sm:grid-cols-3">
           <div>
-            <Logo />
+            <Logo variant="light" />
             <p className="mt-3 max-w-xs text-sm text-white/50">
               Klinik fisioterapi spesialis cedera otot, ditangani fisioterapis berlisensi (STR).
             </p>
