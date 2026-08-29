@@ -2,8 +2,10 @@ import { Fraunces, IBM_Plex_Sans } from "next/font/google";
 import { Logo } from "./components/Logo";
 
 const WHATSAPP_NUMBER = "6281322043022";
+const CONTACT_EMAIL = "cs@pulihfisioterapi.id";
 const CLINIC_ADDRESS =
   "Ruko Concordia & Trafalgar Blok SE1 No. 29, Ciangsana, Kec. Gn. Putri, Kabupaten Bogor, Jawa Barat 16968";
+const GOOGLE_MAPS_URL = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(CLINIC_ADDRESS)}`;
 
 // Design system: warm cream / earth-tone palette, inspired by the calm luxury-wellness
 // reference the user shared — colors and layout genre are ours to reuse, copy/photos are original.
@@ -67,6 +69,7 @@ const SERVICES = [
     title: "Rehabilitasi Pasca Cedera Olahraga",
     description: "Program pemulihan bertahap untuk kembali beraktivitas dan berolahraga dengan aman.",
     image: "/photos/service-rehab-olahraga.jpg",
+    imagePosition: "center 85%",
   },
   {
     title: "Terapi Nyeri Otot & Sendi",
@@ -180,7 +183,13 @@ export default function LandingPage() {
 
       <div className="border-b py-3 text-center text-sm" style={{ borderColor: "rgba(46,40,34,0.08)", backgroundColor: COLOR.creamAlt, color: COLOR.muted }}>
         Kini hadir di Ciangsana, Gunung Putri —{" "}
-        <a href="#lokasi" className="font-semibold underline" style={{ color: COLOR.earth }}>
+        <a
+          href={GOOGLE_MAPS_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="font-semibold underline"
+          style={{ color: COLOR.earth }}
+        >
           lihat lokasi
         </a>
       </div>
@@ -306,7 +315,12 @@ export default function LandingPage() {
             {SERVICES.map((s) => (
               <div key={s.title} className="overflow-hidden rounded-2xl" style={{ backgroundColor: COLOR.creamAlt }}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={s.image} alt={s.title} className="h-48 w-full object-cover" />
+                <img
+                  src={s.image}
+                  alt={s.title}
+                  className="h-48 w-full object-cover"
+                  style={{ objectPosition: s.imagePosition ?? "center" }}
+                />
                 <div className="p-7">
                   <h3 className="text-lg font-semibold">{s.title}</h3>
                   <p className="mt-2 text-sm leading-relaxed" style={{ color: COLOR.muted }}>
@@ -432,6 +446,15 @@ export default function LandingPage() {
           <p className="mt-3" style={{ color: COLOR.muted }}>
             {CLINIC_ADDRESS}
           </p>
+          <a
+            href={GOOGLE_MAPS_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-2 inline-block text-sm font-semibold underline"
+            style={{ color: COLOR.earth }}
+          >
+            Buka di Google Maps
+          </a>
           <div className="mt-8">
             <a
               href={whatsappLink("Halo, saya ingin tanya-tanya soal fisioterapi.")}
@@ -486,8 +509,8 @@ export default function LandingPage() {
             <h4 className="text-sm font-semibold uppercase tracking-wide text-white">Kontak</h4>
             <ul className="mt-3 space-y-2 text-sm">
               <li>
-                <a href={whatsappLink("Halo, saya ingin tanya-tanya soal fisioterapi.")} className="hover:text-white">
-                  WhatsApp: {WHATSAPP_NUMBER}
+                <a href={`mailto:${CONTACT_EMAIL}`} className="hover:text-white">
+                  {CONTACT_EMAIL}
                 </a>
               </li>
               <li>{CLINIC_ADDRESS}</li>
