@@ -61,33 +61,32 @@ const SERVICES = [
     title: "Terapi Cedera Otot",
     description:
       "Penanganan cedera otot akut maupun kronis dengan pendekatan berbasis evaluasi fisioterapis.",
-    image: "https://images.pexels.com/photos/20860592/pexels-photo-20860592.jpeg?auto=compress&cs=tinysrgb&w=640",
+    image: "/photos/service-cedera-otot.jpg",
   },
   {
     title: "Rehabilitasi Pasca Cedera Olahraga",
     description: "Program pemulihan bertahap untuk kembali beraktivitas dan berolahraga dengan aman.",
-    image: "https://images.pexels.com/photos/20860619/pexels-photo-20860619.jpeg?auto=compress&cs=tinysrgb&w=640",
+    image: "/photos/service-rehab-olahraga.jpg",
   },
   {
     title: "Terapi Nyeri Otot & Sendi",
     description: "Penanganan nyeri punggung, bahu, lutut, dan sendi lain akibat aktivitas atau postur.",
-    image: "https://images.pexels.com/photos/20860606/pexels-photo-20860606.jpeg?auto=compress&cs=tinysrgb&w=640",
+    image: "/photos/service-nyeri-sendi.jpg",
   },
   {
     title: "Konsultasi & Evaluasi Awal",
     description: "Pemeriksaan awal untuk menentukan diagnosa dan rencana terapi yang tepat.",
-    image: "https://images.pexels.com/photos/4506075/pexels-photo-4506075.jpeg?auto=compress&cs=tinysrgb&w=640",
+    image: "/photos/service-konsultasi.jpg",
   },
 ];
 
-const HERO_IMAGE =
-  "https://images.pexels.com/photos/20860609/pexels-photo-20860609.jpeg?auto=compress&cs=tinysrgb&w=800";
+const HERO_IMAGE = "/photos/hero-athlete-knee.jpg";
 
-const GALLERY = [
-  "https://images.pexels.com/photos/20860597/pexels-photo-20860597.jpeg?auto=compress&cs=tinysrgb&w=500",
-  "https://images.pexels.com/photos/20860603/pexels-photo-20860603.jpeg?auto=compress&cs=tinysrgb&w=500",
-  "https://images.pexels.com/photos/20860577/pexels-photo-20860577.jpeg?auto=compress&cs=tinysrgb&w=500",
-  "https://images.pexels.com/photos/20860599/pexels-photo-20860599.jpeg?auto=compress&cs=tinysrgb&w=500",
+const GALLERY: { type: "image" | "video"; src: string }[] = [
+  { type: "video", src: "/videos/hands-therapy.mp4" },
+  { type: "image", src: "/photos/gallery-elderly-home.jpg" },
+  { type: "image", src: "/photos/gallery-consultation.jpg" },
+  { type: "video", src: "/videos/foot-therapy.mp4" },
 ];
 
 const FEATURES = [
@@ -374,15 +373,27 @@ export default function LandingPage() {
             Galeri
           </h2>
           <div className="mt-10 grid grid-cols-2 gap-4 sm:grid-cols-4">
-            {GALLERY.map((src) => (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                key={src}
-                src={src}
-                alt="Suasana sesi fisioterapi"
-                className="h-40 w-full rounded-xl object-cover sm:h-52"
-              />
-            ))}
+            {GALLERY.map((item) =>
+              item.type === "video" ? (
+                <video
+                  key={item.src}
+                  src={item.src}
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                  className="h-40 w-full rounded-xl object-cover sm:h-52"
+                />
+              ) : (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  key={item.src}
+                  src={item.src}
+                  alt="Suasana sesi fisioterapi"
+                  className="h-40 w-full rounded-xl object-cover sm:h-52"
+                />
+              )
+            )}
           </div>
         </div>
       </section>
