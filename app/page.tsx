@@ -1,4 +1,4 @@
-import { Fraunces, Inter } from "next/font/google";
+import { Fraunces, IBM_Plex_Sans } from "next/font/google";
 import { Logo } from "./components/Logo";
 
 const WHATSAPP_NUMBER = "6281322043022";
@@ -12,8 +12,8 @@ const COLOR = {
   creamAlt: "#F1E6D6",
   earth: "#96754A",
   earthDark: "#7A5D39",
-  ink: "#2E2822",
-  muted: "#6B6255",
+  ink: "#231F1A",
+  muted: "#57503F",
 };
 
 const fraunces = Fraunces({
@@ -23,7 +23,7 @@ const fraunces = Fraunces({
   variable: "--font-display",
 });
 
-const inter = Inter({
+const plexSans = IBM_Plex_Sans({
   subsets: ["latin"],
   weight: ["400", "500", "600"],
   variable: "--font-body",
@@ -141,15 +141,15 @@ function whatsappLink(text: string) {
 export default function LandingPage() {
   return (
     <div
-      className={`${fraunces.variable} ${inter.variable} min-h-screen`}
+      className={`${fraunces.variable} ${plexSans.variable} min-h-screen`}
       style={{ backgroundColor: COLOR.cream, color: COLOR.ink, fontFamily: "var(--font-body)" }}
     >
       <header className="border-b" style={{ borderColor: "rgba(46,40,34,0.08)" }}>
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
           <Logo />
           <nav
-            className="hidden items-center gap-8 text-sm font-medium sm:flex"
-            style={{ color: COLOR.muted }}
+            className="hidden items-center gap-8 text-sm font-semibold sm:flex"
+            style={{ color: COLOR.ink }}
           >
             <a href="#layanan" style={{ color: "inherit" }}>
               Layanan
