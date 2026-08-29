@@ -165,8 +165,14 @@ export default function LandingPage() {
           </a>
         </header>
 
-        <section className="mx-auto grid max-w-6xl grid-cols-1 items-center gap-12 px-4 py-16 sm:py-20 lg:grid-cols-2">
+        <section className="mx-auto grid max-w-6xl grid-cols-1 items-center gap-12 px-4 pb-16 pt-8 sm:pb-20 sm:pt-10 lg:grid-cols-2">
           <div>
+            <p
+              className="mb-4 inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-xs font-bold uppercase tracking-widest"
+              style={{ backgroundColor: "rgba(124,234,153,0.15)", color: COLOR.secondary }}
+            >
+              Spesialis Cedera Otot · Bekasi
+            </p>
             <h1
               className="text-5xl font-semibold leading-[1.05] text-white sm:text-6xl"
               style={{ fontFamily: "var(--font-display)" }}
