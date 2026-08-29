@@ -60,7 +60,7 @@ const SERVICES = [
     title: "Terapi Cedera Otot",
     description:
       "Penanganan cedera otot akut maupun kronis dengan pendekatan berbasis evaluasi fisioterapis.",
-    image: "https://images.pexels.com/photos/20860597/pexels-photo-20860597.jpeg?auto=compress&cs=tinysrgb&w=640",
+    image: "https://images.pexels.com/photos/20860592/pexels-photo-20860592.jpeg?auto=compress&cs=tinysrgb&w=640",
   },
   {
     title: "Rehabilitasi Pasca Cedera Olahraga",
@@ -70,7 +70,7 @@ const SERVICES = [
   {
     title: "Terapi Nyeri Otot & Sendi",
     description: "Penanganan nyeri punggung, bahu, lutut, dan sendi lain akibat aktivitas atau postur.",
-    image: "https://images.pexels.com/photos/30483023/pexels-photo-30483023.jpeg?auto=compress&cs=tinysrgb&w=640",
+    image: "https://images.pexels.com/photos/20860606/pexels-photo-20860606.jpeg?auto=compress&cs=tinysrgb&w=640",
   },
   {
     title: "Konsultasi & Evaluasi Awal",
@@ -80,7 +80,7 @@ const SERVICES = [
 ];
 
 const HERO_IMAGE =
-  "https://images.pexels.com/photos/5473177/pexels-photo-5473177.jpeg?auto=compress&cs=tinysrgb&w=800&h=1000&fit=crop";
+  "https://images.pexels.com/photos/20860609/pexels-photo-20860609.jpeg?auto=compress&cs=tinysrgb&w=800";
 
 const RIBBON_TAGS = ["Cedera Otot", "Rehabilitasi Olahraga", "Nyeri Sendi", "Evaluasi Awal"];
 
