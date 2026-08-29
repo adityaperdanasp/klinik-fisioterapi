@@ -105,10 +105,12 @@ const FEATURES = [
   },
 ];
 
+// Foto placeholder (stok) sampai ada foto staff asli — lihat catatan di CLAUDE.md.
 const TEAM = [
-  { name: "Adit", initials: "AD" },
-  { name: "Erwin", initials: "ER" },
-  { name: "Maikel", initials: "MK" },
+  { name: "Erwin", photo: "/team/erwin.jpg" },
+  { name: "Mia", photo: "/team/mia.jpg" },
+  { name: "Fitria", photo: "/team/fitria.jpg" },
+  { name: "Dhea", photo: "/team/dhea.jpg" },
 ];
 
 const FAQ = [
@@ -344,19 +346,22 @@ export default function LandingPage() {
           <h2 className="text-3xl sm:text-4xl" style={{ fontFamily: "var(--font-display)", fontWeight: 500 }}>
             Tim fisioterapis kami
           </h2>
-          <div className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-3">
+          <div className="mt-12 grid grid-cols-2 gap-6 sm:grid-cols-4">
             {TEAM.map((t) => (
-              <div key={t.name} className="rounded-2xl p-7 text-center" style={{ backgroundColor: COLOR.creamAlt }}>
-                <div
-                  className="mx-auto flex h-16 w-16 items-center justify-center rounded-full text-lg font-semibold text-white"
-                  style={{ backgroundColor: COLOR.earth }}
-                >
-                  {t.initials}
+              <div key={t.name} className="overflow-hidden rounded-2xl text-center" style={{ backgroundColor: COLOR.creamAlt }}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={t.photo}
+                  alt={t.name}
+                  className="h-56 w-full object-cover"
+                  style={{ objectPosition: "50% 15%" }}
+                />
+                <div className="p-4">
+                  <h3 className="text-base font-semibold">{t.name}</h3>
+                  <p className="mt-1 text-sm" style={{ color: COLOR.muted }}>
+                    Fisioterapis
+                  </p>
                 </div>
-                <h3 className="mt-4 text-base font-semibold">{t.name}</h3>
-                <p className="mt-1 text-sm" style={{ color: COLOR.muted }}>
-                  Fisioterapis
-                </p>
               </div>
             ))}
           </div>
