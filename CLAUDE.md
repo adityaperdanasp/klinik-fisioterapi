@@ -22,22 +22,24 @@ Semua 5 fitur berikut sudah dibangun. **Jangan tambah fitur lain di luar ini tan
 2. ✅ **Rekam Medis Pasien / EMR ringan** (`/pasien`, `/pasien/[id]`) — data pasien administratif (semua role baca), diagnosa awal & catatan sesi (`patient_medical_info`, `session_notes` — khusus admin/fisioterapis).
 3. ✅ **Kasir/Billing per Sesi** (`/kasir`) — catat pembayaran per sesi (tunai/transfer/QRIS), nominal pre-fill dari `settings.tarif_default` tapi bisa diedit manual, rekap harian. Khusus admin/resepsionis.
 4. ✅ **Dashboard Utilisasi & BEP Tracker** (`/dashboard`) — sesi aktual vs BEP vs kapasitas, revenue per fisio/ruang, grafik ramp-up aktual vs proyeksi (custom SVG, tanpa library chart). Khusus admin.
-5. ✅ **Landing Page Klinik** (`/`, publik tanpa login) — statis, info klinik, layanan, lokasi, CTA WA. Alamat & nomor WA masih placeholder (lihat TODO).
+5. ✅ **Landing Page Klinik** (`/`, publik tanpa login) — nomor WA & alamat asli sudah terisi. Desain sudah beberapa kali di-iterate, versi terkini: palet cream/earth-tone, font Fraunces (display) + IBM Plex Sans (body), section: hero, features, trust (STR), alur pelayanan, layanan, tentang, tim, galeri, FAQ, lokasi, footer.
 
-**Non-goals** (jangan dibangun sampai diminta eksplisit): WA bot/auto-reply, payment gateway online, portal login pasien, payroll otomatis, inventory alkes, loyalty/membership, integrasi asuransi. Juga belum ada: edit/hapus data pasien, halaman kelola ruang & fisioterapis (sekarang cuma via SQL Editor), export/rekap bulanan kasir — ini kandidat masuk akal untuk PR berikutnya kalau diminta, tapi jangan diasumsikan sudah termasuk scope.
+**Fitur tambahan di luar 5 asli** (dibangun setelah Fase 1 karena diminta eksplisit, bukan scope creep liar): halaman kelola ruang & fisioterapis (`/pengaturan`), kelola akun staff via email invite (`/pengaturan/staff`), edit data pasien, rekap bulanan kasir + export CSV (`/kasir/rekap`).
 
-## TODO sebelum go-live publik
+**Non-goals** (masih berlaku, jangan dibangun sampai diminta eksplisit): WA bot/auto-reply, payment gateway online, portal login pasien, payroll otomatis, inventory alkes, loyalty/membership, integrasi asuransi.
 
-- **Nomor WhatsApp** di [app/page.tsx](app/page.tsx) (`WHATSAPP_NUMBER`) — masih `6281234567890`, placeholder.
-- **Alamat klinik** di [app/page.tsx](app/page.tsx) (`CLINIC_ADDRESS`) — masih "Jl. Contoh Raya No. 123, Bekasi", placeholder.
+## TODO sebelum go-live publik penuh
+
+- **Foto tim di landing page** ([app/page.tsx](app/page.tsx), array `TEAM`) — masih foto stok (Erwin/Mia/Fitria/Dhea), BUKAN foto staff asli. User sudah konfirmasi ini placeholder sementara — wajib diganti foto asli staff sebelum benar-benar go-live, supaya nggak menyesatkan pasien yang lihat web.
 - **`settings.bulan_mulai_operasional`** — masih `2026-08-01` placeholder, ganti ke tanggal mulai operasional asli begitu pasti (pengaruh ke perhitungan proyeksi ramp-up di dashboard).
+- **Data fisioterapis di tabel `physiotherapists`** (dipakai buat booking di `/jadwal`) beda dengan nama di landing page `TEAM` (Erwin/Mia/Fitria/Dhea) — belum disinkronkan, karena TEAM di landing page masih placeholder. Jangan asumsikan keduanya harus sama sampai user konfirmasi roster staff final.
 
 ## Stack & Infra
 
 - Framework: Next.js 16 (App Router, Turbopack) + TypeScript + Tailwind CSS
 - Database/Auth: Supabase (Postgres + Auth), project `pulih-fisioterapi` (ref `ahlvgfwkyxpbjrxvkffl`), row-level security per role di semua tabel — jangan expose `service_role` key ke client, cuma publishable/anon key yang ada di `.env.local`.
 - Role: `admin` / `fisioterapis` / `resepsionis`, disimpan di tabel `profiles` (extend `auth.users`), dicek lewat helper function `auth_role()` di RLS policy.
-- Deploy: Vercel, project `ellilo/klinik-fision-app`, production di **https://klinik-fision-app.vercel.app**, auto-connect ke GitHub repo (push ke `main` bisa trigger auto-deploy; `vercel --prod` juga bisa manual).
+- Deploy: Vercel, project `ellilo/klinik-fision-app`, production di **https://klinik-fision-app.vercel.app** dan custom domain **https://pulihfisioterapi.id** (dibeli via SumoPod, DNS A record → Vercel), auto-connect ke GitHub repo (push ke `main` bisa trigger auto-deploy; `vercel --prod` juga bisa manual).
 - Repo: `git@github.com:adityaperdanasp/klinik-fisioterapi.git` (pakai SSH — HTTPS gagal karena belum ada credential helper, `gh` CLI juga belum login).
 - Dev lokal: `npm run dev` jalan di port 3010 (bukan 3000, karena bentrok dengan project lain di mesin yang sama). Config di `.claude/launch.json` (nama `pulih-fisioterapi`) kalau pakai Claude Code Browser tool.
 
