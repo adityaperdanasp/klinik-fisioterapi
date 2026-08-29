@@ -5,26 +5,27 @@ const WHATSAPP_NUMBER = "6281322043022";
 const CLINIC_ADDRESS =
   "Ruko Concordia & Trafalgar Blok SE1 No. 29, Ciangsana, Kec. Gn. Putri, Kabupaten Bogor, Jawa Barat 16968";
 
-// Design system: hex values + font families from user reference (facts, not copyrightable) —
-// layout, copy, and photos below are original.
+// Design system: warm cream / earth-tone palette, inspired by the calm luxury-wellness
+// reference the user shared — colors and layout genre are ours to reuse, copy/photos are original.
 const COLOR = {
-  primary: "#2F723D",
-  secondary: "#7CEA99",
-  tertiary: "#729AA8",
-  natural: "#1C2D2D",
-  naturalBlack: "#0C1313",
+  cream: "#FAF5EE",
+  creamAlt: "#F1E6D6",
+  earth: "#96754A",
+  earthDark: "#7A5D39",
+  ink: "#2E2822",
+  muted: "#6B6255",
 };
 
 const fraunces = Fraunces({
   subsets: ["latin"],
-  weight: ["500", "600", "700"],
+  weight: ["400", "500", "600"],
   style: ["normal", "italic"],
   variable: "--font-display",
 });
 
 const inter = Inter({
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
+  weight: ["400", "500", "600"],
   variable: "--font-body",
 });
 
@@ -82,7 +83,12 @@ const SERVICES = [
 const HERO_IMAGE =
   "https://images.pexels.com/photos/20860609/pexels-photo-20860609.jpeg?auto=compress&cs=tinysrgb&w=800";
 
-const RIBBON_TAGS = ["Cedera Otot", "Rehabilitasi Olahraga", "Nyeri Sendi", "Evaluasi Awal"];
+const GALLERY = [
+  "https://images.pexels.com/photos/20860597/pexels-photo-20860597.jpeg?auto=compress&cs=tinysrgb&w=500",
+  "https://images.pexels.com/photos/20860603/pexels-photo-20860603.jpeg?auto=compress&cs=tinysrgb&w=500",
+  "https://images.pexels.com/photos/20860577/pexels-photo-20860577.jpeg?auto=compress&cs=tinysrgb&w=500",
+  "https://images.pexels.com/photos/20860599/pexels-photo-20860599.jpeg?auto=compress&cs=tinysrgb&w=500",
+];
 
 const FEATURES = [
   {
@@ -105,220 +111,212 @@ const TEAM = [
   { name: "Maikel", initials: "MK" },
 ];
 
+const FAQ = [
+  {
+    q: "Apakah saya perlu rujukan dokter untuk booking sesi fisioterapi?",
+    a: "Tidak wajib. Anda bisa langsung booking konsultasi awal, fisioterapis kami akan melakukan evaluasi untuk menentukan rencana terapi yang tepat.",
+  },
+  {
+    q: "Berapa lama satu sesi terapi berlangsung?",
+    a: "Setiap sesi berlangsung sekitar 50 menit, mencakup evaluasi kondisi terkini dan penanganan langsung oleh fisioterapis.",
+  },
+  {
+    q: "Bagaimana cara reschedule atau membatalkan jadwal?",
+    a: "Hubungi kami via WhatsApp sesegera mungkin sebelum jadwal Anda, kami akan bantu atur ulang sesuai ketersediaan ruang dan fisioterapis.",
+  },
+  {
+    q: "Apakah fisioterapis di sini berlisensi resmi?",
+    a: "Ya, seluruh fisioterapis kami memiliki STR (Surat Tanda Registrasi) yang aktif.",
+  },
+  {
+    q: "Apa yang harus saya bawa atau kenakan saat sesi pertama?",
+    a: "Kenakan pakaian yang nyaman dan memungkinkan pergerakan bebas pada area yang akan ditangani. Bawa hasil pemeriksaan medis sebelumnya jika ada.",
+  },
+];
+
 function whatsappLink(text: string) {
   return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`;
 }
 
-function ServiceRibbon() {
-  const repeated = Array(3).fill(RIBBON_TAGS.join("   •   ")).join("   •   ");
-  return (
-    <svg viewBox="0 0 1200 130" className="w-full" aria-hidden="true">
-      <path
-        id="wavePath"
-        d="M-50,65 C100,20 200,110 350,65 C500,20 600,110 750,65 C900,20 1000,110 1150,65 C1250,40 1250,40 1250,40"
-        fill="none"
-        stroke={COLOR.secondary}
-        strokeWidth={92}
-        strokeLinecap="round"
-      />
-      <text
-        fill={COLOR.natural}
-        fontSize="22"
-        fontWeight={700}
-        letterSpacing="0.5"
-        style={{ fontFamily: "var(--font-body)" }}
-      >
-        <textPath href="#wavePath" startOffset="2%">
-          {repeated}
-        </textPath>
-      </text>
-    </svg>
-  );
-}
-
 export default function LandingPage() {
   return (
-    <div className={`${fraunces.variable} ${inter.variable} min-h-screen bg-white`} style={{ fontFamily: "var(--font-body)" }}>
-      <div style={{ backgroundColor: COLOR.natural }}>
-        <header className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
-          <Logo variant="light" />
-          <nav className="hidden items-center gap-8 text-sm font-semibold text-white/70 sm:flex">
-            <a href="#layanan" className="hover:text-white">
+    <div
+      className={`${fraunces.variable} ${inter.variable} min-h-screen`}
+      style={{ backgroundColor: COLOR.cream, color: COLOR.ink, fontFamily: "var(--font-body)" }}
+    >
+      <header className="border-b" style={{ borderColor: "rgba(46,40,34,0.08)" }}>
+        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
+          <Logo />
+          <nav
+            className="hidden items-center gap-8 text-sm font-medium sm:flex"
+            style={{ color: COLOR.muted }}
+          >
+            <a href="#layanan" style={{ color: "inherit" }}>
               Layanan
             </a>
-            <a href="#alur" className="hover:text-white">
+            <a href="#alur" style={{ color: "inherit" }}>
               Alur Pelayanan
             </a>
-            <a href="#tim" className="hover:text-white">
+            <a href="#tim" style={{ color: "inherit" }}>
               Tim
             </a>
-            <a href="#lokasi" className="hover:text-white">
+            <a href="#faq" style={{ color: "inherit" }}>
+              FAQ
+            </a>
+            <a href="#lokasi" style={{ color: "inherit" }}>
               Lokasi
             </a>
           </nav>
           <a
             href={whatsappLink("Halo, saya ingin booking sesi fisioterapi.")}
-            className="rounded-full px-5 py-2.5 text-sm font-bold"
-            style={{ backgroundColor: COLOR.secondary, color: COLOR.naturalBlack }}
+            className="rounded-full px-5 py-2.5 text-sm font-semibold text-white"
+            style={{ backgroundColor: COLOR.earth }}
           >
-            Booking via WhatsApp
+            Book Appointment
           </a>
-        </header>
+        </div>
+      </header>
 
-        <section className="mx-auto grid max-w-6xl grid-cols-1 items-center gap-12 px-4 pb-16 pt-8 sm:pb-20 sm:pt-10 lg:grid-cols-2">
-          <div>
-            <p
-              className="mb-4 inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-xs font-bold uppercase tracking-widest"
-              style={{ backgroundColor: "rgba(124,234,153,0.15)", color: COLOR.secondary }}
-            >
-              Spesialis Cedera Otot · Bekasi
-            </p>
-            <h1
-              className="text-5xl font-semibold leading-[1.05] text-white sm:text-6xl"
-              style={{ fontFamily: "var(--font-display)" }}
-            >
-              Pulih.
-              <span style={{ color: COLOR.secondary }}>●</span>
-              <br />
-              Bergerak.
-              <span style={{ color: COLOR.secondary }}>●</span>
-              <br />
-              <span className="italic">Kembali Aktif.</span>
-              <span style={{ color: COLOR.secondary }}>●</span>
-            </h1>
-            <p className="mt-6 max-w-md text-base text-white/70">
-              Fisioterapi spesialis cedera otot untuk memulihkan mobilitas dan kualitas hidup
-              Anda, ditangani langsung oleh fisioterapis berlisensi (STR).
-            </p>
-            <a
-              href={whatsappLink("Halo, saya ingin booking sesi fisioterapi.")}
-              className="mt-8 inline-block rounded-md px-7 py-3.5 text-sm font-bold"
-              style={{ backgroundColor: COLOR.secondary, color: COLOR.naturalBlack }}
-            >
-              Jadwalkan Konsultasi
-            </a>
-          </div>
-
-          <div className="rounded-3xl bg-white/5 p-3">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={HERO_IMAGE}
-              alt="Fisioterapis menangani pasien"
-              className="h-[420px] w-full rounded-2xl object-cover"
-            />
-          </div>
-        </section>
+      <div className="border-b py-3 text-center text-sm" style={{ borderColor: "rgba(46,40,34,0.08)", backgroundColor: COLOR.creamAlt, color: COLOR.muted }}>
+        Kini hadir di Ciangsana, Gunung Putri —{" "}
+        <a href="#lokasi" className="font-semibold underline" style={{ color: COLOR.earth }}>
+          lihat lokasi
+        </a>
       </div>
 
-      <section className="py-16" style={{ backgroundColor: "#F5F7F5" }}>
-        <div className="mx-auto grid max-w-6xl grid-cols-1 gap-8 px-4 sm:grid-cols-3">
+      <section className="mx-auto grid max-w-6xl grid-cols-1 items-center gap-16 px-4 py-20 sm:py-28 lg:grid-cols-2">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-[0.2em]" style={{ color: COLOR.earth }}>
+            Spesialis Cedera Otot · Bekasi
+          </p>
+          <h1
+            className="mt-5 text-4xl leading-[1.15] sm:text-5xl"
+            style={{ fontFamily: "var(--font-display)", fontWeight: 500 }}
+          >
+            Pulih, bergerak,
+            <br />
+            <span className="italic" style={{ fontWeight: 400 }}>
+              kembali utuh.
+            </span>
+          </h1>
+          <p className="mt-6 max-w-md text-base leading-relaxed" style={{ color: COLOR.muted }}>
+            Fisioterapi spesialis cedera otot, ditangani langsung oleh fisioterapis
+            berpengalaman dan berlisensi (STR) — untuk memulihkan mobilitas dan kualitas hidup
+            Anda.
+          </p>
+          <a
+            href={whatsappLink("Halo, saya ingin booking sesi fisioterapi.")}
+            className="mt-9 inline-block rounded-full px-8 py-3.5 text-sm font-semibold text-white"
+            style={{ backgroundColor: COLOR.earth }}
+          >
+            Jadwalkan Konsultasi
+          </a>
+        </div>
+
+        <div className="overflow-hidden rounded-2xl">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={HERO_IMAGE}
+            alt="Fisioterapis menangani pasien"
+            className="h-[420px] w-full object-cover"
+          />
+        </div>
+      </section>
+
+      <section className="py-16" style={{ backgroundColor: COLOR.creamAlt }}>
+        <div className="mx-auto grid max-w-6xl grid-cols-1 gap-10 px-4 sm:grid-cols-3">
           {FEATURES.map((f) => (
-            <div key={f.title}>
-              <h3
-                className="text-lg font-bold"
-                style={{ fontFamily: "var(--font-display)", color: COLOR.naturalBlack }}
-              >
+            <div key={f.title} className="text-center sm:text-left">
+              <h3 className="text-lg" style={{ fontFamily: "var(--font-display)", fontWeight: 500 }}>
                 {f.title}
               </h3>
-              <p className="mt-2 text-sm text-slate-500">{f.description}</p>
+              <p className="mt-2 text-sm leading-relaxed" style={{ color: COLOR.muted }}>
+                {f.description}
+              </p>
             </div>
           ))}
         </div>
       </section>
 
-      <section className="mx-auto grid max-w-6xl grid-cols-1 items-center gap-12 px-4 py-20 lg:grid-cols-2">
-        <div className="text-center lg:text-left">
+      <section className="mx-auto grid max-w-6xl grid-cols-1 items-center gap-16 px-4 py-24 lg:grid-cols-2">
+        <div className="order-2 text-center lg:order-1 lg:text-left">
           <span
-            className="text-8xl font-semibold sm:text-9xl"
-            style={{ fontFamily: "var(--font-display)", color: COLOR.primary }}
+            className="text-7xl sm:text-8xl"
+            style={{ fontFamily: "var(--font-display)", fontWeight: 500, color: COLOR.earth }}
           >
             STR
           </span>
-          <p className="mt-2 text-sm font-semibold text-slate-500">
+          <p className="mt-2 text-sm" style={{ color: COLOR.muted }}>
             Fisioterapis Bersertifikat &amp; Berlisensi Resmi
           </p>
         </div>
-        <div>
-          <h2
-            className="text-3xl font-semibold sm:text-4xl"
-            style={{ fontFamily: "var(--font-display)", color: COLOR.naturalBlack }}
-          >
-            Fisioterapi yang Disesuaikan untuk Anda
+        <div className="order-1 lg:order-2">
+          <h2 className="text-3xl sm:text-4xl" style={{ fontFamily: "var(--font-display)", fontWeight: 500 }}>
+            Fisioterapi yang disesuaikan untuk Anda
           </h2>
-          <p className="mt-4 text-slate-600">
+          <p className="mt-4 leading-relaxed" style={{ color: COLOR.muted }}>
             Setiap pasien punya riwayat dan kondisi yang berbeda. Kami menyusun evaluasi dan
             rencana terapi secara personal — bukan satu program untuk semua orang — supaya
             pemulihan Anda lebih tepat sasaran.
           </p>
           <a
             href="#layanan"
-            className="mt-4 inline-flex items-center gap-1 text-sm font-bold"
-            style={{ color: COLOR.primary }}
+            className="mt-5 inline-flex items-center gap-1 text-sm font-semibold"
+            style={{ color: COLOR.earth }}
           >
             Lihat layanan kami →
           </a>
         </div>
       </section>
 
-      <div className="py-6">
-        <ServiceRibbon />
-      </div>
-
-      <section id="alur" className="py-20">
+      <section id="alur" className="py-24" style={{ backgroundColor: COLOR.creamAlt }}>
         <div className="mx-auto max-w-6xl px-4">
           <h2
-            className="text-center text-3xl font-semibold sm:text-4xl"
-            style={{ fontFamily: "var(--font-display)", color: COLOR.naturalBlack }}
+            className="text-center text-3xl sm:text-4xl"
+            style={{ fontFamily: "var(--font-display)", fontWeight: 500 }}
           >
-            Empat Langkah Menuju Pulih
+            Empat langkah menuju pulih
           </h2>
-          <div className="mt-12 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="mt-14 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {STEPS.map((s) => (
-              <div key={s.number} className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
+              <div key={s.number} className="rounded-2xl bg-white p-7">
                 <span
-                  className="text-3xl font-semibold"
-                  style={{ fontFamily: "var(--font-display)", color: COLOR.primary }}
+                  className="text-2xl"
+                  style={{ fontFamily: "var(--font-display)", fontWeight: 500, color: COLOR.earth }}
                 >
                   {s.number}
                 </span>
-                <h3 className="mt-3 text-lg font-bold" style={{ color: COLOR.naturalBlack }}>
-                  {s.title}
-                </h3>
-                <p className="mt-2 text-sm text-slate-500">{s.description}</p>
+                <h3 className="mt-3 text-base font-semibold">{s.title}</h3>
+                <p className="mt-2 text-sm leading-relaxed" style={{ color: COLOR.muted }}>
+                  {s.description}
+                </p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      <section id="layanan" className="py-16" style={{ backgroundColor: "#F5F7F5" }}>
+      <section id="layanan" className="py-24">
         <div className="mx-auto max-w-6xl px-4">
-          <h2
-            className="text-3xl font-semibold sm:text-4xl"
-            style={{ fontFamily: "var(--font-display)", color: COLOR.naturalBlack }}
-          >
-            Layanan Kami
+          <h2 className="text-3xl sm:text-4xl" style={{ fontFamily: "var(--font-display)", fontWeight: 500 }}>
+            Layanan kami
           </h2>
-          <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2">
+          <div className="mt-12 grid grid-cols-1 gap-8 sm:grid-cols-2">
             {SERVICES.map((s) => (
-              <div key={s.title} className="overflow-hidden rounded-2xl bg-white shadow-sm">
+              <div key={s.title} className="overflow-hidden rounded-2xl" style={{ backgroundColor: COLOR.creamAlt }}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={s.image}
-                  alt={s.title}
-                  className="h-48 w-full object-cover"
-                />
-                <div className="p-6">
-                  <h3 className="text-lg font-bold" style={{ color: COLOR.naturalBlack }}>
-                    {s.title}
-                  </h3>
-                  <p className="mt-2 text-sm text-slate-500">{s.description}</p>
+                <img src={s.image} alt={s.title} className="h-48 w-full object-cover" />
+                <div className="p-7">
+                  <h3 className="text-lg font-semibold">{s.title}</h3>
+                  <p className="mt-2 text-sm leading-relaxed" style={{ color: COLOR.muted }}>
+                    {s.description}
+                  </p>
                   <a
                     href={whatsappLink(`Halo, saya ingin konsultasi soal ${s.title.toLowerCase()}.`)}
-                    className="mt-4 inline-block rounded-full border-2 px-5 py-2 text-xs font-bold uppercase tracking-wide hover:bg-[#2F723D] hover:text-white"
-                    style={{ borderColor: COLOR.primary, color: COLOR.primary }}
+                    className="mt-4 inline-block text-sm font-semibold"
+                    style={{ color: COLOR.earth }}
                   >
-                    Konsultasi Sekarang
+                    Konsultasi sekarang →
                   </a>
                 </div>
               </div>
@@ -327,15 +325,12 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <section className="py-20">
+      <section className="py-20" style={{ backgroundColor: COLOR.creamAlt }}>
         <div className="mx-auto max-w-3xl px-4 text-center">
-          <h2
-            className="text-3xl font-semibold sm:text-4xl"
-            style={{ fontFamily: "var(--font-display)", color: COLOR.naturalBlack }}
-          >
+          <h2 className="text-3xl sm:text-4xl" style={{ fontFamily: "var(--font-display)", fontWeight: 500 }}>
             Tentang Pulih Fisioterapi
           </h2>
-          <p className="mt-4 text-slate-600">
+          <p className="mt-4 leading-relaxed" style={{ color: COLOR.muted }}>
             Kami klinik fisioterapi yang fokus menangani cedera otot — dari cedera olahraga
             sampai nyeri akibat aktivitas harian. Pendekatan kami mengutamakan evaluasi
             menyeluruh dan gerak aktif sebagai bagian dari proses pemulihan, bukan sekadar
@@ -344,44 +339,88 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <section id="tim" className="py-16" style={{ backgroundColor: "#F5F7F5" }}>
+      <section id="tim" className="py-24">
         <div className="mx-auto max-w-6xl px-4">
-          <h2
-            className="text-3xl font-semibold sm:text-4xl"
-            style={{ fontFamily: "var(--font-display)", color: COLOR.naturalBlack }}
-          >
-            Tim Fisioterapis Kami
+          <h2 className="text-3xl sm:text-4xl" style={{ fontFamily: "var(--font-display)", fontWeight: 500 }}>
+            Tim fisioterapis kami
           </h2>
-          <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-3">
+          <div className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-3">
             {TEAM.map((t) => (
-              <div key={t.name} className="rounded-2xl bg-white p-6 text-center shadow-sm">
+              <div key={t.name} className="rounded-2xl p-7 text-center" style={{ backgroundColor: COLOR.creamAlt }}>
                 <div
-                  className="mx-auto flex h-16 w-16 items-center justify-center rounded-full text-lg font-bold"
-                  style={{ backgroundColor: COLOR.secondary, color: COLOR.naturalBlack }}
+                  className="mx-auto flex h-16 w-16 items-center justify-center rounded-full text-lg font-semibold text-white"
+                  style={{ backgroundColor: COLOR.earth }}
                 >
                   {t.initials}
                 </div>
-                <h3 className="mt-3 text-base font-bold" style={{ color: COLOR.naturalBlack }}>
-                  {t.name}
-                </h3>
-                <p className="mt-1 text-sm text-slate-500">Fisioterapis</p>
+                <h3 className="mt-4 text-base font-semibold">{t.name}</h3>
+                <p className="mt-1 text-sm" style={{ color: COLOR.muted }}>
+                  Fisioterapis
+                </p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      <section id="lokasi" className="py-20 text-center text-white" style={{ backgroundColor: COLOR.natural }}>
+      <section className="py-24" style={{ backgroundColor: COLOR.creamAlt }}>
+        <div className="mx-auto max-w-6xl px-4">
+          <h2 className="text-3xl sm:text-4xl" style={{ fontFamily: "var(--font-display)", fontWeight: 500 }}>
+            Galeri
+          </h2>
+          <div className="mt-10 grid grid-cols-2 gap-4 sm:grid-cols-4">
+            {GALLERY.map((src) => (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                key={src}
+                src={src}
+                alt="Suasana sesi fisioterapi"
+                className="h-40 w-full rounded-xl object-cover sm:h-52"
+              />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section id="faq" className="py-24">
+        <div className="mx-auto max-w-3xl px-4">
+          <h2
+            className="text-center text-3xl sm:text-4xl"
+            style={{ fontFamily: "var(--font-display)", fontWeight: 500 }}
+          >
+            Pertanyaan umum
+          </h2>
+          <div className="mt-12 divide-y" style={{ borderColor: "rgba(46,40,34,0.1)" }}>
+            {FAQ.map((f) => (
+              <details key={f.q} className="group py-5" style={{ borderColor: "rgba(46,40,34,0.1)" }}>
+                <summary className="flex cursor-pointer list-none items-center justify-between text-base font-semibold">
+                  {f.q}
+                  <span className="ml-4 text-xl" style={{ color: COLOR.earth }}>
+                    +
+                  </span>
+                </summary>
+                <p className="mt-3 text-sm leading-relaxed" style={{ color: COLOR.muted }}>
+                  {f.a}
+                </p>
+              </details>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section id="lokasi" className="py-24 text-center" style={{ backgroundColor: COLOR.creamAlt }}>
         <div className="mx-auto max-w-2xl px-4">
-          <h2 className="text-3xl font-semibold sm:text-4xl" style={{ fontFamily: "var(--font-display)" }}>
+          <h2 className="text-3xl sm:text-4xl" style={{ fontFamily: "var(--font-display)", fontWeight: 500 }}>
             Lokasi
           </h2>
-          <p className="mt-3 text-white/70">{CLINIC_ADDRESS}</p>
+          <p className="mt-3" style={{ color: COLOR.muted }}>
+            {CLINIC_ADDRESS}
+          </p>
           <div className="mt-8">
             <a
               href={whatsappLink("Halo, saya ingin tanya-tanya soal fisioterapi.")}
-              className="inline-block rounded-md px-8 py-3.5 text-sm font-bold"
-              style={{ backgroundColor: COLOR.secondary, color: COLOR.naturalBlack }}
+              className="inline-block rounded-full px-8 py-3.5 text-sm font-semibold text-white"
+              style={{ backgroundColor: COLOR.earth }}
             >
               Chat WhatsApp
             </a>
@@ -389,17 +428,17 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <footer className="py-16 text-white" style={{ backgroundColor: COLOR.naturalBlack }}>
+      <footer className="py-16" style={{ backgroundColor: COLOR.ink, color: "rgba(255,255,255,0.6)" }}>
         <div className="mx-auto grid max-w-6xl grid-cols-1 gap-8 px-4 sm:grid-cols-3">
           <div>
             <Logo variant="light" />
-            <p className="mt-3 max-w-xs text-sm text-white/50">
+            <p className="mt-3 max-w-xs text-sm">
               Klinik fisioterapi spesialis cedera otot, ditangani fisioterapis berlisensi (STR).
             </p>
           </div>
           <div>
-            <h4 className="text-sm font-bold uppercase tracking-wide text-white/70">Navigasi</h4>
-            <ul className="mt-3 space-y-2 text-sm text-white/50">
+            <h4 className="text-sm font-semibold uppercase tracking-wide text-white">Navigasi</h4>
+            <ul className="mt-3 space-y-2 text-sm">
               <li>
                 <a href="#layanan" className="hover:text-white">
                   Layanan
@@ -416,6 +455,11 @@ export default function LandingPage() {
                 </a>
               </li>
               <li>
+                <a href="#faq" className="hover:text-white">
+                  FAQ
+                </a>
+              </li>
+              <li>
                 <a href="#lokasi" className="hover:text-white">
                   Lokasi
                 </a>
@@ -423,8 +467,8 @@ export default function LandingPage() {
             </ul>
           </div>
           <div>
-            <h4 className="text-sm font-bold uppercase tracking-wide text-white/70">Kontak</h4>
-            <ul className="mt-3 space-y-2 text-sm text-white/50">
+            <h4 className="text-sm font-semibold uppercase tracking-wide text-white">Kontak</h4>
+            <ul className="mt-3 space-y-2 text-sm">
               <li>
                 <a href={whatsappLink("Halo, saya ingin tanya-tanya soal fisioterapi.")} className="hover:text-white">
                   WhatsApp: {WHATSAPP_NUMBER}
@@ -434,7 +478,7 @@ export default function LandingPage() {
             </ul>
           </div>
         </div>
-        <div className="mx-auto mt-10 max-w-6xl border-t border-white/10 px-4 pt-6 text-center text-xs text-white/40">
+        <div className="mx-auto mt-10 max-w-6xl border-t px-4 pt-6 text-center text-xs" style={{ borderColor: "rgba(255,255,255,0.1)" }}>
           © {new Date().getFullYear()} Pulih Fisioterapi ·{" "}
           <a href="/login" className="hover:text-white">
             Login Staff
