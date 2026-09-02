@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation";
 import { getCurrentProfile } from "@/lib/current-user";
 import { logout } from "./actions";
 import { Logo } from "@/app/components/Logo";
@@ -8,6 +9,15 @@ export default async function AppLayout({
   children: React.ReactNode;
 }) {
   const profile = await getCurrentProfile();
+
+  // proxy.ts (Edge) cuma cek signature+expiry cookie, nggak cek status
+  // revoke (network call, mahal per-request) — jadi sesi yang di-revoke
+  // (logout dari device lain) masih lolos middleware, baru ketauan di sini
+  // (Node runtime, getCurrentProfile() checkRevoked=true). Redirect manual
+  // ke /login di sini, jangan biarin render shell kosong yang bingungin.
+  if (!profile) {
+    redirect("/login");
+  }
 
   return (
     <div className="min-h-full flex flex-col">
