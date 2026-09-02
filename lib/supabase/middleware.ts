@@ -2,6 +2,13 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
 export async function updateSession(request: NextRequest) {
+  // Landing page publik nggak butuh info auth sama sekali (nggak ada tombol
+  // login-only, nggak fetch data Supabase) — skip panggilan ke Supabase biar
+  // halaman ini tetap hidup meski project Supabase lagi pause/down.
+  if (request.nextUrl.pathname === "/") {
+    return NextResponse.next({ request });
+  }
+
   let supabaseResponse = NextResponse.next({ request });
 
   const supabase = createServerClient(
@@ -30,8 +37,7 @@ export async function updateSession(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   const isLoginPage = request.nextUrl.pathname.startsWith("/login");
-  const isPublicPage =
-    request.nextUrl.pathname === "/" || request.nextUrl.pathname === "/set-password";
+  const isPublicPage = request.nextUrl.pathname === "/set-password";
 
   if (!user && !isLoginPage && !isPublicPage) {
     const url = request.nextUrl.clone();
