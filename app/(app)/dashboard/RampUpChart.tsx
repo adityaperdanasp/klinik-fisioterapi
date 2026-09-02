@@ -36,10 +36,10 @@ export function RampUpChart({ data }: { data: Point[] }) {
             x2={WIDTH - PAD_RIGHT}
             y1={y(g)}
             y2={y(g)}
-            stroke="#e2e8f0"
+            stroke="#f1e6d6"
             strokeWidth={1}
           />
-          <text x={PAD_LEFT - 8} y={y(g) + 3} textAnchor="end" fontSize={10} fill="#94a3b8">
+          <text x={PAD_LEFT - 8} y={y(g) + 3} textAnchor="end" fontSize={10} fill="#8a8171">
             {g}%
           </text>
         </g>
@@ -52,16 +52,16 @@ export function RampUpChart({ data }: { data: Point[] }) {
           y={HEIGHT - 6}
           textAnchor="middle"
           fontSize={10}
-          fill="#94a3b8"
+          fill="#8a8171"
         >
           {d.month}
         </text>
       ))}
 
-      <path d={projectedPath} fill="none" stroke="#94a3b8" strokeWidth={2} strokeDasharray="4 4" />
-      {actualPath && <path d={actualPath} fill="none" stroke="#0f172a" strokeWidth={2} />}
+      <path d={projectedPath} fill="none" stroke="#c9b89c" strokeWidth={2} strokeDasharray="4 4" />
+      {actualPath && <path d={actualPath} fill="none" stroke="#96754a" strokeWidth={2} />}
       {actualPoints.map((d) => (
-        <circle key={d.month} cx={x(d.month)} cy={y(d.actual)} r={3} fill="#0f172a" />
+        <circle key={d.month} cx={x(d.month)} cy={y(d.actual)} r={3} fill="#96754a" />
       ))}
     </svg>
   );
