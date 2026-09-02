@@ -11,6 +11,7 @@ import { getCurrentProfile } from "@/lib/current-user";
 import { DAY_NAMES_ID, formatTime, getWeekRange, toDateKey } from "@/lib/week";
 import { BookingForm } from "./BookingForm";
 import { BookingStatusActions } from "./BookingStatusActions";
+import { DayTimeline, type TimelineBooking } from "./DayTimeline";
 
 const STATUS_LABEL: Record<string, string> = {
   scheduled: "Terjadwal",
@@ -151,12 +152,29 @@ export default async function JadwalPage({
         {days.map((d, i) => {
           const key = toDateKey(d);
           const dayBookings = bookingsByDay.get(key) ?? [];
+          const timelineBookings: TimelineBooking[] = dayBookings.map((b) => ({
+            id: b.id,
+            startsAt: b.starts_at,
+            endsAt: b.ends_at,
+            status: b.status,
+            patientName: b.patient_name,
+            physioName: b.physiotherapist_name,
+            roomName: b.room_name,
+          }));
+
           return (
             <div key={key} className="rounded-lg border border-slate-200 bg-white p-3">
               <div className="text-xs font-medium text-slate-500">{DAY_NAMES_ID[i]}</div>
               <div className="text-sm font-semibold text-slate-900">
                 {d.toLocaleDateString("id-ID", { day: "numeric", month: "short" })}
               </div>
+
+              {/* Timeline visual "sekilas" — biar langsung kebaca jam mana yang
+                  padat, tanpa perlu baca satu-satu daftar teks di bawahnya. */}
+              <div className="mt-2">
+                <DayTimeline bookings={timelineBookings} height={130} hourStep={4} />
+              </div>
+
               <div className="mt-2 space-y-2">
                 {dayBookings.length === 0 && (
                   <p className="text-xs text-slate-400">Kosong</p>
