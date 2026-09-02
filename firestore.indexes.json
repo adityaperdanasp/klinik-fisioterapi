@@ -23,6 +23,22 @@
         { "fieldPath": "patient_id", "order": "ASCENDING" },
         { "fieldPath": "starts_at", "order": "DESCENDING" }
       ]
+    },
+    {
+      "collectionGroup": "physiotherapists",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "active", "order": "ASCENDING" },
+        { "fieldPath": "full_name", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "rooms",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "active", "order": "ASCENDING" },
+        { "fieldPath": "name", "order": "ASCENDING" }
+      ]
     }
   ],
   "fieldOverrides": []
