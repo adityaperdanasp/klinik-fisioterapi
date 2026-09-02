@@ -1,3 +1,5 @@
+import { redirect } from "next/navigation";
+import { getCurrentProfile } from "@/lib/current-user";
 import { login } from "./actions";
 
 export default async function LoginPage({
@@ -5,6 +7,16 @@ export default async function LoginPage({
 }: {
   searchParams: Promise<{ error?: string }>;
 }) {
+  // Cek "udah login, skip halaman ini" di sini (Node runtime,
+  // checkRevoked=true lewat getCurrentProfile), BUKAN di proxy.ts Edge —
+  // biar sesi yang udah di-revoke (tapi cookie-nya belum expired) nggak
+  // ke-anggap "masih login" terus mental ke /jadwal lagi jadi infinite
+  // redirect loop sama app/(app)/layout.tsx. Lihat lib/firebase/middleware.ts.
+  const profile = await getCurrentProfile();
+  if (profile) {
+    redirect("/jadwal");
+  }
+
   const { error } = await searchParams;
 
   return (

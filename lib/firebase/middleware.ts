@@ -25,11 +25,13 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  if (claims && isLoginPage) {
-    const url = request.nextUrl.clone();
-    url.pathname = "/jadwal";
-    return NextResponse.redirect(url);
-  }
-
+  // Sengaja TIDAK ada "claims truthy di /login -> redirect ke /jadwal" di
+  // sini. `claims` cuma keverifikasi signature+expiry (Edge, nggak cek
+  // revoke) — kalau cookie-nya udah di-revoke (mis. logout dari device
+  // lain) tapi belum expired, redirect kayak gitu bakal ketemu sama
+  // app/(app)/layout.tsx yang redirect balik ke /login (dia yang beneran
+  // cek revoke), bikin ERR_TOO_MANY_REDIRECTS. Cek "udah login, skip
+  // halaman login" yang lebih dipercaya (checkRevoked) ada di
+  // app/login/page.tsx sendiri, bukan di sini.
   return NextResponse.next({ request });
 }
