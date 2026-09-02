@@ -1,4 +1,5 @@
-import { createClient } from "@/lib/supabase/server";
+import { adminDb } from "@/lib/firebase/admin";
+import { COLLECTIONS, type PhysiotherapistDoc, type RoomDoc } from "@/lib/firebase/schema";
 import { getCurrentProfile } from "@/lib/current-user";
 import { RoomForm } from "./RoomForm";
 import { PhysioForm } from "./PhysioForm";
@@ -11,11 +12,19 @@ export default async function PengaturanPage() {
     return <p className="text-sm text-slate-500">Halaman pengaturan khusus admin.</p>;
   }
 
-  const supabase = await createClient();
-  const [roomsRes, physiosRes] = await Promise.all([
-    supabase.from("rooms").select("id, name, active").order("name"),
-    supabase.from("physiotherapists").select("id, full_name, str_number, active").order("full_name"),
+  const [roomsSnap, physiosSnap] = await Promise.all([
+    adminDb.collection(COLLECTIONS.rooms).orderBy("name").get(),
+    adminDb.collection(COLLECTIONS.physiotherapists).orderBy("full_name").get(),
   ]);
+
+  const rooms = roomsSnap.docs.map((d) => {
+    const data = d.data() as RoomDoc;
+    return { id: d.id, name: data.name, active: data.active };
+  });
+  const physios = physiosSnap.docs.map((d) => {
+    const data = d.data() as PhysiotherapistDoc;
+    return { id: d.id, full_name: data.full_name, str_number: data.str_number, active: data.active };
+  });
 
   return (
     <div className="space-y-6">
@@ -33,7 +42,7 @@ export default async function PengaturanPage() {
         <h2 className="mb-3 text-sm font-medium text-slate-900">Ruang</h2>
         <RoomForm />
         <div className="mt-4 space-y-2">
-          {(roomsRes.data ?? []).map((r) => (
+          {rooms.map((r) => (
             <div key={r.id} className="flex items-center justify-between text-sm">
               <span className="text-slate-900">{r.name}</span>
               <ActiveToggle id={r.id} active={r.active} action={toggleRoomActive} />
@@ -46,7 +55,7 @@ export default async function PengaturanPage() {
         <h2 className="mb-3 text-sm font-medium text-slate-900">Fisioterapis</h2>
         <PhysioForm />
         <div className="mt-4 space-y-2">
-          {(physiosRes.data ?? []).map((p) => (
+          {physios.map((p) => (
             <div key={p.id} className="flex items-center justify-between text-sm">
               <span className="text-slate-900">
                 {p.full_name}

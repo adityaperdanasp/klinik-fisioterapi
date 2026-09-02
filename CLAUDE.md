@@ -51,7 +51,8 @@ Rencana 7 fase (kerjain satu-satu, verifikasi tiap fase sebelum lanjut):
    - ✅ `/kasir` — pola sama kayak `/jadwal` (manual join fisio/ruang/pasien), `payments/{bookingId}` di-batch-get langsung by booking id (`adminDb.getAll()`, bukan query "in"). `lib/settings.ts` (`getSetting()`) juga direwrite ke Firestore, dipake bareng `/dashboard`.
    - ✅ `/kasir/rekap` + `/kasir/rekap/export` (CSV) — cuma `data.ts` (`getMonthlyPayments()`) yang direwrite, `page.tsx` & `export/route.ts` cuma konsumsi bentuk data baru (flat, bukan nested join Supabase lagi).
    - ✅ `/dashboard` — sama, manual join + payment batch-get, 2 query terpisah (`monthBookings` utk revenue, `historyBookings` utk ramp-up chart) pakai composite index `status+starts_at` yang sama.
-   - ⬜ `/pengaturan`, `/pengaturan/staff`
+   - ✅ `/pengaturan` — CRUD ruang & fisioterapis (admin-only, role-check di semua Server Action). Diverifikasi end-to-end: tambah ruang baru, toggle aktif/nonaktif ruang → langsung ilang/muncul di dropdown `/jadwal` (revalidatePath lintas halaman jalan bener).
+   - ⬜ `/pengaturan/staff`
 6. ⬜ Firestore Security Rules per role (pengganti RLS policy Supabase)
 7. ⬜ Testing end-to-end tiap fitur → cutover `proxy.ts` → update dokumentasi ini → deploy, matiin dependency Supabase
 
