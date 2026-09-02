@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
 import { Fraunces, IBM_Plex_Sans } from "next/font/google";
 import { Logo } from "./components/Logo";
 
@@ -9,22 +10,33 @@ const CONTACT_EMAIL = "cs@pulihfisioterapi.id";
 const CLINIC_ADDRESS =
   "Ruko Concordia & Trafalgar Blok SE1 No. 29, Ciangsana, Kec. Gn. Putri, Kabupaten Bogor, Jawa Barat 16968";
 const GOOGLE_MAPS_URL = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(CLINIC_ADDRESS)}`;
+const GOOGLE_MAPS_EMBED_URL = `https://www.google.com/maps?q=${encodeURIComponent(CLINIC_ADDRESS)}&output=embed`;
 
-// Design system: warm cream / earth-tone palette, inspired by the calm luxury-wellness
-// reference the user shared — colors and layout genre are ours to reuse, copy/photos are original.
+// Design system: warm cream / earth-tone palette (light) + versi gelapnya
+// (dark), inspired by the calm luxury-wellness reference the user shared —
+// colors and layout genre are ours to reuse, copy/photos are original.
 //
-// Kontras warna (WCAG) di-audit — `earth` (#96754A) di atas cream/creamAlt cuma
-// ~3.4-3.9:1, GAGAL AA buat teks normal (butuh 4.5:1). Dipakai `earthDark`
-// (#7A5D39, 4.9-6.1:1, lolos AA) buat SEMUA teks/tombol kecil. `earth` yang
-// lebih terang dipertahankan cuma buat elemen dekoratif besar (angka "STR"
-// raksasa — itu masuk kategori "large text" WCAG, ambang batasnya 3:1 doang).
-const COLOR = {
-  cream: "#FAF5EE",
-  creamAlt: "#F1E6D6",
-  earth: "#96754A",
-  earthDark: "#7A5D39",
+// Kontras warna (WCAG) di-audit pakai perhitungan luminance manual buat
+// dua-duanya. Light: `earth` (#96754A) di atas cream cuma ~3.4-3.9:1, GAGAL
+// AA teks normal — dipakai `earthDark` (#7A5D39, 4.9-6.1:1) buat semua teks/
+// tombol kecil, `earth` yang lebih terang cuma buat dekorasi besar (large
+// text WCAG, ambang 3:1). Dark: semua pasangan di bawah lolos AA (7-14.5:1).
+const LIGHT_COLOR = {
+  bg: "#FAF5EE",
+  bgAlt: "#F1E6D6",
+  accentBright: "#96754A",
+  accent: "#7A5D39",
   ink: "#231F1A",
   muted: "#57503F",
+};
+
+const DARK_COLOR = {
+  bg: "#1D1A16",
+  bgAlt: "#26221D",
+  accentBright: "#C79A6A",
+  accent: "#D3A972",
+  ink: "#F2EAE0",
+  muted: "#B9AC9A",
 };
 
 const fraunces = Fraunces({
@@ -41,6 +53,7 @@ const plexSans = IBM_Plex_Sans({
 });
 
 type Lang = "id" | "en";
+type Theme = "light" | "dark";
 
 // Aset (foto/video) nggak beda antar bahasa — cuma teksnya yang beda. Data
 // ini dipisah dari CONTENT (dictionary teks di bawah) terus digabung lagi
@@ -93,13 +106,14 @@ const CONTENT: Record<
     about: { heading: string; desc: string };
     team: { heading: string; role: string };
     testimonials: { heading: string; items: { name: string; note: string; quote: string }[] };
-    gallery: { heading: string; videoAlt: string };
+    gallery: { heading: string; alt: string[] };
     faq: { heading: string; items: { q: string; a: string }[] };
-    location: { heading: string; mapLink: string; chatBtn: string };
+    location: { heading: string; mapLink: string; chatBtn: string; hoursHeading: string; hoursSchedule: string; hoursNote: string };
     footer: { desc: string; navHeading: string; contactHeading: string; loginStaff: string };
     whatsapp: { book: string; ask: string; consultPrefix: (title: string) => string };
     backToTop: string;
     waFloatLabel: string;
+    themeToggle: string;
   }
 > = {
   id: {
@@ -157,7 +171,15 @@ const CONTENT: Record<
         { name: "Ahmad F.", note: "Cedera bahu bulu tangkis", quote: "Bisa balik main bulu tangkis lagi tanpa nyeri. Progresnya kecek tiap sesi, jadi kerasa arahnya." },
       ],
     },
-    gallery: { heading: "Galeri", videoAlt: "Suasana sesi fisioterapi" },
+    gallery: {
+      heading: "Galeri",
+      alt: [
+        "Terapi manual pada tangan pasien",
+        "Kunjungan terapi lansia di rumah",
+        "Sesi konsultasi dengan fisioterapis",
+        "Terapi manual pada kaki pasien",
+      ],
+    },
     faq: {
       heading: "Pertanyaan umum",
       items: [
@@ -168,7 +190,14 @@ const CONTENT: Record<
         { q: "Apa yang harus saya bawa atau kenakan saat sesi pertama?", a: "Kenakan pakaian yang nyaman dan memungkinkan pergerakan bebas pada area yang akan ditangani. Bawa hasil pemeriksaan medis sebelumnya jika ada." },
       ],
     },
-    location: { heading: "Lokasi", mapLink: "Buka di Google Maps", chatBtn: "Chat WhatsApp" },
+    location: {
+      heading: "Lokasi",
+      mapLink: "Buka di Google Maps",
+      chatBtn: "Chat WhatsApp",
+      hoursHeading: "Jam Operasional",
+      hoursSchedule: "Senin – Sabtu, 08.00 – 20.00",
+      hoursNote: "(placeholder — konfirmasi jam pasti sebelum publikasi)",
+    },
     footer: {
       desc: "Klinik fisioterapi spesialis cedera otot, ditangani fisioterapis berlisensi (STR).",
       navHeading: "Navigasi",
@@ -182,6 +211,7 @@ const CONTENT: Record<
     },
     backToTop: "Kembali ke atas",
     waFloatLabel: "Chat WhatsApp",
+    themeToggle: "Ganti tampilan gelap/terang",
   },
   en: {
     nav: { layanan: "Services", alur: "Our Process", tim: "Team", faq: "FAQ", lokasi: "Location" },
@@ -238,7 +268,15 @@ const CONTENT: Record<
         { name: "Ahmad F.", note: "Badminton shoulder injury", quote: "I'm back playing badminton pain-free. Progress was checked every session, so I could feel it moving in the right direction." },
       ],
     },
-    gallery: { heading: "Gallery", videoAlt: "Physiotherapy session in progress" },
+    gallery: {
+      heading: "Gallery",
+      alt: [
+        "Manual therapy on a patient's hand",
+        "Home visit therapy for an elderly patient",
+        "Consultation session with a physiotherapist",
+        "Manual therapy on a patient's foot",
+      ],
+    },
     faq: {
       heading: "Frequently Asked Questions",
       items: [
@@ -249,7 +287,14 @@ const CONTENT: Record<
         { q: "What should I bring or wear for my first session?", a: "Wear comfortable clothing that allows free movement in the area being treated. Bring any previous medical exam results, if you have them." },
       ],
     },
-    location: { heading: "Location", mapLink: "Open in Google Maps", chatBtn: "Chat on WhatsApp" },
+    location: {
+      heading: "Location",
+      mapLink: "Open in Google Maps",
+      chatBtn: "Chat on WhatsApp",
+      hoursHeading: "Opening Hours",
+      hoursSchedule: "Mon – Sat, 8:00 AM – 8:00 PM",
+      hoursNote: "(placeholder — confirm exact hours before publishing)",
+    },
     footer: {
       desc: "A muscle injury specialist physiotherapy clinic, treated by licensed (STR) physiotherapists.",
       navHeading: "Navigation",
@@ -263,6 +308,7 @@ const CONTENT: Record<
     },
     backToTop: "Back to top",
     waFloatLabel: "Chat on WhatsApp",
+    themeToggle: "Toggle dark/light mode",
   },
 };
 
@@ -279,7 +325,6 @@ function Reveal({ children, className = "" }: { children: React.ReactNode; class
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
-    // Kalau browser nggak support IntersectionObserver (sangat jarang), tampilin langsung.
     if (typeof IntersectionObserver === "undefined") {
       setVisible(true);
       return;
@@ -322,6 +367,35 @@ function Reveal({ children, className = "" }: { children: React.ReactNode; class
   );
 }
 
+// Foto/video galeri pakai shimmer abu-abu sampai asetnya beneran selesai
+// dimuat — biar nggak blank kosong dulu baru nongol mendadak.
+function ShimmerMedia({
+  children,
+  bgAlt,
+  ready,
+  className = "",
+}: {
+  children: React.ReactNode;
+  bgAlt: string;
+  ready: boolean;
+  className?: string;
+}) {
+  // `ready` dikontrol dari luar (LandingPageClient) lewat onLoad/onLoadedData
+  // di elemen media di dalam `children` — komponen ini murni presentational,
+  // nggak perlu tau caranya, cuma nampilin shimmer sampai `ready` jadi true.
+  return (
+    <div className={`relative overflow-hidden rounded-xl ${className}`} style={{ backgroundColor: bgAlt }}>
+      {!ready && (
+        <div
+          className="absolute inset-0 animate-pulse"
+          style={{ background: `linear-gradient(90deg, ${bgAlt}, rgba(255,255,255,0.35), ${bgAlt})` }}
+        />
+      )}
+      <div style={{ opacity: ready ? 1 : 0, transition: "opacity 0.4s ease" }}>{children}</div>
+    </div>
+  );
+}
+
 function WhatsAppIcon() {
   return (
     <svg viewBox="0 0 32 32" width="26" height="26" fill="#fff" aria-hidden="true">
@@ -330,10 +404,29 @@ function WhatsAppIcon() {
   );
 }
 
+function SunIcon() {
+  return (
+    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+      <circle cx="12" cy="12" r="4" />
+      <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" />
+    </svg>
+  );
+}
+
+function MoonIcon() {
+  return (
+    <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true">
+      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z" />
+    </svg>
+  );
+}
+
 export function LandingPageClient() {
   const [lang, setLang] = useState<Lang>("id");
+  const [theme, setTheme] = useState<Theme>("light");
   const [activeSection, setActiveSection] = useState<string | null>(null);
   const [showBackToTop, setShowBackToTop] = useState(false);
+  const [mediaReady, setMediaReady] = useState<Record<number, boolean>>({});
 
   // Toggle bahasa client-side — SSR/first paint selalu Indonesia (default),
   // baru dikoreksi ke pilihan tersimpan (kalau ada) setelah hydrate. Ini
@@ -345,6 +438,24 @@ export function LandingPageClient() {
       if (saved === "en" || saved === "id") setLang(saved);
     } catch {
       // localStorage bisa nggak ke-akses (private mode dll) — abaikan, tetap default id.
+    }
+  }, []);
+
+  // Tema: default ikutin preferensi sistem (prefers-color-scheme), user bisa
+  // override manual lewat tombol — pilihan manual itu yang disimpen & menang
+  // di kunjungan berikutnya.
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem("pulih_theme");
+      if (saved === "light" || saved === "dark") {
+        setTheme(saved);
+        return;
+      }
+    } catch {
+      // lanjut ke system preference di bawah kalau localStorage nggak ke-akses.
+    }
+    if (window.matchMedia?.("(prefers-color-scheme: dark)").matches) {
+      setTheme("dark");
     }
   }, []);
 
@@ -385,39 +496,73 @@ export function LandingPageClient() {
     }
   }
 
+  function toggleTheme() {
+    const next: Theme = theme === "light" ? "dark" : "light";
+    setTheme(next);
+    try {
+      localStorage.setItem("pulih_theme", next);
+    } catch {
+      // nggak masalah kalau gagal disimpan.
+    }
+  }
+
   const t = CONTENT[lang];
+  const COLOR = theme === "dark" ? DARK_COLOR : LIGHT_COLOR;
+  const hairline = theme === "dark" ? "rgba(255,255,255,0.1)" : "rgba(46,40,34,0.08)";
 
   function navLinkStyle(id: string): React.CSSProperties {
     return {
-      color: activeSection === id ? COLOR.earthDark : "inherit",
+      color: activeSection === id ? COLOR.accent : "inherit",
       fontWeight: activeSection === id ? 700 : undefined,
       transition: "color 0.2s ease",
     };
   }
 
-  const LangToggle = (
-    <button
-      type="button"
-      onClick={toggleLang}
-      className="rounded-full border px-3 py-1.5 text-xs font-semibold"
-      style={{ borderColor: COLOR.earthDark, color: COLOR.earthDark }}
-      aria-label={lang === "id" ? "Switch to English" : "Ganti ke Bahasa Indonesia"}
-    >
-      {lang === "id" ? "EN" : "ID"}
-    </button>
+  function markReady(i: number) {
+    setMediaReady((prev) => (prev[i] ? prev : { ...prev, [i]: true }));
+  }
+
+  const ToolbarToggles = (
+    <>
+      <button
+        type="button"
+        onClick={toggleTheme}
+        className="flex h-8 w-8 items-center justify-center rounded-full border"
+        style={{ borderColor: COLOR.accent, color: COLOR.accent }}
+        aria-label={t.themeToggle}
+      >
+        {theme === "light" ? <MoonIcon /> : <SunIcon />}
+      </button>
+      <button
+        type="button"
+        onClick={toggleLang}
+        className="rounded-full border px-3 py-1.5 text-xs font-semibold"
+        style={{ borderColor: COLOR.accent, color: COLOR.accent }}
+        aria-label={lang === "id" ? "Switch to English" : "Ganti ke Bahasa Indonesia"}
+      >
+        {lang === "id" ? "EN" : "ID"}
+      </button>
+    </>
   );
 
   return (
     <div
       className={`${fraunces.variable} ${plexSans.variable} min-h-screen`}
-      style={{ backgroundColor: COLOR.cream, color: COLOR.ink, fontFamily: "var(--font-body)" }}
+      style={{ backgroundColor: COLOR.bg, color: COLOR.ink, fontFamily: "var(--font-body)", transition: "background-color 0.2s ease, color 0.2s ease" }}
     >
+      {/* React 19 otomatis hoist <link>/<meta> ke <head> biarpun dirender dari
+          sini (Client Component) — dipakai buat preconnect ke domain WhatsApp
+          (satu-satunya resource eksternal di halaman ini; font udah self-host
+          lewat next/font, jadi nggak butuh preconnect ke Google Fonts lagi). */}
+      <link rel="preconnect" href="https://wa.me" />
+      <link rel="dns-prefetch" href="https://wa.me" />
+
       <header
         className="sticky top-0 z-40 border-b"
-        style={{ borderColor: "rgba(46,40,34,0.08)", backgroundColor: COLOR.cream }}
+        style={{ borderColor: hairline, backgroundColor: COLOR.bg, transition: "background-color 0.2s ease, border-color 0.2s ease" }}
       >
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
-          <Logo />
+          <Logo variant={theme === "dark" ? "light" : "dark"} />
           <nav
             className="hidden items-center gap-8 text-sm font-semibold sm:flex"
             style={{ color: COLOR.ink }}
@@ -439,11 +584,11 @@ export function LandingPageClient() {
             </a>
           </nav>
           <div className="flex items-center gap-3">
-            {LangToggle}
+            {ToolbarToggles}
             <a
               href={whatsappLink(t.whatsapp.book)}
               className="rounded-full px-5 py-2.5 text-sm font-semibold text-white"
-              style={{ backgroundColor: COLOR.earthDark }}
+              style={{ backgroundColor: COLOR.accent }}
             >
               {t.bookBtn}
             </a>
@@ -451,14 +596,14 @@ export function LandingPageClient() {
         </div>
       </header>
 
-      <div className="border-b py-3 text-center text-sm" style={{ borderColor: "rgba(46,40,34,0.08)", backgroundColor: COLOR.creamAlt, color: COLOR.muted }}>
+      <div className="border-b py-3 text-center text-sm" style={{ borderColor: hairline, backgroundColor: COLOR.bgAlt, color: COLOR.muted }}>
         {t.banner.text}{" "}
         <a
           href={GOOGLE_MAPS_URL}
           target="_blank"
           rel="noopener noreferrer"
           className="font-semibold underline"
-          style={{ color: COLOR.earthDark }}
+          style={{ color: COLOR.accent }}
         >
           {t.banner.link}
         </a>
@@ -466,7 +611,7 @@ export function LandingPageClient() {
 
       <section className="mx-auto grid max-w-6xl grid-cols-1 items-center gap-16 px-4 py-20 sm:py-28 lg:grid-cols-2">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.2em]" style={{ color: COLOR.earthDark }}>
+          <p className="text-xs font-semibold uppercase tracking-[0.2em]" style={{ color: COLOR.accent }}>
             {t.hero.badge}
           </p>
           <h1
@@ -485,23 +630,25 @@ export function LandingPageClient() {
           <a
             href={whatsappLink(t.whatsapp.book)}
             className="mt-9 inline-block rounded-full px-8 py-3.5 text-sm font-semibold text-white"
-            style={{ backgroundColor: COLOR.earthDark }}
+            style={{ backgroundColor: COLOR.accent }}
           >
             {t.hero.cta}
           </a>
         </div>
 
-        <div className="overflow-hidden rounded-2xl">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
+        <div className="relative h-[420px] w-full overflow-hidden rounded-2xl">
+          <Image
             src={HERO_IMAGE}
             alt={t.hero.heroAlt}
-            className="h-[420px] w-full object-cover"
+            fill
+            priority
+            className="object-cover"
+            sizes="(max-width: 1024px) 100vw, 50vw"
           />
         </div>
       </section>
 
-      <section className="py-16" style={{ backgroundColor: COLOR.creamAlt }}>
+      <section className="py-16" style={{ backgroundColor: COLOR.bgAlt }}>
         <Reveal className="mx-auto grid max-w-6xl grid-cols-1 gap-10 px-4 sm:grid-cols-3">
           {t.features.map((f) => (
             <div key={f.title} className="text-center sm:text-left">
@@ -520,7 +667,7 @@ export function LandingPageClient() {
         <div className="order-2 text-center lg:order-1 lg:text-left">
           <span
             className="text-7xl sm:text-8xl"
-            style={{ fontFamily: "var(--font-display)", fontWeight: 500, color: COLOR.earth }}
+            style={{ fontFamily: "var(--font-display)", fontWeight: 500, color: COLOR.accentBright }}
           >
             STR
           </span>
@@ -538,14 +685,14 @@ export function LandingPageClient() {
           <a
             href="#layanan"
             className="mt-5 inline-flex items-center gap-1 text-sm font-semibold"
-            style={{ color: COLOR.earthDark }}
+            style={{ color: COLOR.accent }}
           >
             {t.trust.link}
           </a>
         </div>
       </section>
 
-      <section id="alur" className="py-24" style={{ backgroundColor: COLOR.creamAlt }}>
+      <section id="alur" className="py-24" style={{ backgroundColor: COLOR.bgAlt }}>
         <div className="mx-auto max-w-6xl px-4">
           <h2
             className="text-center text-3xl sm:text-4xl"
@@ -555,10 +702,10 @@ export function LandingPageClient() {
           </h2>
           <Reveal className="mt-14 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {t.steps.items.map((s) => (
-              <div key={s.number} className="rounded-2xl bg-white p-7">
+              <div key={s.number} className="rounded-2xl p-7" style={{ backgroundColor: COLOR.bg }}>
                 <span
                   className="text-2xl"
-                  style={{ fontFamily: "var(--font-display)", fontWeight: 500, color: COLOR.earthDark }}
+                  style={{ fontFamily: "var(--font-display)", fontWeight: 500, color: COLOR.accent }}
                 >
                   {s.number}
                 </span>
@@ -581,15 +728,18 @@ export function LandingPageClient() {
             {t.services.items.map((s, i) => {
               const asset = SERVICE_ASSETS[i];
               return (
-                <div key={s.title} className="overflow-hidden rounded-2xl" style={{ backgroundColor: COLOR.creamAlt }}>
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={asset.image}
-                    alt={s.title}
-                    loading="lazy"
-                    className="h-48 w-full object-cover"
-                    style={{ objectPosition: asset.imagePosition ?? "center" }}
-                  />
+                <div key={s.title} className="overflow-hidden rounded-2xl" style={{ backgroundColor: COLOR.bgAlt }}>
+                  <div className="relative h-48 w-full">
+                    <Image
+                      src={asset.image}
+                      alt={s.title}
+                      fill
+                      loading="lazy"
+                      className="object-cover"
+                      style={{ objectPosition: asset.imagePosition ?? "center" }}
+                      sizes="(max-width: 640px) 100vw, 50vw"
+                    />
+                  </div>
                   <div className="p-7">
                     <h3 className="text-lg font-semibold">{s.title}</h3>
                     <p className="mt-2 text-sm leading-relaxed" style={{ color: COLOR.muted }}>
@@ -598,7 +748,7 @@ export function LandingPageClient() {
                     <a
                       href={whatsappLink(t.whatsapp.consultPrefix(s.title))}
                       className="mt-4 inline-block text-sm font-semibold"
-                      style={{ color: COLOR.earthDark }}
+                      style={{ color: COLOR.accent }}
                     >
                       {t.services.ctaLabel}
                     </a>
@@ -610,7 +760,7 @@ export function LandingPageClient() {
         </div>
       </section>
 
-      <section className="py-20" style={{ backgroundColor: COLOR.creamAlt }}>
+      <section className="py-20" style={{ backgroundColor: COLOR.bgAlt }}>
         <div className="mx-auto max-w-3xl px-4 text-center">
           <h2 className="text-3xl sm:text-4xl" style={{ fontFamily: "var(--font-display)", fontWeight: 500 }}>
             {t.about.heading}
@@ -628,15 +778,18 @@ export function LandingPageClient() {
           </h2>
           <Reveal className="mt-12 grid grid-cols-2 gap-6 sm:grid-cols-4">
             {TEAM.map((m) => (
-              <div key={m.name} className="overflow-hidden rounded-2xl text-center" style={{ backgroundColor: COLOR.creamAlt }}>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={m.photo}
-                  alt={m.name}
-                  loading="lazy"
-                  className="h-56 w-full object-cover"
-                  style={{ objectPosition: "50% 15%" }}
-                />
+              <div key={m.name} className="overflow-hidden rounded-2xl text-center" style={{ backgroundColor: COLOR.bgAlt }}>
+                <div className="relative h-56 w-full">
+                  <Image
+                    src={m.photo}
+                    alt={`${m.name} — ${t.team.role}`}
+                    fill
+                    loading="lazy"
+                    className="object-cover"
+                    style={{ objectPosition: "50% 15%" }}
+                    sizes="(max-width: 640px) 50vw, 25vw"
+                  />
+                </div>
                 <div className="p-4">
                   <h3 className="text-base font-semibold">{m.name}</h3>
                   <p className="mt-1 text-sm" style={{ color: COLOR.muted }}>
@@ -649,21 +802,21 @@ export function LandingPageClient() {
         </div>
       </section>
 
-      <section className="py-24" style={{ backgroundColor: COLOR.creamAlt }}>
+      <section className="py-24" style={{ backgroundColor: COLOR.bgAlt }}>
         <div className="mx-auto max-w-6xl px-4">
           <h2 className="text-3xl sm:text-4xl" style={{ fontFamily: "var(--font-display)", fontWeight: 500 }}>
             {t.testimonials.heading}
           </h2>
           <Reveal className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-3">
             {t.testimonials.items.map((ts, i) => (
-              <div key={ts.name} className="rounded-2xl bg-white p-7">
+              <div key={ts.name} className="rounded-2xl p-7" style={{ backgroundColor: COLOR.bg }}>
                 <p className="text-sm leading-relaxed italic" style={{ color: COLOR.ink }}>
                   &ldquo;{ts.quote}&rdquo;
                 </p>
                 <div className="mt-5 flex items-center gap-3">
                   <div
                     className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-semibold text-white"
-                    style={{ backgroundColor: COLOR.earthDark }}
+                    style={{ backgroundColor: COLOR.accent }}
                     aria-hidden="true"
                   >
                     {TESTIMONIAL_ASSETS[i].initials}
@@ -687,33 +840,43 @@ export function LandingPageClient() {
             {t.gallery.heading}
           </h2>
           <Reveal className="mt-10 grid grid-cols-2 gap-4 sm:grid-cols-4">
-            {GALLERY.map((item) =>
-              item.type === "video" ? (
-                <video
-                  key={item.src}
-                  src={item.src}
-                  autoPlay
-                  loop
-                  muted
-                  playsInline
-                  className="h-40 w-full rounded-xl object-cover sm:h-52"
-                />
-              ) : (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  key={item.src}
-                  src={item.src}
-                  alt={t.gallery.videoAlt}
-                  loading="lazy"
-                  className="h-40 w-full rounded-xl object-cover sm:h-52"
-                />
-              )
-            )}
+            {GALLERY.map((item, i) => (
+              <ShimmerMedia
+                key={item.src}
+                bgAlt={COLOR.bgAlt}
+                ready={!!mediaReady[i]}
+                className="h-40 sm:h-52"
+              >
+                {item.type === "video" ? (
+                  <video
+                    src={item.src}
+                    autoPlay
+                    loop
+                    muted
+                    playsInline
+                    onLoadedData={() => markReady(i)}
+                    className="h-40 w-full object-cover sm:h-52"
+                  />
+                ) : (
+                  <div className="relative h-40 w-full sm:h-52">
+                    <Image
+                      src={item.src}
+                      alt={t.gallery.alt[i] ?? t.gallery.heading}
+                      fill
+                      loading="lazy"
+                      onLoad={() => markReady(i)}
+                      className="object-cover"
+                      sizes="(max-width: 640px) 50vw, 25vw"
+                    />
+                  </div>
+                )}
+              </ShimmerMedia>
+            ))}
           </Reveal>
         </div>
       </section>
 
-      <section id="faq" className="py-24" style={{ backgroundColor: COLOR.creamAlt }}>
+      <section id="faq" className="py-24" style={{ backgroundColor: COLOR.bgAlt }}>
         <div className="mx-auto max-w-3xl px-4">
           <h2
             className="text-center text-3xl sm:text-4xl"
@@ -721,12 +884,12 @@ export function LandingPageClient() {
           >
             {t.faq.heading}
           </h2>
-          <div className="mt-12 divide-y" style={{ borderColor: "rgba(46,40,34,0.1)" }}>
+          <div className="mt-12 divide-y" style={{ borderColor: hairline }}>
             {t.faq.items.map((f) => (
-              <details key={f.q} className="group py-5" style={{ borderColor: "rgba(46,40,34,0.1)" }}>
+              <details key={f.q} className="group py-5" style={{ borderColor: hairline }}>
                 <summary className="flex cursor-pointer list-none items-center justify-between text-base font-semibold">
                   {f.q}
-                  <span className="ml-4 text-xl" style={{ color: COLOR.earthDark }}>
+                  <span className="ml-4 text-xl" style={{ color: COLOR.accent }}>
                     +
                   </span>
                 </summary>
@@ -752,15 +915,38 @@ export function LandingPageClient() {
             target="_blank"
             rel="noopener noreferrer"
             className="mt-2 inline-block text-sm font-semibold underline"
-            style={{ color: COLOR.earthDark }}
+            style={{ color: COLOR.accent }}
           >
             {t.location.mapLink}
           </a>
+
+          <div className="mt-8 overflow-hidden rounded-2xl" style={{ backgroundColor: COLOR.bgAlt }}>
+            <iframe
+              src={GOOGLE_MAPS_EMBED_URL}
+              title={t.location.heading}
+              width="100%"
+              height="300"
+              loading="lazy"
+              style={{ border: 0, display: "block" }}
+              referrerPolicy="no-referrer-when-downgrade"
+            />
+          </div>
+
+          <div className="mt-8 inline-block rounded-2xl px-6 py-4 text-left" style={{ backgroundColor: COLOR.bgAlt }}>
+            <p className="text-xs font-semibold uppercase tracking-wide" style={{ color: COLOR.accent }}>
+              {t.location.hoursHeading}
+            </p>
+            <p className="mt-1 text-sm font-medium">{t.location.hoursSchedule}</p>
+            <p className="mt-1 text-xs" style={{ color: COLOR.muted }}>
+              {t.location.hoursNote}
+            </p>
+          </div>
+
           <div className="mt-8">
             <a
               href={whatsappLink(t.whatsapp.ask)}
               className="inline-block rounded-full px-8 py-3.5 text-sm font-semibold text-white"
-              style={{ backgroundColor: COLOR.earthDark }}
+              style={{ backgroundColor: COLOR.accent }}
             >
               {t.location.chatBtn}
             </a>
@@ -768,7 +954,7 @@ export function LandingPageClient() {
         </div>
       </section>
 
-      <footer className="py-16" style={{ backgroundColor: COLOR.ink, color: "rgba(255,255,255,0.6)" }}>
+      <footer className="py-16" style={{ backgroundColor: LIGHT_COLOR.ink, color: "rgba(255,255,255,0.6)" }}>
         <div className="mx-auto grid max-w-6xl grid-cols-1 gap-8 px-4 sm:grid-cols-3">
           <div>
             <Logo variant="light" />
@@ -842,7 +1028,7 @@ export function LandingPageClient() {
           type="button"
           onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
           className="fixed bottom-24 right-6 z-50 flex h-11 w-11 items-center justify-center rounded-full text-lg shadow-lg transition-transform hover:scale-105"
-          style={{ backgroundColor: COLOR.ink, color: "#fff" }}
+          style={{ backgroundColor: COLOR.ink, color: COLOR.bg }}
           aria-label={t.backToTop}
         >
           ↑

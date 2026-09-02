@@ -29,6 +29,43 @@ export const metadata: Metadata = {
   },
 };
 
+// Structured data (Schema.org) — bantu Google nampilin alamat/jam di hasil
+// pencarian langsung, bukan cuma judul-deskripsi biasa. Jam operasional di
+// bawah ini PLACEHOLDER (belum dikonfirmasi user) — samain sama section
+// "Jam Operasional" di LandingPageClient.tsx kalau nanti diganti.
+const JSON_LD = {
+  "@context": "https://schema.org",
+  "@type": "MedicalClinic",
+  name: "Pulih Fisioterapi",
+  image: "https://pulihfisioterapi.id/photos/hero-athlete-knee.jpg",
+  url: "https://pulihfisioterapi.id",
+  address: {
+    "@type": "PostalAddress",
+    streetAddress: "Ruko Concordia & Trafalgar Blok SE1 No. 29, Ciangsana",
+    addressLocality: "Kec. Gn. Putri, Kabupaten Bogor",
+    addressRegion: "Jawa Barat",
+    postalCode: "16968",
+    addressCountry: "ID",
+  },
+  openingHoursSpecification: [
+    {
+      "@type": "OpeningHoursSpecification",
+      dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
+      opens: "08:00",
+      closes: "20:00",
+    },
+  ],
+};
+
 export default function Page() {
-  return <LandingPageClient />;
+  return (
+    <>
+      {/* eslint-disable-next-line react/no-danger */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(JSON_LD) }}
+      />
+      <LandingPageClient />
+    </>
+  );
 }
