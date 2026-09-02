@@ -1,7 +1,11 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { createClient } from "@/lib/supabase/server";
+import { FieldValue } from "firebase-admin/firestore";
+import { adminDb } from "@/lib/firebase/admin";
+import { COLLECTIONS } from "@/lib/firebase/schema";
+import { nextMedicalRecordNumber } from "@/lib/firebase/patients";
+import { getCurrentProfile } from "@/lib/current-user";
 
 export type FormResult = { error?: string };
 
@@ -9,6 +13,13 @@ export async function createPatient(
   _prev: FormResult,
   formData: FormData
 ): Promise<FormResult> {
+  // Dulu ditegakkan RLS Postgres ("admin and resepsionis manage patients"),
+  // sekarang Admin SDK bypass semua rules — jadi cek role manual di sini.
+  const profile = await getCurrentProfile();
+  if (profile?.role !== "admin" && profile?.role !== "resepsionis") {
+    return { error: "Cuma admin/resepsionis yang bisa nambah pasien." };
+  }
+
   const full_name = formData.get("full_name") as string;
   const date_of_birth = (formData.get("date_of_birth") as string) || null;
   const gender = (formData.get("gender") as string) || null;
@@ -21,12 +32,10 @@ export async function createPatient(
     return { error: "Nama pasien wajib diisi." };
   }
 
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const medical_record_number = await nextMedicalRecordNumber();
 
-  const { error } = await supabase.from("patients").insert({
+  await adminDb.collection(COLLECTIONS.patients).add({
+    medical_record_number,
     full_name: full_name.trim(),
     date_of_birth,
     gender,
@@ -34,12 +43,10 @@ export async function createPatient(
     address,
     emergency_contact_name,
     emergency_contact_phone,
-    created_by: user?.id,
+    created_by: profile.id,
+    created_at: FieldValue.serverTimestamp(),
+    updated_at: FieldValue.serverTimestamp(),
   });
-
-  if (error) {
-    return { error: error.message };
-  }
 
   revalidatePath("/pasien");
   return {};

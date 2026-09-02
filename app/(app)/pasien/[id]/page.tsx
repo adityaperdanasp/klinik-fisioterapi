@@ -1,5 +1,14 @@
 import Link from "next/link";
-import { createClient } from "@/lib/supabase/server";
+import { adminDb } from "@/lib/firebase/admin";
+import {
+  COLLECTIONS,
+  type BookingDoc,
+  type PatientDoc,
+  type PatientMedicalInfoDoc,
+  type PhysiotherapistDoc,
+  type RoomDoc,
+  type SessionNoteDoc,
+} from "@/lib/firebase/schema";
 import { getCurrentProfile } from "@/lib/current-user";
 import { formatTime } from "@/lib/week";
 import { DiagnosisForm } from "./DiagnosisForm";
@@ -17,9 +26,10 @@ type VisitRow = {
   id: string;
   starts_at: string;
   status: string;
-  physiotherapists: { full_name: string } | null;
-  rooms: { name: string } | null;
-  session_notes: { complaint: string | null; progress_notes: string | null } | null;
+  physiotherapist_name: string | null;
+  room_name: string | null;
+  complaint: string | null;
+  progress_notes: string | null;
 };
 
 export default async function PatientDetailPage({
@@ -28,43 +38,74 @@ export default async function PatientDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const supabase = await createClient();
   const profile = await getCurrentProfile();
   const canSeeClinical = profile?.role === "admin" || profile?.role === "fisioterapis";
   const canEditPatient = profile?.role === "admin" || profile?.role === "resepsionis";
 
-  const { data: patient } = await supabase
-    .from("patients")
-    .select(
-      "id, medical_record_number, full_name, date_of_birth, gender, phone, address, emergency_contact_name, emergency_contact_phone"
-    )
-    .eq("id", id)
-    .single();
-
-  if (!patient) {
+  const patientSnap = await adminDb.collection(COLLECTIONS.patients).doc(id).get();
+  if (!patientSnap.exists) {
     return <p className="text-sm text-slate-500">Pasien tidak ditemukan.</p>;
   }
+  const patientData = patientSnap.data() as PatientDoc;
+  // Cuma field yang plain-serializable (bukan Timestamp) yang boleh nyebrang
+  // ke Client Component (EditPatientForm) — created_at/updated_at/created_by
+  // sengaja di-drop di sini, nggak dipakai form itu juga.
+  const patient = {
+    id: patientSnap.id,
+    medical_record_number: patientData.medical_record_number,
+    full_name: patientData.full_name,
+    date_of_birth: patientData.date_of_birth,
+    gender: patientData.gender,
+    phone: patientData.phone,
+    address: patientData.address,
+    emergency_contact_name: patientData.emergency_contact_name,
+    emergency_contact_phone: patientData.emergency_contact_phone,
+  };
 
-  let medicalInfo: { initial_diagnosis: string | null } | null = null;
+  let medicalInfo: PatientMedicalInfoDoc | null = null;
   let visits: VisitRow[] = [];
 
   if (canSeeClinical) {
-    const [medicalRes, visitsRes] = await Promise.all([
-      supabase
-        .from("patient_medical_info")
-        .select("initial_diagnosis")
-        .eq("patient_id", id)
-        .maybeSingle(),
-      supabase
-        .from("bookings")
-        .select(
-          "id, starts_at, status, physiotherapists(full_name), rooms(name), session_notes(complaint, progress_notes)"
-        )
-        .eq("patient_id", id)
-        .order("starts_at", { ascending: false }),
+    const [medicalSnap, bookingsSnap, physiosSnap, roomsSnap] = await Promise.all([
+      adminDb.collection(COLLECTIONS.patientMedicalInfo).doc(id).get(),
+      adminDb
+        .collection(COLLECTIONS.bookings)
+        .where("patient_id", "==", id)
+        .orderBy("starts_at", "desc")
+        .get(),
+      adminDb.collection(COLLECTIONS.physiotherapists).get(),
+      adminDb.collection(COLLECTIONS.rooms).get(),
     ]);
-    medicalInfo = medicalRes.data;
-    visits = (visitsRes.data ?? []) as unknown as VisitRow[];
+
+    medicalInfo = medicalSnap.exists ? (medicalSnap.data() as PatientMedicalInfoDoc) : null;
+
+    const physioNameById = new Map(
+      physiosSnap.docs.map((d) => [d.id, (d.data() as PhysiotherapistDoc).full_name])
+    );
+    const roomNameById = new Map(roomsSnap.docs.map((d) => [d.id, (d.data() as RoomDoc).name]));
+
+    // session_notes/{bookingId} — 1 dokumen per booking, ambil sekaligus
+    // (bukan satu-satu di loop) pakai getAll biar cuma 1 round-trip.
+    const bookingDocs = bookingsSnap.docs;
+    const noteRefs = bookingDocs.map((d) =>
+      adminDb.collection(COLLECTIONS.sessionNotes).doc(d.id)
+    );
+    const noteSnaps = noteRefs.length > 0 ? await adminDb.getAll(...noteRefs) : [];
+
+    visits = bookingDocs.map((d, i) => {
+      const b = d.data() as BookingDoc;
+      const noteSnap = noteSnaps[i];
+      const note = noteSnap?.exists ? (noteSnap.data() as SessionNoteDoc) : null;
+      return {
+        id: d.id,
+        starts_at: b.starts_at.toDate().toISOString(),
+        status: b.status,
+        physiotherapist_name: physioNameById.get(b.physiotherapist_id) ?? null,
+        room_name: roomNameById.get(b.room_id) ?? null,
+        complaint: note?.complaint ?? null,
+        progress_notes: note?.progress_notes ?? null,
+      };
+    });
   }
 
   return (
@@ -129,33 +170,30 @@ export default async function PatientDetailPage({
               <p className="text-sm text-slate-400">Belum ada riwayat kunjungan.</p>
             )}
             <div className="space-y-4">
-              {visits.map((v) => {
-                const note = v.session_notes;
-                return (
-                  <div key={v.id} className="rounded-md border border-slate-100 p-3">
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="font-medium text-slate-900">
-                        {new Date(v.starts_at).toLocaleDateString("id-ID", {
-                          day: "numeric",
-                          month: "long",
-                          year: "numeric",
-                        })}{" "}
-                        · {formatTime(v.starts_at)}
-                      </span>
-                      <span className="text-xs text-slate-500">{STATUS_LABEL[v.status]}</span>
-                    </div>
-                    <div className="text-xs text-slate-500">
-                      {v.physiotherapists?.full_name} · {v.rooms?.name}
-                    </div>
-                    <SessionNoteForm
-                      bookingId={v.id}
-                      patientId={patient.id}
-                      complaint={note?.complaint ?? ""}
-                      progressNotes={note?.progress_notes ?? ""}
-                    />
+              {visits.map((v) => (
+                <div key={v.id} className="rounded-md border border-slate-100 p-3">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="font-medium text-slate-900">
+                      {new Date(v.starts_at).toLocaleDateString("id-ID", {
+                        day: "numeric",
+                        month: "long",
+                        year: "numeric",
+                      })}{" "}
+                      · {formatTime(v.starts_at)}
+                    </span>
+                    <span className="text-xs text-slate-500">{STATUS_LABEL[v.status]}</span>
                   </div>
-                );
-              })}
+                  <div className="text-xs text-slate-500">
+                    {v.physiotherapist_name} · {v.room_name}
+                  </div>
+                  <SessionNoteForm
+                    bookingId={v.id}
+                    patientId={patient.id}
+                    complaint={v.complaint ?? ""}
+                    progressNotes={v.progress_notes ?? ""}
+                  />
+                </div>
+              ))}
             </div>
           </div>
         </>
