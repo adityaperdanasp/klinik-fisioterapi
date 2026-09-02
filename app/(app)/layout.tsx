@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
+import { getCurrentProfile } from "@/lib/current-user";
 import { logout } from "./actions";
 import { Logo } from "@/app/components/Logo";
 
@@ -7,20 +7,7 @@ export default async function AppLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  let profile: { full_name: string; role: string } | null = null;
-  if (user) {
-    const { data } = await supabase
-      .from("profiles")
-      .select("full_name, role")
-      .eq("id", user.id)
-      .single();
-    profile = data;
-  }
+  const profile = await getCurrentProfile();
 
   return (
     <div className="min-h-full flex flex-col">

@@ -1,4 +1,6 @@
-import { createClient } from "@/lib/supabase/server";
+import { cookies } from "next/headers";
+import { adminAuth, adminDb } from "@/lib/firebase/admin";
+import { SESSION_COOKIE_NAME } from "@/lib/firebase/session";
 
 export type CurrentProfile = {
   id: string;
@@ -7,17 +9,25 @@ export type CurrentProfile = {
 };
 
 export async function getCurrentProfile(): Promise<CurrentProfile | null> {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return null;
+  const cookieStore = await cookies();
+  const sessionCookie = cookieStore.get(SESSION_COOKIE_NAME)?.value;
+  if (!sessionCookie) return null;
 
-  const { data } = await supabase
-    .from("profiles")
-    .select("id, full_name, role")
-    .eq("id", user.id)
-    .single();
+  let uid: string;
+  try {
+    const decoded = await adminAuth.verifySessionCookie(sessionCookie, true);
+    uid = decoded.uid;
+  } catch {
+    return null;
+  }
 
-  return data as CurrentProfile | null;
+  const snap = await adminDb.collection("profiles").doc(uid).get();
+  if (!snap.exists) return null;
+
+  const data = snap.data()!;
+  return {
+    id: uid,
+    full_name: data.full_name,
+    role: data.role,
+  };
 }
