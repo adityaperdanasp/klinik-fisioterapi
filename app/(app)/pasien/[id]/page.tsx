@@ -178,6 +178,7 @@ export default async function PatientDetailPage({
                         day: "numeric",
                         month: "long",
                         year: "numeric",
+                        timeZone: "Asia/Jakarta",
                       })}{" "}
                       · {formatTime(v.starts_at)}
                     </span>

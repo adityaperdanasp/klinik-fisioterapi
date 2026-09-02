@@ -20,14 +20,14 @@ export async function GET(request: NextRequest) {
 
   const header = ["Tanggal", "Pasien", "No. RM", "Fisioterapis", "Ruang", "Nominal", "Metode", "Waktu Bayar"];
   const rows = paid.map((b) => [
-    new Date(b.starts_at).toLocaleDateString("id-ID"),
+    new Date(b.starts_at).toLocaleDateString("id-ID", { timeZone: "Asia/Jakarta" }),
     b.patient_name ?? "",
     b.patient_mr_number ?? "",
     b.physiotherapist_name ?? "",
     b.room_name ?? "",
     String(b.payment.amount),
     b.payment.payment_method,
-    new Date(b.payment.paid_at).toLocaleString("id-ID"),
+    new Date(b.payment.paid_at).toLocaleString("id-ID", { timeZone: "Asia/Jakarta" }),
   ]);
 
   const csv = [header, ...rows].map((row) => row.map((c) => csvEscape(String(c))).join(",")).join("\n");

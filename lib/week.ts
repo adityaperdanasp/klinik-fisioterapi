@@ -37,9 +37,14 @@ export const DAY_NAMES_ID = [
 ];
 
 export function formatTime(iso: string) {
+  // timeZone WAJIB di-pin — tanpa ini, hasilnya ngikut timezone runtime
+  // server (Vercel default UTC, beda 7 jam dari WIB), bukan timezone klinik.
+  // Baru ketauan pas ngecek production langsung (dev lokal kebetulan nggak
+  // kelihatan bug-nya karena mesin dev udah WIB).
   return new Date(iso).toLocaleTimeString("id-ID", {
     hour: "2-digit",
     minute: "2-digit",
+    timeZone: "Asia/Jakarta",
   });
 }
 

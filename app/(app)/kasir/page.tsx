@@ -202,7 +202,7 @@ export default async function KasirPage({
                 <p className="mt-2 text-xs text-emerald-700">
                   Terbayar Rp{payment.amount.toLocaleString("id-ID")} ·{" "}
                   {PAYMENT_METHOD_LABEL[payment.payment_method]} ·{" "}
-                  {new Date(payment.paid_at).toLocaleString("id-ID")}
+                  {new Date(payment.paid_at).toLocaleString("id-ID", { timeZone: "Asia/Jakarta" })}
                 </p>
               )}
 
