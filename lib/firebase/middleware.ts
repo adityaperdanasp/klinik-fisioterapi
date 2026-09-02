@@ -15,10 +15,11 @@ export async function updateSession(request: NextRequest) {
     ? await verifySessionCookieEdge(sessionCookie, projectId)
     : null;
 
+  // "/set-password" (khusus alur invite Supabase) udah dihapus — invite
+  // staff sekarang pakai link hosted Firebase sendiri, bukan halaman kita.
   const isLoginPage = request.nextUrl.pathname.startsWith("/login");
-  const isPublicPage = request.nextUrl.pathname === "/set-password";
 
-  if (!claims && !isLoginPage && !isPublicPage) {
+  if (!claims && !isLoginPage) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
     return NextResponse.redirect(url);

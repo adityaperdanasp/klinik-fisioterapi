@@ -1,5 +1,5 @@
-import { createClient } from "@/lib/supabase/server";
-import { createAdminClient } from "@/lib/supabase/admin";
+import { adminAuth, adminDb } from "@/lib/firebase/admin";
+import { COLLECTIONS, type ProfileDoc } from "@/lib/firebase/schema";
 import { getCurrentProfile } from "@/lib/current-user";
 import { InviteForm } from "./InviteForm";
 
@@ -15,18 +15,24 @@ export default async function StaffPage() {
     return <p className="text-sm text-slate-500">Halaman ini khusus admin.</p>;
   }
 
-  const supabase = await createClient();
-  const { data: profiles } = await supabase
-    .from("profiles")
-    .select("id, full_name, role, created_at")
-    .order("created_at");
+  const [profilesSnap, usersResult] = await Promise.all([
+    adminDb.collection(COLLECTIONS.profiles).orderBy("created_at").get(),
+    adminAuth.listUsers(),
+  ]);
 
-  const admin = createAdminClient();
-  const { data: usersData } = await admin.auth.admin.listUsers();
-  const emailById = new Map((usersData?.users ?? []).map((u) => [u.id, u.email]));
-  const confirmedById = new Map(
-    (usersData?.users ?? []).map((u) => [u.id, Boolean(u.email_confirmed_at)])
+  const emailById = new Map(usersResult.users.map((u) => [u.uid, u.email]));
+  // Firebase nggak punya "email_confirmed_at" kayak Supabase — dipakai
+  // lastSignInTime (nol/kosong sampai staff-nya beneran login pertama kali
+  // pakai password yang mereka set sendiri lewat link undangan) sebagai
+  // penanda "sudah aktifin akun" yang setara.
+  const hasSignedInById = new Map(
+    usersResult.users.map((u) => [u.uid, Boolean(u.metadata.lastSignInTime)])
   );
+
+  const staffList = profilesSnap.docs.map((d) => {
+    const data = d.data() as ProfileDoc;
+    return { id: d.id, full_name: data.full_name, role: data.role };
+  });
 
   return (
     <div className="space-y-6">
@@ -39,8 +45,8 @@ export default async function StaffPage() {
         <h2 className="mb-3 text-sm font-medium text-slate-900">Undang Staff Baru</h2>
         <InviteForm />
         <p className="mt-2 text-xs text-slate-400">
-          Staff akan menerima email undangan untuk set password sendiri. Kalau email nggak
-          sampai, cek konfigurasi email/SMTP di Supabase Dashboard.
+          Setelah dibuat, link &quot;set password&quot; bakal muncul di sini — copy &amp; kirim
+          sendiri ke staff-nya lewat WA atau email.
         </p>
       </div>
 
@@ -55,7 +61,7 @@ export default async function StaffPage() {
             </tr>
           </thead>
           <tbody>
-            {(profiles ?? []).map((p) => (
+            {staffList.map((p) => (
               <tr key={p.id} className="border-b border-slate-100 last:border-0">
                 <td className="px-4 py-2 text-slate-900">{p.full_name}</td>
                 <td className="px-4 py-2 text-slate-600">{emailById.get(p.id) ?? "-"}</td>
@@ -63,12 +69,12 @@ export default async function StaffPage() {
                 <td className="px-4 py-2">
                   <span
                     className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                      confirmedById.get(p.id)
+                      hasSignedInById.get(p.id)
                         ? "bg-emerald-100 text-emerald-700"
                         : "bg-amber-100 text-amber-700"
                     }`}
                   >
-                    {confirmedById.get(p.id) ? "Aktif" : "Menunggu Konfirmasi"}
+                    {hasSignedInById.get(p.id) ? "Aktif" : "Belum Login Pertama"}
                   </span>
                 </td>
               </tr>
