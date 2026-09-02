@@ -34,6 +34,25 @@ Semua 5 fitur berikut sudah dibangun. **Jangan tambah fitur lain di luar ini tan
 - **`settings.bulan_mulai_operasional`** — masih `2026-08-01` placeholder, ganti ke tanggal mulai operasional asli begitu pasti (pengaruh ke perhitungan proyeksi ramp-up di dashboard).
 - **Data fisioterapis di tabel `physiotherapists`** (dipakai buat booking di `/jadwal`) beda dengan nama di landing page `TEAM` (Erwin/Mia/Fitria/Dhea) — belum disinkronkan, karena TEAM di landing page masih placeholder. Jangan asumsikan keduanya harus sama sampai user konfirmasi roster staff final.
 
+## Migrasi Supabase → Firebase — status: SEDANG BERJALAN (Fase 1 selesai)
+
+Keputusan user: pindah backend dari Supabase ke Firebase. Alasan awal ("Firebase gratis, Supabase bakal bayar") sebenarnya keliru — dua-duanya gratis di skala pemakaian sekarang, bedanya cuma Supabase free tier auto-pause kalau idle 7 hari (sudah di-fix terpisah, lihat gotcha). User tetap milih lanjut migrasi setelah dikasih tau tradeoff-nya — jangan re-litigate keputusan ini, cuma eksekusi sesuai fase.
+
+**Karena belum ada data pasien/booking/payment ASLI (masih dummy)**, migrasi ini rebuild skema baru langsung di Firestore, BUKAN proses export/import data sensitif.
+
+Rencana 7 fase (kerjain satu-satu, verifikasi tiap fase sebelum lanjut):
+1. ✅ **Setup project Firebase** — project `pulih-fisioterapi`, Firestore (region `asia-southeast2`/Jakarta, delete protection ON), Auth provider Email/Password + Google keduanya enabled, web app terdaftar, service account Admin SDK udah di `.env.local` (`lib/firebase/client.ts` + `lib/firebase/admin.ts`). Smoke-test read/write Firestore + Auth API berhasil.
+2. ⬜ Auth: ganti Supabase Auth → Firebase Auth (login, session, role di custom claims atau koleksi `profiles`)
+3. ⬜ Skema Firestore: `profiles`, `physiotherapists`, `rooms`, `bookings`, `patients`, `patient_medical_info`, `session_notes`, `payments`, `settings`
+4. ⬜ Anti-bentrok jadwal booking via Firestore transaction (pengganti EXCLUDE constraint Postgres)
+5. ⬜ Rewrite halaman: `/jadwal`, `/pasien`, `/kasir`, `/dashboard`, `/pengaturan`, `/pengaturan/staff`, `/kasir/rekap`
+6. ⬜ Firestore Security Rules per role (pengganti RLS policy Supabase)
+7. ⬜ Testing end-to-end tiap fitur → cutover `proxy.ts` → update dokumentasi ini → deploy, matiin dependency Supabase
+
+**Supabase TETAP HIDUP sebagai fallback** sampai migrasi 100% selesai dan stabil — jangan matiin/downgrade project Supabase duluan, itu jalan rollback kalau ada kendala di tengah migrasi.
+
+Firebase project info: project ID `pulih-fisioterapi`, Firestore region `asia-southeast2` (Jakarta), console: https://console.firebase.google.com/project/pulih-fisioterapi/overview. Config di `.env.local` (`NEXT_PUBLIC_FIREBASE_*` buat client, `FIREBASE_ADMIN_*` buat server/Admin SDK — sama sensitifnya kayak `SUPABASE_SERVICE_ROLE_KEY`, jangan expose ke client). **Belum ditambahin ke env vars Vercel** — perlu ditambahin sebelum halaman yang pakai Firebase di-deploy ke production (Fase 2+).
+
 ## Stack & Infra
 
 - Framework: Next.js 16 (App Router, Turbopack) + TypeScript + Tailwind CSS
