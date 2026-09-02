@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { verifyPasswordResetCode, confirmPasswordReset } from "firebase/auth";
 import { auth } from "@/lib/firebase/client";
@@ -12,7 +12,19 @@ import { Logo } from "@/app/components/Logo";
 // (app/(app)/pengaturan/staff/actions.ts). Route ini PUBLIK (dikecualikan
 // dari proteksi login di lib/firebase/middleware.ts) karena orang yang
 // buka halaman ini justru BELUM punya akun aktif/sesi.
+//
+// `useSearchParams()` WAJIB dibungkus <Suspense> — kalau nggak, `next build`
+// gagal prerendering ("useSearchParams() should be wrapped in a suspense
+// boundary"). Baru ketauan pas build production, dev server nggak ngecek ini.
 export default function SetPasswordPage() {
+  return (
+    <Suspense fallback={null}>
+      <SetPasswordForm />
+    </Suspense>
+  );
+}
+
+function SetPasswordForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const oobCode = searchParams.get("oobCode");
