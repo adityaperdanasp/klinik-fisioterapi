@@ -13,6 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://pulihfisioterapi.id"),
   title: "Pulih Fisioterapi",
   description: "App internal Klinik Pulih Fisioterapi",
 };
