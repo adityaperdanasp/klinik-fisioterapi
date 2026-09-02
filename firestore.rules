@@ -1,11 +1,102 @@
 rules_version = '2';
 
-// Placeholder — akses lewat client SDK belum dipakai sama sekali di app ini
-// (semua baca/tulis lewat Admin SDK di server, yang bypass rules ini total).
-// Default-deny ini sengaja dikunci sampai Fase 6 (Firestore Security Rules
-// per role), JANGAN dilonggarin sebelum itu.
+// Pengganti RLS Postgres (lihat supabase/migrations/*.sql buat versi
+// aslinya) — dipetakan policy demi policy, sengaja dibikin semirip mungkin.
+//
+// PENTING buat dipahami: app ini SEMUA akses baca/tulisnya lewat Admin SDK
+// di server (Server Component/Action), yang BYPASS rules ini total — rules
+// di bawah ini nggak pernah "kena" dari jalur normal app sekarang. Ini
+// murni defense-in-depth kedua: kalau suatu saat ada fitur yang manggil
+// Firestore client SDK langsung dari browser (misal real-time listener),
+// rules ini yang jadi pagar satu-satunya, bukan role-check di Server
+// Action. Client SDK butuh Firebase Auth ID token buat `request.auth`
+// keisi — app ini SEKARANG cuma pakai session cookie (server-side), jadi
+// `request.auth` bakal selalu null dari jalur app normal, dan default-deny
+// di bawah otomatis berlaku. Rules ini ditulis buat masa depan, bukan buat
+// nutup celah yang ada sekarang.
 service cloud.firestore {
   match /databases/{database}/documents {
+    function isAuthed() {
+      return request.auth != null;
+    }
+
+    // Baca role caller dari profiles/{uid} — pengganti fungsi auth_role()
+    // SECURITY DEFINER di Postgres. `get()` di sini nge-charge 1 baca
+    // ekstra per rule evaluation, sama kayak trade-off auth_role() asli.
+    function role() {
+      return get(/databases/$(database)/documents/profiles/$(request.auth.uid)).data.role;
+    }
+
+    function isAdmin() {
+      return isAuthed() && role() == 'admin';
+    }
+
+    function isAdminOrResepsionis() {
+      return isAuthed() && role() in ['admin', 'resepsionis'];
+    }
+
+    function isAdminOrFisioterapis() {
+      return isAuthed() && role() in ['admin', 'fisioterapis'];
+    }
+
+    // profiles: "users read own profile, admin reads all" + "only admin manages profiles"
+    match /profiles/{uid} {
+      allow read: if isAuthed() && (request.auth.uid == uid || isAdmin());
+      allow write: if isAdmin();
+    }
+
+    // patients: "all roles read patients" + "admin and resepsionis manage patients"
+    match /patients/{patientId} {
+      allow read: if isAuthed();
+      allow write: if isAdminOrResepsionis();
+    }
+
+    // patient_medical_info: "clinical staff read/manage medical info"
+    match /patient_medical_info/{patientId} {
+      allow read, write: if isAdminOrFisioterapis();
+    }
+
+    // physiotherapists: "all roles read" + "admin manages"
+    match /physiotherapists/{physioId} {
+      allow read: if isAuthed();
+      allow write: if isAdmin();
+    }
+
+    // rooms: "all roles read" + "admin manages"
+    match /rooms/{roomId} {
+      allow read: if isAuthed();
+      allow write: if isAdmin();
+    }
+
+    // bookings: "all roles read" + "admin and resepsionis manage bookings"
+    match /bookings/{bookingId} {
+      allow read: if isAuthed();
+      allow write: if isAdminOrResepsionis();
+    }
+
+    // session_notes: "clinical staff read/manage session notes"
+    match /session_notes/{bookingId} {
+      allow read, write: if isAdminOrFisioterapis();
+    }
+
+    // payments: CUMA "admin and resepsionis manage payments" di Postgres —
+    // nggak ada policy read terpisah yang lebih luas, jadi fisioterapis
+    // juga nggak boleh baca payments (beda dari patients/bookings/dst).
+    match /payments/{bookingId} {
+      allow read, write: if isAdminOrResepsionis();
+    }
+
+    // settings: "all roles read settings" + "admin manages settings"
+    match /settings/{key} {
+      allow read: if isAuthed();
+      allow write: if isAdmin();
+    }
+
+    // counters/*: cuma dipakai server-side (Admin SDK) buat generate nomor
+    // rekam medis — nggak ada padanan di Postgres, sengaja default-deny
+    // total, nggak ada client yang butuh akses ini.
+
+    // Default-deny buat semua yang nggak match rule spesifik di atas.
     match /{document=**} {
       allow read, write: if false;
     }
