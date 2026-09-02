@@ -41,7 +41,7 @@ export default async function AppLayout({
       style={{ background: "var(--brand-cream)" }}
     >
       <header
-        className="border-b"
+        className="no-print border-b"
         style={{ borderColor: "var(--brand-cream-alt)", background: "#fff" }}
       >
         <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-x-4 gap-y-2 px-4 py-3">

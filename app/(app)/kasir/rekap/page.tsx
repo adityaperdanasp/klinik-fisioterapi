@@ -1,6 +1,7 @@
 import { getCurrentProfile } from "@/lib/current-user";
 import { toDateKey } from "@/lib/week";
 import { getMonthlyPayments } from "./data";
+import { PrintButton } from "./PrintButton";
 
 const PAYMENT_METHOD_LABEL: Record<string, string> = {
   tunai: "Tunai",
@@ -51,18 +52,33 @@ export default async function RekapBulananPage({
 
   return (
     <div className="space-y-6">
-      <div>
+      {/* Header pengganti pas dicetak — halaman yang di-print nggak bawa
+          nav/header aplikasi (di-sembunyiin via .no-print), jadi kertasnya
+          butuh identitas sendiri: nama klinik, judul laporan, periode,
+          kapan dicetak. */}
+      <div className="print-only mb-4 border-b pb-4" style={{ borderColor: "#000" }}>
+        <p className="text-lg font-semibold">Pulih Fisioterapi</p>
+        <p className="text-base">
+          Rekap Bulanan Kasir —{" "}
+          {monthStart.toLocaleDateString("id-ID", { month: "long", year: "numeric" })}
+        </p>
+        <p className="text-xs text-slate-500">
+          Dicetak: {new Date().toLocaleString("id-ID", { timeZone: "Asia/Jakarta" })}
+        </p>
+      </div>
+
+      <div className="no-print">
         <h1 className="text-lg font-semibold text-slate-900">Rekap Bulanan Kasir</h1>
         <p className="text-sm text-slate-500">
           {monthStart.toLocaleDateString("id-ID", { month: "long", year: "numeric" })}
         </p>
       </div>
 
-      <div className="flex items-center justify-between">
+      <div className="no-print flex flex-wrap items-center justify-between gap-3">
         <a href={`/kasir/rekap?month=${prevKey}`} className="text-sm text-slate-500 hover:text-slate-900">
           &larr; Bulan sebelumnya
         </a>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           <a href="/kasir" className="text-sm text-slate-500 hover:text-slate-900">
             Kembali ke Kasir
           </a>
@@ -72,6 +88,7 @@ export default async function RekapBulananPage({
           >
             Download CSV
           </a>
+          <PrintButton />
         </div>
         <a href={`/kasir/rekap?month=${nextKey}`} className="text-sm text-slate-500 hover:text-slate-900">
           Bulan berikutnya &rarr;

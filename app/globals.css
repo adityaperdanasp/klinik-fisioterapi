@@ -134,6 +134,34 @@ body {
   color: var(--brand-ink);
 }
 
+/* ============================================
+   Print — dipakai di app/(app)/layout.tsx (sembunyiin header/nav pas print,
+   berlaku di halaman internal manapun) dan app/(app)/kasir/rekap/page.tsx
+   (header pengganti + sembunyiin tombol navigasi/download).
+   `.print-only` disembunyiin di layar biasa, cuma muncul pas print.
+   ============================================ */
+.print-only {
+  display: none;
+}
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  .print-only {
+    display: block !important;
+  }
+  body,
+  .app-shell,
+  main {
+    background: #fff !important;
+  }
+  .card,
+  table {
+    break-inside: avoid;
+  }
+}
+
 /* Override kelas Tailwind slate-* bawaan (dipakai di ~20 file page/komponen
    internal) biar ikutan warna brand, tanpa perlu edit className di tiap
    file satu-satu. Warna status (emerald/amber/red buat badge aktif/warn/
