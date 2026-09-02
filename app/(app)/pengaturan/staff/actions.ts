@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { headers } from "next/headers";
 import { FieldValue } from "firebase-admin/firestore";
 import { adminAuth, adminDb } from "@/lib/firebase/admin";
 import { COLLECTIONS } from "@/lib/firebase/schema";
@@ -45,12 +46,28 @@ export async function inviteStaff(_prev: FormResult, formData: FormData): Promis
 
   // Firebase nggak punya "kirim email undangan" otomatis kayak Supabase —
   // link "set password" ini di-generate terus ditampilin ke admin buat
-  // dikirim manual (WA/email) ke staff yang diundang. Belum ada custom
-  // action handler (masih pakai halaman hosted default Firebase pas staff
-  // klik link-nya) — cukup buat sekarang, bisa dipercantik belakangan.
+  // dikirim manual (WA/email) ke staff yang diundang.
+  //
+  // Catatan: `actionCodeSettings.handleCodeInApp` TERNYATA nggak bikin
+  // generatePasswordResetLink() langsung ngarah ke app kita (beda dari
+  // generateSignInWithEmailLink yang emang didesain gitu) — link yang
+  // dibalikin tetep ke halaman hosted Firebase
+  // (pulih-fisioterapi.firebaseapp.com/__/auth/action), cuma nambahin
+  // `continueUrl`. Solusinya: extract `oobCode`-nya manual dari link yang
+  // Firebase kasih, terus susun sendiri URL ke halaman kita
+  // (app/undangan/set-password/page.tsx) — verifyPasswordResetCode() dan
+  // confirmPasswordReset() di client SDK cuma butuh oobCode mentah, nggak
+  // peduli URL apa yang "membungkusnya".
+  const headerList = await headers();
+  const host = headerList.get("host");
+  const protocol = host?.startsWith("localhost") ? "http" : "https";
+
   let inviteLink: string;
   try {
-    inviteLink = await adminAuth.generatePasswordResetLink(email);
+    const firebaseLink = await adminAuth.generatePasswordResetLink(email);
+    const oobCode = new URL(firebaseLink).searchParams.get("oobCode");
+    if (!oobCode) throw new Error("oobCode tidak ditemukan di link Firebase.");
+    inviteLink = `${protocol}://${host}/undangan/set-password?oobCode=${oobCode}`;
   } catch {
     return {
       error:
