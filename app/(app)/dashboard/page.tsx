@@ -1,15 +1,15 @@
-import { createClient } from "@/lib/supabase/server";
+import { Timestamp } from "firebase-admin/firestore";
+import { adminDb } from "@/lib/firebase/admin";
+import {
+  COLLECTIONS,
+  type BookingDoc,
+  type PaymentDoc,
+  type PhysiotherapistDoc,
+  type RoomDoc,
+} from "@/lib/firebase/schema";
 import { getCurrentProfile } from "@/lib/current-user";
 import { getSetting } from "@/lib/settings";
 import { RampUpChart } from "./RampUpChart";
-
-type BookingWithPayment = {
-  starts_at: string;
-  status: string;
-  physiotherapists: { full_name: string } | null;
-  rooms: { name: string } | null;
-  payments: { amount: string } | null;
-};
 
 function monthKey(d: Date) {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
@@ -21,7 +21,6 @@ export default async function DashboardPage() {
     return <p className="text-sm text-slate-500">Halaman dashboard khusus admin.</p>;
   }
 
-  const supabase = await createClient();
   const [kapasitasMax, targetBep, rampUpStart] = await Promise.all([
     getSetting("kapasitas_max_sesi_bulan"),
     getSetting("target_bep_sesi_bulan"),
@@ -32,27 +31,46 @@ export default async function DashboardPage() {
   const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
   const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
 
-  const { data: monthBookings } = await supabase
-    .from("bookings")
-    .select("starts_at, status, physiotherapists(full_name), rooms(name), payments(amount)")
-    .eq("status", "completed")
-    .gte("starts_at", monthStart.toISOString())
-    .lte("starts_at", monthEnd.toISOString());
+  const [monthBookingsSnap, physiosSnap, roomsSnap] = await Promise.all([
+    adminDb
+      .collection(COLLECTIONS.bookings)
+      .where("status", "==", "completed")
+      .where("starts_at", ">=", Timestamp.fromDate(monthStart))
+      .where("starts_at", "<=", Timestamp.fromDate(monthEnd))
+      .get(),
+    adminDb.collection(COLLECTIONS.physiotherapists).get(),
+    adminDb.collection(COLLECTIONS.rooms).get(),
+  ]);
 
-  const bookings = (monthBookings ?? []) as unknown as BookingWithPayment[];
-  const sesiAktualBulanIni = bookings.length;
+  const physioNameById = new Map(
+    physiosSnap.docs.map((d) => [d.id, (d.data() as PhysiotherapistDoc).full_name])
+  );
+  const roomNameById = new Map(roomsSnap.docs.map((d) => [d.id, (d.data() as RoomDoc).name]));
+
+  const monthBookingDocs = monthBookingsSnap.docs;
+  const sesiAktualBulanIni = monthBookingDocs.length;
   const kapasitas = Number(kapasitasMax ?? 874);
   const bep = Number(targetBep ?? 290);
 
+  // payments/{bookingId} — batch-get langsung by id (getAll), bukan query.
+  const paymentSnaps =
+    monthBookingDocs.length > 0
+      ? await adminDb.getAll(
+          ...monthBookingDocs.map((d) => adminDb.collection(COLLECTIONS.payments).doc(d.id))
+        )
+      : [];
+
   const revenueByPhysio = new Map<string, number>();
   const revenueByRoom = new Map<string, number>();
-  for (const b of bookings) {
-    const amount = Number(b.payments?.amount ?? 0);
-    const physioName = b.physiotherapists?.full_name ?? "-";
-    const roomName = b.rooms?.name ?? "-";
+  monthBookingDocs.forEach((d, i) => {
+    const b = d.data() as BookingDoc;
+    const paymentSnap = paymentSnaps[i];
+    const amount = paymentSnap?.exists ? (paymentSnap.data() as PaymentDoc).amount : 0;
+    const physioName = physioNameById.get(b.physiotherapist_id) ?? "-";
+    const roomName = roomNameById.get(b.room_id) ?? "-";
     revenueByPhysio.set(physioName, (revenueByPhysio.get(physioName) ?? 0) + amount);
     revenueByRoom.set(roomName, (revenueByRoom.get(roomName) ?? 0) + amount);
-  }
+  });
 
   const startDate = new Date(`${rampUpStart ?? "2026-08-01"}T00:00:00`);
   const startMonthFirst = new Date(startDate.getFullYear(), startDate.getMonth(), 1);
@@ -61,16 +79,17 @@ export default async function DashboardPage() {
     (now.getMonth() - startMonthFirst.getMonth()) +
     1;
 
-  const { data: historyBookings } = await supabase
-    .from("bookings")
-    .select("starts_at, status")
-    .eq("status", "completed")
-    .gte("starts_at", startMonthFirst.toISOString())
-    .lte("starts_at", monthEnd.toISOString());
+  const historyBookingsSnap = await adminDb
+    .collection(COLLECTIONS.bookings)
+    .where("status", "==", "completed")
+    .where("starts_at", ">=", Timestamp.fromDate(startMonthFirst))
+    .where("starts_at", "<=", Timestamp.fromDate(monthEnd))
+    .get();
 
   const countByMonthKey = new Map<string, number>();
-  for (const b of historyBookings ?? []) {
-    const k = monthKey(new Date(b.starts_at));
+  for (const d of historyBookingsSnap.docs) {
+    const b = d.data() as BookingDoc;
+    const k = monthKey(b.starts_at.toDate());
     countByMonthKey.set(k, (countByMonthKey.get(k) ?? 0) + 1);
   }
 

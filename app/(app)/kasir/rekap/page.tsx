@@ -21,19 +21,19 @@ export default async function RekapBulananPage({
   const { month } = await searchParams;
   const { monthStart, monthKey, paid } = await getMonthlyPayments(month);
 
-  const totalRevenue = paid.reduce((sum, b) => sum + Number(b.payments?.amount ?? 0), 0);
+  const totalRevenue = paid.reduce((sum, b) => sum + b.payment.amount, 0);
 
   const byDay = new Map<string, { count: number; revenue: number }>();
   const byMethod = new Map<string, { count: number; revenue: number }>();
   for (const b of paid) {
     const dayKey = toDateKey(new Date(b.starts_at));
-    const amount = Number(b.payments?.amount ?? 0);
+    const amount = b.payment.amount;
     const day = byDay.get(dayKey) ?? { count: 0, revenue: 0 };
     day.count += 1;
     day.revenue += amount;
     byDay.set(dayKey, day);
 
-    const method = b.payments?.payment_method ?? "-";
+    const method = b.payment.payment_method;
     const m = byMethod.get(method) ?? { count: 0, revenue: 0 };
     m.count += 1;
     m.revenue += amount;

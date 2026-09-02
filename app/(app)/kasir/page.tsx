@@ -1,4 +1,13 @@
-import { createClient } from "@/lib/supabase/server";
+import { Timestamp } from "firebase-admin/firestore";
+import { adminDb } from "@/lib/firebase/admin";
+import {
+  COLLECTIONS,
+  type BookingDoc,
+  type PatientDoc,
+  type PaymentDoc,
+  type PhysiotherapistDoc,
+  type RoomDoc,
+} from "@/lib/firebase/schema";
 import { getCurrentProfile } from "@/lib/current-user";
 import { getSetting } from "@/lib/settings";
 import { formatTime, toDateKey } from "@/lib/week";
@@ -22,14 +31,14 @@ type BookingRow = {
   starts_at: string;
   status: string;
   patient_id: string;
-  patients: { full_name: string; medical_record_number: string } | null;
-  physiotherapists: { full_name: string } | null;
-  rooms: { name: string } | null;
+  patient_name: string | null;
+  patient_mr_number: string | null;
+  physiotherapist_name: string | null;
+  room_name: string | null;
 };
 
 type PaymentRow = {
-  booking_id: string;
-  amount: string;
+  amount: number;
   payment_method: string;
   paid_at: string;
 };
@@ -57,35 +66,62 @@ export default async function KasirPage({
     );
   }
 
-  const supabase = await createClient();
-  const [bookingsRes, tarifDefault] = await Promise.all([
-    supabase
-      .from("bookings")
-      .select(
-        "id, starts_at, status, patient_id, patients(full_name, medical_record_number), physiotherapists(full_name), rooms(name)"
-      )
-      .gte("starts_at", dayStart.toISOString())
-      .lte("starts_at", dayEnd.toISOString())
-      .order("starts_at"),
+  const [bookingsSnap, tarifDefault, patientsSnap, physiosSnap, roomsSnap] = await Promise.all([
+    adminDb
+      .collection(COLLECTIONS.bookings)
+      .where("starts_at", ">=", Timestamp.fromDate(dayStart))
+      .where("starts_at", "<=", Timestamp.fromDate(dayEnd))
+      .orderBy("starts_at")
+      .get(),
     getSetting("tarif_default"),
+    adminDb.collection(COLLECTIONS.patients).get(),
+    adminDb.collection(COLLECTIONS.physiotherapists).get(),
+    adminDb.collection(COLLECTIONS.rooms).get(),
   ]);
 
-  const bookings = (bookingsRes.data ?? []) as unknown as BookingRow[];
-  const bookingIds = bookings.map((b) => b.id);
+  const patientById = new Map(
+    patientsSnap.docs.map((d) => [d.id, d.data() as PatientDoc])
+  );
+  const physioNameById = new Map(
+    physiosSnap.docs.map((d) => [d.id, (d.data() as PhysiotherapistDoc).full_name])
+  );
+  const roomNameById = new Map(roomsSnap.docs.map((d) => [d.id, (d.data() as RoomDoc).name]));
 
-  const { data: paymentsData } =
-    bookingIds.length > 0
-      ? await supabase.from("payments").select("*").in("booking_id", bookingIds)
-      : { data: [] as PaymentRow[] };
+  const bookings: BookingRow[] = bookingsSnap.docs.map((d) => {
+    const b = d.data() as BookingDoc;
+    const patient = patientById.get(b.patient_id);
+    return {
+      id: d.id,
+      starts_at: b.starts_at.toDate().toISOString(),
+      status: b.status,
+      patient_id: b.patient_id,
+      patient_name: patient?.full_name ?? null,
+      patient_mr_number: patient?.medical_record_number ?? null,
+      physiotherapist_name: physioNameById.get(b.physiotherapist_id) ?? null,
+      room_name: roomNameById.get(b.room_id) ?? null,
+    };
+  });
 
+  // payments/{bookingId} — doc id = booking id, jadi batch-get langsung by id
+  // (getAll), bukan query "in" — lebih murah & selalu 1:1 sesuai desain skema.
   const paymentsByBooking = new Map<string, PaymentRow>();
-  for (const p of (paymentsData ?? []) as unknown as PaymentRow[]) {
-    paymentsByBooking.set(p.booking_id, p);
+  if (bookings.length > 0) {
+    const refs = bookings.map((b) => adminDb.collection(COLLECTIONS.payments).doc(b.id));
+    const snaps = await adminDb.getAll(...refs);
+    snaps.forEach((snap, i) => {
+      if (!snap.exists) return;
+      const p = snap.data() as PaymentDoc;
+      paymentsByBooking.set(bookings[i].id, {
+        amount: p.amount,
+        payment_method: p.payment_method,
+        paid_at: p.paid_at.toDate().toISOString(),
+      });
+    });
   }
 
   const paidBookings = bookings.filter((b) => paymentsByBooking.has(b.id));
   const totalRevenue = paidBookings.reduce(
-    (sum, b) => sum + Number(paymentsByBooking.get(b.id)?.amount ?? 0),
+    (sum, b) => sum + (paymentsByBooking.get(b.id)?.amount ?? 0),
     0
   );
 
@@ -154,17 +190,17 @@ export default async function KasirPage({
             <div key={b.id} className="rounded-lg border border-slate-200 bg-white p-4 text-sm">
               <div className="flex items-center justify-between">
                 <span className="font-medium text-slate-900">
-                  {formatTime(b.starts_at)} · {b.patients?.full_name} ({b.patients?.medical_record_number})
+                  {formatTime(b.starts_at)} · {b.patient_name} ({b.patient_mr_number})
                 </span>
                 <span className="text-xs text-slate-500">{STATUS_LABEL[b.status]}</span>
               </div>
               <div className="text-xs text-slate-500">
-                {b.physiotherapists?.full_name} · {b.rooms?.name}
+                {b.physiotherapist_name} · {b.room_name}
               </div>
 
               {payment && (
                 <p className="mt-2 text-xs text-emerald-700">
-                  Terbayar Rp{Number(payment.amount).toLocaleString("id-ID")} ·{" "}
+                  Terbayar Rp{payment.amount.toLocaleString("id-ID")} ·{" "}
                   {PAYMENT_METHOD_LABEL[payment.payment_method]} ·{" "}
                   {new Date(payment.paid_at).toLocaleString("id-ID")}
                 </p>
