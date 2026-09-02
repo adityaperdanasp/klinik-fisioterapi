@@ -12,7 +12,7 @@ export function RoomForm() {
   }, [pending, state.error]);
 
   return (
-    <form ref={formRef} action={formAction} className="flex items-end gap-2">
+    <form ref={formRef} action={formAction} className="flex flex-wrap items-end gap-2">
       <div>
         <label className="block text-xs font-medium text-slate-600">Nama Ruang</label>
         <input

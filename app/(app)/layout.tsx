@@ -44,11 +44,11 @@ export default async function AppLayout({
         className="border-b"
         style={{ borderColor: "var(--brand-cream-alt)", background: "#fff" }}
       >
-        <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
-          <div className="flex items-center">
+        <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-x-4 gap-y-2 px-4 py-3">
+          <div className="flex flex-wrap items-center gap-y-2">
             <Logo size="compact" />
             <nav
-              className="ml-6 inline-flex gap-4 text-sm"
+              className="ml-4 flex flex-wrap gap-x-3 gap-y-1 text-sm sm:ml-6 sm:gap-4"
               style={{ color: "var(--brand-muted)" }}
             >
               <a href="/jadwal" className="link-muted">
@@ -76,7 +76,7 @@ export default async function AppLayout({
           </div>
           <div className="flex items-center gap-3 text-sm">
             {profile && (
-              <span style={{ color: "var(--brand-muted)" }}>
+              <span className="hidden sm:inline" style={{ color: "var(--brand-muted)" }}>
                 {profile.full_name}{" "}
                 <span style={{ color: "var(--brand-earth)" }}>({profile.role})</span>
               </span>
