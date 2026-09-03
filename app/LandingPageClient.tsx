@@ -110,7 +110,7 @@ const CONTENT: Record<
     faq: { heading: string; items: { q: string; a: string }[] };
     location: { heading: string; mapLink: string; chatBtn: string; hoursHeading: string; hoursSchedule: string; hoursNote: string };
     footer: { desc: string; navHeading: string; contactHeading: string; loginStaff: string };
-    whatsapp: { book: string; ask: string; consultPrefix: (title: string) => string };
+    whatsapp: { book: string; ask: string; visit: string; consultPrefix: (title: string) => string };
     backToTop: string;
     waFloatLabel: string;
     themeToggle: string;
@@ -208,6 +208,7 @@ const CONTENT: Record<
     whatsapp: {
       book: "Halo, saya ingin booking sesi fisioterapi.",
       ask: "Halo, saya ingin tanya-tanya soal fisioterapi.",
+      visit: "Halo, saya mau tanya soal jadwal kunjungan & lokasi klinik.",
       consultPrefix: (title) => `Halo, saya ingin konsultasi soal ${title.toLowerCase()}.`,
     },
     backToTop: "Kembali ke atas",
@@ -306,6 +307,7 @@ const CONTENT: Record<
     whatsapp: {
       book: "Hi, I'd like to book a physiotherapy session.",
       ask: "Hi, I have some questions about physiotherapy.",
+      visit: "Hi, I'd like to ask about visiting hours & the clinic's location.",
       consultPrefix: (title) => `Hi, I'd like to consult about ${title.toLowerCase()}.`,
     },
     backToTop: "Back to top",
@@ -976,7 +978,7 @@ export function LandingPageClient() {
 
           <div className="mt-8">
             <a
-              href={whatsappLink(t.whatsapp.ask)}
+              href={whatsappLink(t.whatsapp.visit)}
               className="inline-block rounded-full px-8 py-3.5 text-sm font-semibold text-white"
               style={{ backgroundColor: COLOR.accent }}
             >
