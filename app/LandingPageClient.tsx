@@ -98,7 +98,7 @@ const CONTENT: Record<
     nav: { layanan: string; alur: string; tim: string; faq: string; lokasi: string };
     bookBtn: string;
     banner: { text: string; link: string };
-    hero: { badge: string; titleLine1: string; titleItalic: string; desc: string; cta: string; heroAlt: string };
+    hero: { badge: string; titleLine1: string; titleItalic: string; desc: string; cta: string; heroAlt: string; trustChips: string[] };
     features: { title: string; description: string }[];
     trust: { label: string; heading: string; desc: string; link: string };
     steps: { heading: string; items: { number: string; title: string; description: string }[] };
@@ -127,6 +127,7 @@ const CONTENT: Record<
       desc: "Fisioterapi spesialis cedera otot, ditangani langsung oleh fisioterapis berpengalaman dan berlisensi (STR) — untuk memulihkan mobilitas dan kualitas hidup Anda.",
       cta: "Jadwalkan Konsultasi",
       heroAlt: "Fisioterapis menangani pasien",
+      trustChips: ["Tanpa rujukan dokter", "Respon cepat via WA", "Fisioterapis berlisensi (STR)"],
     },
     features: [
       { title: "Sesi 1-on-1", description: "Setiap sesi ditangani langsung oleh satu fisioterapis, fokus penuh ke kondisi Anda." },
@@ -224,6 +225,7 @@ const CONTENT: Record<
       desc: "Specialized muscle injury physiotherapy, treated directly by experienced, licensed physiotherapists (STR) — to restore your mobility and quality of life.",
       cta: "Schedule a Consultation",
       heroAlt: "Physiotherapist treating a patient",
+      trustChips: ["No doctor referral needed", "Fast response via WhatsApp", "Licensed physiotherapists (STR)"],
     },
     features: [
       { title: "1-on-1 Sessions", description: "Every session is handled by one dedicated physiotherapist, fully focused on your condition." },
@@ -325,7 +327,11 @@ function Reveal({ children, className = "" }: { children: React.ReactNode; class
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
-    if (typeof IntersectionObserver === "undefined") {
+    // Hormatin "reduce motion" OS-nya user — jangan nunggu observer sama
+    // sekali, langsung tampilin. CSS global (globals.css) juga udah matiin
+    // transition-duration buat kasus ini, ini nambahin biar kontennya nggak
+    // perlu "nunggu" scroll-in dulu (bukan cuma animasinya doang yang mati).
+    if (typeof IntersectionObserver === "undefined" || window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) {
       setVisible(true);
       return;
     }
@@ -547,7 +553,7 @@ export function LandingPageClient() {
 
   return (
     <div
-      className={`${fraunces.variable} ${plexSans.variable} min-h-screen`}
+      className={`${fraunces.variable} ${plexSans.variable} min-h-screen pb-[76px] sm:pb-0`}
       style={{ backgroundColor: COLOR.bg, color: COLOR.ink, fontFamily: "var(--font-body)", transition: "background-color 0.2s ease, color 0.2s ease" }}
     >
       {/* React 19 otomatis hoist <link>/<meta> ke <head> biarpun dirender dari
@@ -556,6 +562,17 @@ export function LandingPageClient() {
           lewat next/font, jadi nggak butuh preconnect ke Google Fonts lagi). */}
       <link rel="preconnect" href="https://wa.me" />
       <link rel="dns-prefetch" href="https://wa.me" />
+
+      {/* Skip-to-content — standar aksesibilitas dasar buat pengguna keyboard/
+          screen-reader, biar nggak wajib Tab lewatin semua link nav dulu.
+          Tersembunyi visual sampai di-fokus (klik Tab pertama kali). */}
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[100] focus:rounded-md focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-white"
+        style={{ backgroundColor: COLOR.accent }}
+      >
+        Langsung ke konten utama
+      </a>
 
       <header
         className="sticky top-0 z-40 border-b"
@@ -596,7 +613,11 @@ export function LandingPageClient() {
         </div>
       </header>
 
-      <div className="border-b py-3 text-center text-sm" style={{ borderColor: hairline, backgroundColor: COLOR.bgAlt, color: COLOR.muted }}>
+      <div
+        id="main-content"
+        className="border-b py-3 text-center text-sm"
+        style={{ borderColor: hairline, backgroundColor: COLOR.bgAlt, color: COLOR.muted }}
+      >
         {t.banner.text}{" "}
         <a
           href={GOOGLE_MAPS_URL}
@@ -634,6 +655,17 @@ export function LandingPageClient() {
           >
             {t.hero.cta}
           </a>
+          <ul className="mt-5 flex flex-wrap gap-2">
+            {t.hero.trustChips.map((chip) => (
+              <li
+                key={chip}
+                className="rounded-full px-3 py-1 text-xs font-medium"
+                style={{ backgroundColor: COLOR.bgAlt, color: COLOR.muted }}
+              >
+                {chip}
+              </li>
+            ))}
+          </ul>
         </div>
 
         <div className="relative h-[420px] w-full overflow-hidden rounded-2xl">
@@ -1010,13 +1042,32 @@ export function LandingPageClient() {
         </div>
       </footer>
 
-      {/* Tombol mengambang: WhatsApp selalu keliatan, "kembali ke atas" cuma
-          muncul setelah scroll jauh. Ijo #25D366 sengaja dipertahankan
-          (bukan earth-tone) — itu warna resmi WhatsApp, orang langsung
-          kenal ikonnya, sama kayak badge status emerald yang juga dipertahankan. */}
+      {/* Bar CTA sticky KHUSUS mobile — booking jadi selalu 1 jempolan
+          diraih pas scroll panjang di HP. Tombol WA mengambang (di bawah)
+          sengaja di-hide di mobile (`sm:hidden` di situ) biar nggak
+          numpuk/tabrakan visual sama bar ini — fungsinya udah kegantiin. */}
+      <div
+        className="fixed inset-x-0 bottom-0 z-50 border-t p-3 sm:hidden"
+        style={{ backgroundColor: COLOR.bg, borderColor: hairline }}
+      >
+        <a
+          href={whatsappLink(t.whatsapp.book)}
+          className="flex items-center justify-center gap-2 rounded-full py-3 text-sm font-semibold text-white"
+          style={{ backgroundColor: COLOR.accent }}
+        >
+          <WhatsAppIcon />
+          {t.bookBtn}
+        </a>
+      </div>
+
+      {/* Tombol mengambang: WhatsApp selalu keliatan (desktop — di mobile
+          kegantiin bar sticky di atas), "kembali ke atas" cuma muncul
+          setelah scroll jauh. Ijo #25D366 sengaja dipertahankan (bukan
+          earth-tone) — itu warna resmi WhatsApp, orang langsung kenal
+          ikonnya, sama kayak badge status emerald yang juga dipertahankan. */}
       <a
         href={whatsappLink(t.whatsapp.ask)}
-        className="fixed bottom-6 right-6 z-50 flex h-14 w-14 items-center justify-center rounded-full shadow-lg transition-transform hover:scale-105"
+        className="fixed bottom-6 right-6 z-50 hidden h-14 w-14 items-center justify-center rounded-full shadow-lg transition-transform hover:scale-105 sm:flex"
         style={{ backgroundColor: "#25D366" }}
         aria-label={t.waFloatLabel}
       >
@@ -1027,7 +1078,7 @@ export function LandingPageClient() {
         <button
           type="button"
           onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-          className="fixed bottom-24 right-6 z-50 flex h-11 w-11 items-center justify-center rounded-full text-lg shadow-lg transition-transform hover:scale-105"
+          className="fixed bottom-[88px] right-6 z-50 flex h-11 w-11 items-center justify-center rounded-full text-lg shadow-lg transition-transform hover:scale-105 sm:bottom-24"
           style={{ backgroundColor: COLOR.ink, color: COLOR.bg }}
           aria-label={t.backToTop}
         >

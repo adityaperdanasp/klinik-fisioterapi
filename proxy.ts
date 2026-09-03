@@ -6,12 +6,13 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  // robots.txt & sitemap.xml itu ROUTE DINAMIS (app/robots.ts, app/sitemap.ts),
-  // bukan file statis di /public — jadi nggak ketangkep exclude ekstensi di
-  // bawah (yang cuma buat file gambar/video). Tanpa exclude eksplisit ini,
-  // crawler (nggak punya session cookie) bakal di-redirect ke /login, sama
-  // persis kayak bug video .mp4 yang pernah kejadian (lihat gotcha CLAUDE.md).
-  matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|robots.txt|sitemap.xml|.*\\.(?:svg|png|jpg|jpeg|gif|webp|mp4|webm|mov)$).*)",
-  ],
+  // Matcher ini sengaja LONGGAR (cuma exclude asset internal Next.js) —
+  // keputusan "apakah path ini butuh login" udah dipindah ke dalam
+  // updateSession() sendiri (lib/firebase/middleware.ts, PROTECTED_PREFIXES),
+  // bukan di sini lagi. Dulu matcher ini yang nge-exclude ekstensi file
+  // satu-satu (svg/png/jpg/mp4/robots.txt/sitemap.xml/manifest.webmanifest/
+  // dst) dan BERKALI-KALI ketinggalan pas ada route/asset baru — sekarang
+  // middleware-nya sendiri yang allow-by-default kecuali path match daftar
+  // halaman internal, jadi nggak ada lagi yang perlu di-exclude manual di sini.
+  matcher: ["/((?!_next/static|_next/image).*)"],
 };

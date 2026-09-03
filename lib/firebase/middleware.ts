@@ -2,10 +2,29 @@ import { NextResponse, type NextRequest } from "next/server";
 import { verifySessionCookieEdge } from "./edge-verify";
 import { SESSION_COOKIE_NAME } from "./session";
 
+// Cuma path-path INI yang beneran butuh login (halaman staff/internal).
+// SEMUA path lain (termasuk landing page "/", route konvensi Next.js kayak
+// /robots.txt|/sitemap.xml|/manifest.webmanifest|/opengraph-image, dan yang
+// paling penting: URL SALAH KETIK yang harusnya jadi 404) otomatis PUBLIC,
+// nggak perlu dicek sama sekali.
+//
+// Ini SENGAJA didesain "allow-all-kecuali-yang-di-daftar" (bukan
+// "deny-all-kecuali-whitelist" yang dipakai versi sebelumnya) — desain lama
+// itu rapuh, ketauan bikin bug berkali-kali (robots.txt, sitemap.xml,
+// manifest.webmanifest, opengraph-image ke-redirect ke /login karena lupa
+// di-whitelist SATU-SATU), dan bug PALING SERIUS: visitor anonim yang salah
+// ketik URL malah ke-redirect ke /login alih-alih lihat halaman 404 biasa —
+// membingungkan ("kenapa saya diminta login buat URL yang salah ketik?").
+// Kalau nambah halaman internal baru, WAJIB masukin ke daftar ini.
+const PROTECTED_PREFIXES = ["/jadwal", "/pasien", "/kasir", "/dashboard", "/pengaturan"];
+
 export async function updateSession(request: NextRequest) {
-  // Landing page publik nggak butuh info auth sama sekali — skip verifikasi
-  // biar halaman ini tetap hidup meski Firebase/Firestore lagi bermasalah.
-  if (request.nextUrl.pathname === "/") {
+  const { pathname } = request.nextUrl;
+  const needsAuth = PROTECTED_PREFIXES.some(
+    (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`)
+  );
+
+  if (!needsAuth) {
     return NextResponse.next({ request });
   }
 
@@ -15,13 +34,7 @@ export async function updateSession(request: NextRequest) {
     ? await verifySessionCookieEdge(sessionCookie, projectId)
     : null;
 
-  const isLoginPage = request.nextUrl.pathname.startsWith("/login");
-  // Halaman aktivasi akun staff (link "set password" dari undangan) — orang
-  // yang buka ini justru BELUM punya sesi sama sekali, wajib publik. Beda
-  // dari "/set-password" lama (khusus Supabase, udah dihapus total).
-  const isInvitePage = request.nextUrl.pathname.startsWith("/undangan/");
-
-  if (!claims && !isLoginPage && !isInvitePage) {
+  if (!claims) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
     return NextResponse.redirect(url);
@@ -34,6 +47,9 @@ export async function updateSession(request: NextRequest) {
   // app/(app)/layout.tsx yang redirect balik ke /login (dia yang beneran
   // cek revoke), bikin ERR_TOO_MANY_REDIRECTS. Cek "udah login, skip
   // halaman login" yang lebih dipercaya (checkRevoked) ada di
-  // app/login/page.tsx sendiri, bukan di sini.
+  // app/login/page.tsx sendiri, bukan di sini. (/login sendiri juga nggak
+  // masuk PROTECTED_PREFIXES, jadi baris ini nggak akan pernah kena situasi
+  // itu — dicatat aja biar nggak keulang salah desain kalau ada yang mau
+  // "nyempurnain" logic ini nanti.)
   return NextResponse.next({ request });
 }

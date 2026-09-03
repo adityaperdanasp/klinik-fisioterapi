@@ -1,5 +1,26 @@
 @import "tailwindcss";
 
+/* Smooth-scroll global buat link anchor (#layanan, #tim, dst di landing
+   page) — berlaku di seluruh app, nggak masalah buat halaman internal juga.
+   WAJIB di-skip kalau user set "reduce motion" di OS-nya (aksesibilitas —
+   sebagian orang beneran motion-sickness kena smooth-scroll/animasi). */
+html {
+  scroll-behavior: smooth;
+}
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
 :root {
   --background: #ffffff;
   --foreground: #171717;
