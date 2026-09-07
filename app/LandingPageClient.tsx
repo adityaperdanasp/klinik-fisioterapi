@@ -60,7 +60,7 @@ type Theme = "light" | "dark";
 // pas render lewat index array yang sama.
 const SERVICE_ASSETS = [
   { image: "/photos/service-cedera-otot.jpg" },
-  { image: "/photos/service-rehab-olahraga.jpg", imagePosition: "center 85%" },
+  { image: "/photos/service-rehab-olahraga.jpg", imagePosition: "center 20%" },
   { image: "/photos/service-nyeri-sendi.jpg" },
   { image: "/photos/service-konsultasi.jpg" },
 ];
