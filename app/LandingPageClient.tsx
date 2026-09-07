@@ -98,7 +98,7 @@ const CONTENT: Record<
   {
     nav: { layanan: string; alur: string; tim: string; faq: string; lokasi: string };
     bookBtn: string;
-    banner: { text: string; link: string };
+    banner: { text: string; link: string; hoursPrefix: string };
     hero: { badge: string; titleLine1: string; titleItalic: string; desc: string; cta: string; trustChips: string[] };
     features: { title: string; description: string }[];
     trust: { eyebrow: string; label: string; heading: string; desc: string; link: string };
@@ -120,7 +120,7 @@ const CONTENT: Record<
   id: {
     nav: { layanan: "Layanan", alur: "Alur Pelayanan", tim: "Tim", faq: "FAQ", lokasi: "Lokasi" },
     bookBtn: "Booking Sekarang",
-    banner: { text: "Kini hadir di Ciangsana, Gunung Putri —", link: "lihat lokasi" },
+    banner: { text: "Kini hadir di Ciangsana, Gunung Putri —", link: "lihat lokasi", hoursPrefix: "Buka" },
     hero: {
       badge: "Spesialis Cedera Otot · Bekasi",
       titleLine1: "Pulih, bergerak,",
@@ -238,7 +238,7 @@ const CONTENT: Record<
   en: {
     nav: { layanan: "Services", alur: "Our Process", tim: "Team", faq: "FAQ", lokasi: "Location" },
     bookBtn: "Book Appointment",
-    banner: { text: "Now open in Ciangsana, Gunung Putri —", link: "view location" },
+    banner: { text: "Now open in Ciangsana, Gunung Putri —", link: "view location", hoursPrefix: "Open" },
     hero: {
       badge: "Muscle Injury Specialist · Bekasi",
       titleLine1: "Heal, move,",
@@ -700,12 +700,14 @@ export function LandingPageClient() {
             dari tema light/dark). */}
         <div
           id="main-content"
-          className="relative border-b border-white/10 bg-black/20 py-3 text-center text-sm text-white/85 backdrop-blur-sm"
+          className="relative border-b border-white/10 bg-black/20 px-4 py-3 text-center text-sm text-white/85 backdrop-blur-sm"
         >
           {t.banner.text}{" "}
           <a href={GOOGLE_MAPS_URL} target="_blank" rel="noopener noreferrer" className="font-semibold text-white underline">
             {t.banner.link}
           </a>
+          <span className="mx-2 text-white/40">·</span>
+          {t.banner.hoursPrefix} {t.location.hoursSchedule}
         </div>
 
         <div className="mx-auto max-w-6xl px-4 py-24 sm:py-32 lg:py-40">
