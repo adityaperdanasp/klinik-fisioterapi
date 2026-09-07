@@ -65,7 +65,8 @@ const SERVICE_ASSETS = [
   { image: "/photos/service-konsultasi.jpg" },
 ];
 
-const HERO_IMAGE = "/photos/hero-athlete-knee.jpg";
+const HERO_VIDEO = "/videos/hero-physio-treatment.mp4";
+const HERO_POSTER = "/photos/hero-physio-poster.jpg";
 
 const GALLERY: { type: "image" | "video"; src: string }[] = [
   { type: "video", src: "/videos/hands-therapy.mp4" },
@@ -98,7 +99,7 @@ const CONTENT: Record<
     nav: { layanan: string; alur: string; tim: string; faq: string; lokasi: string };
     bookBtn: string;
     banner: { text: string; link: string };
-    hero: { badge: string; titleLine1: string; titleItalic: string; desc: string; cta: string; heroAlt: string; trustChips: string[] };
+    hero: { badge: string; titleLine1: string; titleItalic: string; desc: string; cta: string; trustChips: string[] };
     features: { title: string; description: string }[];
     trust: { label: string; heading: string; desc: string; link: string };
     steps: { heading: string; items: { number: string; title: string; description: string }[] };
@@ -126,7 +127,6 @@ const CONTENT: Record<
       titleItalic: "kembali utuh.",
       desc: "Fisioterapi spesialis cedera otot, ditangani langsung oleh fisioterapis berpengalaman dan berlisensi (STR) — untuk memulihkan mobilitas dan kualitas hidup Anda.",
       cta: "Jadwalkan Konsultasi",
-      heroAlt: "Fisioterapis menangani pasien",
       trustChips: ["Tanpa rujukan dokter", "Respon cepat via WA", "Fisioterapis berlisensi (STR)"],
     },
     features: [
@@ -225,7 +225,6 @@ const CONTENT: Record<
       titleItalic: "feel whole again.",
       desc: "Specialized muscle injury physiotherapy, treated directly by experienced, licensed physiotherapists (STR) — to restore your mobility and quality of life.",
       cta: "Schedule a Consultation",
-      heroAlt: "Physiotherapist treating a patient",
       trustChips: ["No doctor referral needed", "Fast response via WhatsApp", "Licensed physiotherapists (STR)"],
     },
     features: [
@@ -435,6 +434,7 @@ export function LandingPageClient() {
   const [activeSection, setActiveSection] = useState<string | null>(null);
   const [showBackToTop, setShowBackToTop] = useState(false);
   const [mediaReady, setMediaReady] = useState<Record<number, boolean>>({});
+  const heroVideoRef = useRef<HTMLVideoElement>(null);
 
   // Toggle bahasa client-side — SSR/first paint selalu Indonesia (default),
   // baru dikoreksi ke pilihan tersimpan (kalau ada) setelah hydrate. Ini
@@ -464,6 +464,19 @@ export function LandingPageClient() {
     }
     if (window.matchMedia?.("(prefers-color-scheme: dark)").matches) {
       setTheme("dark");
+    }
+  }, []);
+
+  // Hero video background: dihentikan (freeze di poster frame) buat visitor
+  // yang set prefers-reduced-motion — video full-bleed autoplay itu jenis
+  // motion yang paling ganggu buat kondisi vestibular, konsisten sama
+  // penanganan reduced-motion lain di komponen ini (lihat Reveal di bawah).
+  useEffect(() => {
+    const video = heroVideoRef.current;
+    if (!video) return;
+    if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) {
+      video.pause();
+      video.currentTime = 0;
     }
   }, []);
 
@@ -632,53 +645,65 @@ export function LandingPageClient() {
         </a>
       </div>
 
-      <section className="mx-auto grid max-w-6xl grid-cols-1 items-center gap-16 px-4 py-20 sm:py-28 lg:grid-cols-2">
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.2em]" style={{ color: COLOR.accent }}>
-            {t.hero.badge}
-          </p>
-          <h1
-            className="mt-5 text-4xl leading-[1.15] sm:text-5xl"
-            style={{ fontFamily: "var(--font-display)", fontWeight: 500 }}
-          >
-            {t.hero.titleLine1}
-            <br />
-            <span className="italic" style={{ fontWeight: 400 }}>
-              {t.hero.titleItalic}
-            </span>
-          </h1>
-          <p className="mt-6 max-w-md text-base leading-relaxed" style={{ color: COLOR.muted }}>
-            {t.hero.desc}
-          </p>
-          <a
-            href={whatsappLink(t.whatsapp.book)}
-            className="mt-9 inline-block rounded-full px-8 py-3.5 text-sm font-semibold text-white"
-            style={{ backgroundColor: COLOR.accent }}
-          >
-            {t.hero.cta}
-          </a>
-          <ul className="mt-5 flex flex-wrap gap-2">
-            {t.hero.trustChips.map((chip) => (
-              <li
-                key={chip}
-                className="rounded-full px-3 py-1 text-xs font-medium"
-                style={{ backgroundColor: COLOR.bgAlt, color: COLOR.muted }}
-              >
-                {chip}
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        <div className="relative h-[420px] w-full overflow-hidden rounded-2xl">
-          <Image
-            src={HERO_IMAGE}
-            alt={t.hero.heroAlt}
-            fill
-            priority
-            className="object-cover"
-            sizes="(max-width: 1024px) 100vw, 50vw"
-          />
+      {/* Hero full-bleed video — dulu foto statis di kotak sisi kanan, sekarang
+          video treatment jadi background section penuh (pola yang sama kayak
+          arsygas.id / pltsmandiri.com: video/gambar full-width + scrim gelap +
+          teks di atasnya). Teks di section ini SENGAJA pakai warna putih/cream
+          tetap (bukan COLOR.* yang ngikut tema light/dark) — background-nya
+          video/foto, bukan warna page, jadi kontrasnya harus konsisten di
+          kedua tema. Video di-mute+autoplay+playsInline (wajib biar autoplay
+          jalan di Safari iOS) + poster (frame pertama video, dikompres) biar
+          ada sesuatu yang langsung ke-paint sebelum video-nya sendiri load. */}
+      <section className="relative isolate overflow-hidden">
+        <video
+          ref={heroVideoRef}
+          autoPlay
+          muted
+          loop
+          playsInline
+          poster={HERO_POSTER}
+          preload="auto"
+          aria-hidden="true"
+          className="absolute inset-0 -z-10 h-full w-full object-cover"
+        >
+          <source src={HERO_VIDEO} type="video/mp4" />
+        </video>
+        <div
+          className="absolute inset-0 -z-10 bg-gradient-to-t from-black/75 via-black/45 to-black/25"
+          aria-hidden="true"
+        />
+        <div className="mx-auto max-w-6xl px-4 py-24 sm:py-32 lg:py-40">
+          <div className="max-w-xl">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-white/90">{t.hero.badge}</p>
+            <h1
+              className="mt-5 text-4xl leading-[1.15] text-white sm:text-5xl"
+              style={{ fontFamily: "var(--font-display)", fontWeight: 500 }}
+            >
+              {t.hero.titleLine1}
+              <br />
+              <span className="italic" style={{ fontWeight: 400 }}>
+                {t.hero.titleItalic}
+              </span>
+            </h1>
+            <p className="mt-6 max-w-md text-base leading-relaxed text-white/85">{t.hero.desc}</p>
+            <a
+              href={whatsappLink(t.whatsapp.book)}
+              className="mt-9 inline-block rounded-full px-8 py-3.5 text-sm font-semibold text-white"
+              style={{ backgroundColor: COLOR.accent }}
+            >
+              {t.hero.cta}
+            </a>
+            <ul className="mt-5 flex flex-wrap gap-2">
+              {t.hero.trustChips.map((chip) => (
+                <li
+                  key={chip}
+                  className="rounded-full border border-white/25 bg-white/10 px-3 py-1 text-xs font-medium text-white backdrop-blur-sm"
+                >
+                  {chip}
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
       </section>
 
