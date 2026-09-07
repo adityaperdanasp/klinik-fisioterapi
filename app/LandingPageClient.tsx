@@ -21,11 +21,17 @@ const GOOGLE_MAPS_EMBED_URL = `https://www.google.com/maps?q=${encodeURIComponen
 // AA teks normal — dipakai `earthDark` (#7A5D39, 4.9-6.1:1) buat semua teks/
 // tombol kecil, `earth` yang lebih terang cuma buat dekorasi besar (large
 // text WCAG, ambang 3:1). Dark: semua pasangan di bawah lolos AA (7-14.5:1).
+// `accent2` = warna komplemen (deep sage) buat variasi/penekanan kecil —
+// icon badge, garis penyambung section, quote mark testimoni — biar nggak
+// "coklat semua" tapi tetap satu keluarga earth-tone. Sama kayak accent,
+// diambil di lightness yang mirip biar kontras AA-nya konsisten (light:
+// dark buat teks/bg-kecil, dark: terang buat kontras di background gelap).
 const LIGHT_COLOR = {
   bg: "#FAF5EE",
   bgAlt: "#F1E6D6",
   accentBright: "#96754A",
   accent: "#7A5D39",
+  accent2: "#3F5C4E",
   ink: "#231F1A",
   muted: "#57503F",
 };
@@ -35,9 +41,23 @@ const DARK_COLOR = {
   bgAlt: "#26221D",
   accentBright: "#C79A6A",
   accent: "#D3A972",
+  accent2: "#8FBBA6",
   ink: "#F2EAE0",
   muted: "#B9AC9A",
 };
+
+// Warna bintang rating testimoni — sengaja gold universal (bukan earth-tone
+// kita), sama kayak alasan warna hijau WhatsApp dipertahankan: orang udah
+// asosiasikan warna ini sama "rating", ganti ke accent bakal bikin nggak
+// kebaca sebagai bintang.
+const STAR_COLOR = "#D6A94A";
+
+// Foto stok yang dikurasi dari berbagai sumber punya white-balance beda-beda
+// (sebagian warm, sebagian studio abu-abu/dingin) — filter tipis ini
+// nyeragamin ke arah warm yang sama kayak video hero, tanpa perlu edit ulang
+// tiap file foto. Dipakai di semua foto stok (layanan, tim, galeri), BUKAN
+// di logo atau ikon.
+const PHOTO_FILTER = "saturate(1.08) contrast(1.03) sepia(0.08)";
 
 const fraunces = Fraunces({
   subsets: ["latin"],
@@ -65,6 +85,13 @@ const SERVICE_ASSETS = [
   { image: "/photos/service-konsultasi.jpg" },
 ];
 
+// Icon per item, urutan sama kayak array teksnya (CONTENT.*.features /
+// steps.items) — dipisah dari teks karena ikon nggak beda antar bahasa.
+// Function component di sini di-hoist duluan sama JS, jadi aman dirujuk
+// walau definisinya (UserIcon dkk) ada di bawah.
+const FEATURE_ICONS = [UserIcon, TargetIcon, ShieldCheckIcon];
+const STEP_ICONS = [ChatIcon, ClipboardIcon, ActivityIcon, TrendingUpIcon];
+
 const HERO_VIDEO = "/videos/hero-physio-treatment.mp4";
 const HERO_POSTER = "/photos/hero-physio-poster.jpg";
 
@@ -84,6 +111,14 @@ const TEAM = [
   { name: "Dhea", photo: "/team/dhea.jpg" },
 ];
 
+// Angka buat stat band — SENGAJA cuma fakta yang bisa diverifikasi dari
+// data yang udah ada di halaman ini juga (jumlah TEAM, durasi sesi di FAQ,
+// jam operasional di section Lokasi) — BUKAN klaim jumlah pasien/rating
+// kepuasan yang nggak ada datanya (klinik ini masih early-stage, lihat
+// CLAUDE.md soal ramp-up). "4" dihitung dari TEAM.length biar otomatis
+// ke-update kalau roster berubah, bukan angka lepas yang bisa basi.
+const STATS_VALUES = [String(TEAM.length), "50", "7"];
+
 // Testimoni PLACEHOLDER — nama & kutipan REKAAN, belum ada testimoni pasien
 // asli. Sama kayak foto tim, ini WAJIB diganti sebelum go-live publik (lihat
 // TODO di CLAUDE.md). Sengaja nggak dibikin mirip widget review platform
@@ -100,6 +135,7 @@ const CONTENT: Record<
     bookBtn: string;
     banner: { text: string; link: string; hoursPrefix: string };
     hero: { badge: string; titleLine1: string; titleItalic: string; desc: string; cta: string; trustChips: string[] };
+    stats: { items: { label: string }[] };
     features: { title: string; description: string }[];
     trust: { eyebrow: string; label: string; heading: string; desc: string; link: string };
     steps: { eyebrow: string; heading: string; items: { number: string; title: string; description: string }[] };
@@ -115,6 +151,7 @@ const CONTENT: Record<
     backToTop: string;
     waFloatLabel: string;
     themeToggle: string;
+    close: string;
   }
 > = {
   id: {
@@ -128,6 +165,13 @@ const CONTENT: Record<
       desc: "Fisioterapi spesialis cedera otot, ditangani langsung oleh fisioterapis berpengalaman dan berlisensi (STR) — untuk memulihkan mobilitas dan kualitas hidup Anda.",
       cta: "Jadwalkan Konsultasi",
       trustChips: ["Tanpa rujukan dokter", "Respon cepat via WA", "Fisioterapis berlisensi (STR)"],
+    },
+    stats: {
+      items: [
+        { label: "Fisioterapis Berlisensi (STR)" },
+        { label: "Menit per Sesi" },
+        { label: "Hari Buka per Minggu" },
+      ],
     },
     features: [
       { title: "Sesi 1-on-1", description: "Setiap sesi ditangani langsung oleh satu fisioterapis, fokus penuh ke kondisi Anda." },
@@ -234,6 +278,7 @@ const CONTENT: Record<
     backToTop: "Kembali ke atas",
     waFloatLabel: "Chat WhatsApp",
     themeToggle: "Ganti tampilan gelap/terang",
+    close: "Tutup",
   },
   en: {
     nav: { layanan: "Services", alur: "Our Process", tim: "Team", faq: "FAQ", lokasi: "Location" },
@@ -246,6 +291,13 @@ const CONTENT: Record<
       desc: "Specialized muscle injury physiotherapy, treated directly by experienced, licensed physiotherapists (STR) — to restore your mobility and quality of life.",
       cta: "Schedule a Consultation",
       trustChips: ["No doctor referral needed", "Fast response via WhatsApp", "Licensed physiotherapists (STR)"],
+    },
+    stats: {
+      items: [
+        { label: "Licensed Physiotherapists (STR)" },
+        { label: "Minutes per Session" },
+        { label: "Days Open per Week" },
+      ],
     },
     features: [
       { title: "1-on-1 Sessions", description: "Every session is handled by one dedicated physiotherapist, fully focused on your condition." },
@@ -349,6 +401,7 @@ const CONTENT: Record<
     backToTop: "Back to top",
     waFloatLabel: "Chat on WhatsApp",
     themeToggle: "Toggle dark/light mode",
+    close: "Close",
   },
 };
 
@@ -465,12 +518,138 @@ function MoonIcon() {
   );
 }
 
+// Kicker + garis aksen kecil (accent2) + heading — dipakai berulang di 9
+// section, ditarik jadi 1 komponen biar treatment-nya konsisten di semua
+// tempat (dulu di-copy manual per section, gampang ke-drift). Garis kecil
+// di bawah eyebrow ini juga jadi motif visual yang "menyambung" tiap
+// section — bukan cuma blok warna ketemu blok warna doang.
+function SectionHeading({
+  eyebrow,
+  heading,
+  align = "left",
+  accentColor,
+  accent2Color,
+}: {
+  eyebrow: string;
+  heading: string;
+  align?: "left" | "center";
+  accentColor: string;
+  accent2Color: string;
+}) {
+  const centered = align === "center";
+  return (
+    <div className={centered ? "text-center" : ""}>
+      <p className="text-xs font-semibold uppercase tracking-[0.2em]" style={{ color: accentColor }}>
+        {eyebrow}
+      </p>
+      <span
+        className={`mt-3 block h-[3px] w-10 rounded-full ${centered ? "mx-auto" : ""}`}
+        style={{ backgroundColor: accent2Color }}
+        aria-hidden="true"
+      />
+      <h2
+        className="mt-4 text-4xl leading-tight tracking-tight sm:text-5xl"
+        style={{ fontFamily: "var(--font-display)", fontWeight: 600 }}
+      >
+        {heading}
+      </h2>
+    </div>
+  );
+}
+
+function StarIcon() {
+  return (
+    <svg viewBox="0 0 20 20" width="16" height="16" fill={STAR_COLOR} aria-hidden="true">
+      <path d="M10 1.5l2.6 5.27 5.82.85-4.21 4.1 1 5.79L10 14.77l-5.21 2.74 1-5.79-4.21-4.1 5.82-.85L10 1.5Z" />
+    </svg>
+  );
+}
+
+function UserIcon() {
+  return (
+    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <circle cx="12" cy="8" r="3.5" />
+      <path d="M5 20c0-3.31 3.13-6 7-6s7 2.69 7 6" />
+    </svg>
+  );
+}
+
+function TargetIcon() {
+  return (
+    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <circle cx="12" cy="12" r="8" />
+      <circle cx="12" cy="12" r="4" />
+      <circle cx="12" cy="12" r="0.5" fill="currentColor" />
+    </svg>
+  );
+}
+
+function ShieldCheckIcon() {
+  return (
+    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6l7-3Z" />
+      <path d="M9 12l2 2 4-4" />
+    </svg>
+  );
+}
+
+function ChatIcon() {
+  return (
+    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M4 5h16v11H8l-4 4V5Z" />
+    </svg>
+  );
+}
+
+function ClipboardIcon() {
+  return (
+    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <rect x="6" y="4" width="12" height="17" rx="1.5" />
+      <path d="M9 4V3a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v1M9 11h6M9 15h6" />
+    </svg>
+  );
+}
+
+function ActivityIcon() {
+  return (
+    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M3 12h4l2 7 4-14 2 7h6" />
+    </svg>
+  );
+}
+
+function TrendingUpIcon() {
+  return (
+    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M3 17l6-6 4 4 8-8" />
+      <path d="M15 7h6v6" />
+    </svg>
+  );
+}
+
+function CloseIcon() {
+  return (
+    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
+      <path d="M6 6l12 12M18 6L6 18" />
+    </svg>
+  );
+}
+
+function ChevronIcon({ direction }: { direction: "left" | "right" }) {
+  return (
+    <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d={direction === "left" ? "M15 5l-7 7 7 7" : "M9 5l7 7-7 7"} />
+    </svg>
+  );
+}
+
 export function LandingPageClient() {
   const [lang, setLang] = useState<Lang>("id");
   const [theme, setTheme] = useState<Theme>("light");
   const [activeSection, setActiveSection] = useState<string | null>(null);
   const [showBackToTop, setShowBackToTop] = useState(false);
   const [mediaReady, setMediaReady] = useState<Record<number, boolean>>({});
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const heroVideoRef = useRef<HTMLVideoElement>(null);
 
   // Toggle bahasa client-side — SSR/first paint selalu Indonesia (default),
@@ -543,6 +722,20 @@ export function LandingPageClient() {
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  // Lightbox galeri: Escape nutup, panah kiri/kanan pindah item — cuma
+  // aktif pas lightbox lagi kebuka (listener di-attach/dilepas per buka-tutup,
+  // bukan nempel terus di seluruh halaman).
+  useEffect(() => {
+    if (lightboxIndex === null) return;
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape") setLightboxIndex(null);
+      if (e.key === "ArrowRight") setLightboxIndex((i) => (i === null ? i : Math.min(i + 1, GALLERY.length - 1)));
+      if (e.key === "ArrowLeft") setLightboxIndex((i) => (i === null ? i : Math.max(i - 1, 0)));
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [lightboxIndex]);
 
   function toggleLang() {
     const next: Lang = lang === "id" ? "en" : "id";
@@ -654,10 +847,15 @@ export function LandingPageClient() {
           </nav>
           <div className="flex items-center gap-3">
             {ToolbarToggles}
+            {/* Sengaja outline (bukan solid) — ini CTA yang nempel terus di
+                header di semua halaman, jadi dibikin bobot visualnya lebih
+                ringan dari CTA solid di hero/lokasi/mobile-sticky-bar yang
+                emang momen konversi utamanya. Solid di mana-mana bikin nggak
+                ada hierarki primary vs secondary. */}
             <a
               href={whatsappLink(t.whatsapp.book)}
-              className="rounded-full px-5 py-2.5 text-sm font-semibold text-white"
-              style={{ backgroundColor: COLOR.accent }}
+              className="rounded-full border px-5 py-2.5 text-sm font-semibold"
+              style={{ borderColor: COLOR.accent, color: COLOR.accent }}
             >
               {t.bookBtn}
             </a>
@@ -745,18 +943,51 @@ export function LandingPageClient() {
         </div>
       </section>
 
+      {/* Stat band — SENGAJA selalu dark (LIGHT_COLOR.ink, sama kayak
+          footer), lepas dari tema light/dark, biar jadi "jeda" visual yang
+          kontras habis hero, bukan ngikutin tema section sekitarnya. Angka
+          diambil dari STATS_VALUES (fakta yang udah ada di halaman ini
+          juga — lihat komentar di deklarasinya), bukan klaim dikarang. */}
+      <section className="py-14" style={{ backgroundColor: LIGHT_COLOR.ink }}>
+        <div className="mx-auto grid max-w-6xl grid-cols-1 gap-8 px-4 text-center sm:grid-cols-3">
+          {t.stats.items.map((item, i) => (
+            <div key={item.label}>
+              <p
+                className="text-6xl tracking-tight sm:text-7xl"
+                style={{ fontFamily: "var(--font-display)", fontWeight: 600, color: DARK_COLOR.accentBright }}
+              >
+                {STATS_VALUES[i]}
+              </p>
+              <p className="mt-2 text-sm font-medium uppercase tracking-wide" style={{ color: "rgba(255,255,255,0.65)" }}>
+                {item.label}
+              </p>
+            </div>
+          ))}
+        </div>
+      </section>
+
       <section className="py-16" style={{ backgroundColor: COLOR.bgAlt }}>
         <Reveal className="mx-auto grid max-w-6xl grid-cols-1 gap-10 px-4 sm:grid-cols-3">
-          {t.features.map((f) => (
+          {t.features.map((f, i) => {
+            const Icon = FEATURE_ICONS[i];
+            return (
             <div key={f.title} className="text-center sm:text-left">
-              <h3 className="text-xl tracking-tight" style={{ fontFamily: "var(--font-display)", fontWeight: 600 }}>
+              <span
+                className="mx-auto flex h-11 w-11 items-center justify-center rounded-full sm:mx-0"
+                style={{ backgroundColor: `${COLOR.accent2}1F`, color: COLOR.accent2 }}
+                aria-hidden="true"
+              >
+                <Icon />
+              </span>
+              <h3 className="mt-4 text-xl tracking-tight" style={{ fontFamily: "var(--font-display)", fontWeight: 600 }}>
                 {f.title}
               </h3>
               <p className="mt-2 text-sm leading-relaxed" style={{ color: COLOR.muted }}>
                 {f.description}
               </p>
             </div>
-          ))}
+            );
+          })}
         </Reveal>
       </section>
 
@@ -778,12 +1009,7 @@ export function LandingPageClient() {
           </div>
         </div>
         <div className="order-1 lg:order-2">
-          <p className="text-xs font-semibold uppercase tracking-[0.2em]" style={{ color: COLOR.accent }}>
-            {t.trust.eyebrow}
-          </p>
-          <h2 className="mt-3 text-4xl leading-tight tracking-tight sm:text-5xl" style={{ fontFamily: "var(--font-display)", fontWeight: 600 }}>
-            {t.trust.heading}
-          </h2>
+          <SectionHeading eyebrow={t.trust.eyebrow} heading={t.trust.heading} accentColor={COLOR.accent} accent2Color={COLOR.accent2} />
           <p className="mt-4 leading-relaxed" style={{ color: COLOR.muted }}>
             {t.trust.desc}
           </p>
@@ -799,24 +1025,31 @@ export function LandingPageClient() {
 
       <section id="alur" className="py-24" style={{ backgroundColor: COLOR.bgAlt }}>
         <div className="mx-auto max-w-6xl px-4">
-          <p className="text-center text-xs font-semibold uppercase tracking-[0.2em]" style={{ color: COLOR.accent }}>
-            {t.steps.eyebrow}
-          </p>
-          <h2
-            className="mt-3 text-center text-4xl leading-tight tracking-tight sm:text-5xl"
-            style={{ fontFamily: "var(--font-display)", fontWeight: 600 }}
-          >
-            {t.steps.heading}
-          </h2>
+          <SectionHeading eyebrow={t.steps.eyebrow} heading={t.steps.heading} align="center" accentColor={COLOR.accent} accent2Color={COLOR.accent2} />
           <Reveal className="mt-14 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {t.steps.items.map((s) => (
-              <div key={s.number} className="rounded-2xl p-7" style={{ backgroundColor: COLOR.bg }}>
-                <span
-                  className="text-2xl"
-                  style={{ fontFamily: "var(--font-display)", fontWeight: 500, color: COLOR.accent }}
-                >
-                  {s.number}
-                </span>
+            {t.steps.items.map((s, i) => {
+              const Icon = STEP_ICONS[i];
+              return (
+              <div
+                key={s.number}
+                className="rounded-2xl p-7 transition-all duration-200 hover:-translate-y-1 hover:shadow-lg"
+                style={{ backgroundColor: COLOR.bg }}
+              >
+                <div className="flex items-center gap-3">
+                  <span
+                    className="flex h-10 w-10 items-center justify-center rounded-full"
+                    style={{ backgroundColor: `${COLOR.accent2}1F`, color: COLOR.accent2 }}
+                    aria-hidden="true"
+                  >
+                    <Icon />
+                  </span>
+                  <span
+                    className="text-2xl"
+                    style={{ fontFamily: "var(--font-display)", fontWeight: 500, color: COLOR.accent }}
+                  >
+                    {s.number}
+                  </span>
+                </div>
                 <h3 className="mt-3 text-lg tracking-tight" style={{ fontFamily: "var(--font-display)", fontWeight: 600 }}>
                   {s.title}
                 </h3>
@@ -824,24 +1057,24 @@ export function LandingPageClient() {
                   {s.description}
                 </p>
               </div>
-            ))}
+              );
+            })}
           </Reveal>
         </div>
       </section>
 
       <section id="layanan" className="py-24">
         <div className="mx-auto max-w-6xl px-4">
-          <p className="text-xs font-semibold uppercase tracking-[0.2em]" style={{ color: COLOR.accent }}>
-            {t.services.eyebrow}
-          </p>
-          <h2 className="mt-3 text-4xl leading-tight tracking-tight sm:text-5xl" style={{ fontFamily: "var(--font-display)", fontWeight: 600 }}>
-            {t.services.heading}
-          </h2>
+          <SectionHeading eyebrow={t.services.eyebrow} heading={t.services.heading} accentColor={COLOR.accent} accent2Color={COLOR.accent2} />
           <Reveal className="mt-12 grid grid-cols-1 gap-8 sm:grid-cols-2">
             {t.services.items.map((s, i) => {
               const asset = SERVICE_ASSETS[i];
               return (
-                <div key={s.title} className="overflow-hidden rounded-2xl" style={{ backgroundColor: COLOR.bgAlt }}>
+                <div
+                  key={s.title}
+                  className="overflow-hidden rounded-2xl transition-all duration-200 hover:-translate-y-1 hover:shadow-lg"
+                  style={{ backgroundColor: COLOR.bgAlt }}
+                >
                   <div className="relative h-48 w-full">
                     <Image
                       src={asset.image}
@@ -849,7 +1082,7 @@ export function LandingPageClient() {
                       fill
                       loading="lazy"
                       className="object-cover"
-                      style={{ objectPosition: asset.imagePosition ?? "center" }}
+                      style={{ objectPosition: asset.imagePosition ?? "center", filter: PHOTO_FILTER }}
                       sizes="(max-width: 640px) 100vw, 50vw"
                     />
                   </div>
@@ -877,12 +1110,7 @@ export function LandingPageClient() {
 
       <section className="py-24" style={{ backgroundColor: COLOR.bgAlt }}>
         <div className="mx-auto max-w-3xl px-4 text-center">
-          <p className="text-xs font-semibold uppercase tracking-[0.2em]" style={{ color: COLOR.accent }}>
-            {t.about.eyebrow}
-          </p>
-          <h2 className="mt-3 text-4xl leading-tight tracking-tight sm:text-5xl" style={{ fontFamily: "var(--font-display)", fontWeight: 600 }}>
-            {t.about.heading}
-          </h2>
+          <SectionHeading eyebrow={t.about.eyebrow} heading={t.about.heading} align="center" accentColor={COLOR.accent} accent2Color={COLOR.accent2} />
           <p className="mt-4 leading-relaxed" style={{ color: COLOR.muted }}>
             {t.about.desc}
           </p>
@@ -891,15 +1119,14 @@ export function LandingPageClient() {
 
       <section id="tim" className="py-24">
         <div className="mx-auto max-w-6xl px-4">
-          <p className="text-xs font-semibold uppercase tracking-[0.2em]" style={{ color: COLOR.accent }}>
-            {t.team.eyebrow}
-          </p>
-          <h2 className="mt-3 text-4xl leading-tight tracking-tight sm:text-5xl" style={{ fontFamily: "var(--font-display)", fontWeight: 600 }}>
-            {t.team.heading}
-          </h2>
+          <SectionHeading eyebrow={t.team.eyebrow} heading={t.team.heading} accentColor={COLOR.accent} accent2Color={COLOR.accent2} />
           <Reveal className="mt-12 grid grid-cols-2 gap-6 sm:grid-cols-4">
             {TEAM.map((m, i) => (
-              <div key={m.name} className="overflow-hidden rounded-2xl text-center" style={{ backgroundColor: COLOR.bgAlt }}>
+              <div
+                key={m.name}
+                className="overflow-hidden rounded-2xl text-center transition-all duration-200 hover:-translate-y-1 hover:shadow-lg"
+                style={{ backgroundColor: COLOR.bgAlt }}
+              >
                 <div className="relative h-56 w-full">
                   <Image
                     src={m.photo}
@@ -907,7 +1134,7 @@ export function LandingPageClient() {
                     fill
                     loading="lazy"
                     className="object-cover"
-                    style={{ objectPosition: "50% 15%" }}
+                    style={{ objectPosition: "50% 15%", filter: PHOTO_FILTER }}
                     sizes="(max-width: 640px) 50vw, 25vw"
                   />
                 </div>
@@ -930,16 +1157,27 @@ export function LandingPageClient() {
 
       <section className="py-24" style={{ backgroundColor: COLOR.bgAlt }}>
         <div className="mx-auto max-w-6xl px-4">
-          <p className="text-xs font-semibold uppercase tracking-[0.2em]" style={{ color: COLOR.accent }}>
-            {t.testimonials.eyebrow}
-          </p>
-          <h2 className="mt-3 text-4xl leading-tight tracking-tight sm:text-5xl" style={{ fontFamily: "var(--font-display)", fontWeight: 600 }}>
-            {t.testimonials.heading}
-          </h2>
+          <SectionHeading eyebrow={t.testimonials.eyebrow} heading={t.testimonials.heading} accentColor={COLOR.accent} accent2Color={COLOR.accent2} />
           <Reveal className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-3">
             {t.testimonials.items.map((ts, i) => (
-              <div key={ts.name} className="rounded-2xl p-7" style={{ backgroundColor: COLOR.bg }}>
-                <p className="text-sm leading-relaxed italic" style={{ color: COLOR.ink }}>
+              <div
+                key={ts.name}
+                className="rounded-2xl p-7 transition-all duration-200 hover:-translate-y-1 hover:shadow-lg"
+                style={{ backgroundColor: COLOR.bg }}
+              >
+                <span
+                  className="block text-6xl italic leading-none"
+                  style={{ fontFamily: "var(--font-display)", color: COLOR.accent2, opacity: 0.35 }}
+                  aria-hidden="true"
+                >
+                  &ldquo;
+                </span>
+                <div className="-mt-2 flex gap-0.5" aria-hidden="true">
+                  {Array.from({ length: 5 }).map((_, star) => (
+                    <StarIcon key={star} />
+                  ))}
+                </div>
+                <p className="mt-3 text-sm leading-relaxed italic" style={{ color: COLOR.ink }}>
                   &ldquo;{ts.quote}&rdquo;
                 </p>
                 <div className="mt-5 flex items-center gap-3">
@@ -965,44 +1203,52 @@ export function LandingPageClient() {
 
       <section className="py-24">
         <div className="mx-auto max-w-6xl px-4">
-          <p className="text-xs font-semibold uppercase tracking-[0.2em]" style={{ color: COLOR.accent }}>
-            {t.gallery.eyebrow}
-          </p>
-          <h2 className="mt-3 text-4xl leading-tight tracking-tight sm:text-5xl" style={{ fontFamily: "var(--font-display)", fontWeight: 600 }}>
-            {t.gallery.heading}
-          </h2>
+          <SectionHeading eyebrow={t.gallery.eyebrow} heading={t.gallery.heading} accentColor={COLOR.accent} accent2Color={COLOR.accent2} />
           <Reveal className="mt-10 grid grid-cols-2 gap-4 sm:grid-cols-4">
             {GALLERY.map((item, i) => (
-              <ShimmerMedia
+              <button
                 key={item.src}
-                bgAlt={COLOR.bgAlt}
-                ready={!!mediaReady[i]}
-                className="h-40 sm:h-52"
+                type="button"
+                onClick={() => setLightboxIndex(i)}
+                className="group relative block w-full cursor-zoom-in text-left"
+                aria-label={t.gallery.alt[i] ?? t.gallery.heading}
               >
-                {item.type === "video" ? (
-                  <video
-                    src={item.src}
-                    autoPlay
-                    loop
-                    muted
-                    playsInline
-                    onLoadedData={() => markReady(i)}
-                    className="h-40 w-full object-cover sm:h-52"
-                  />
-                ) : (
-                  <div className="relative h-40 w-full sm:h-52">
-                    <Image
+                <ShimmerMedia bgAlt={COLOR.bgAlt} ready={!!mediaReady[i]} className="h-40 sm:h-52">
+                  {item.type === "video" ? (
+                    <video
                       src={item.src}
-                      alt={t.gallery.alt[i] ?? t.gallery.heading}
-                      fill
-                      loading="lazy"
-                      onLoad={() => markReady(i)}
-                      className="object-cover"
-                      sizes="(max-width: 640px) 50vw, 25vw"
+                      autoPlay
+                      loop
+                      muted
+                      playsInline
+                      onLoadedData={() => markReady(i)}
+                      className="h-40 w-full object-cover sm:h-52"
+                      style={{ filter: PHOTO_FILTER }}
                     />
-                  </div>
-                )}
-              </ShimmerMedia>
+                  ) : (
+                    <div className="relative h-40 w-full sm:h-52">
+                      <Image
+                        src={item.src}
+                        alt={t.gallery.alt[i] ?? t.gallery.heading}
+                        fill
+                        loading="lazy"
+                        onLoad={() => markReady(i)}
+                        className="object-cover"
+                        style={{ filter: PHOTO_FILTER }}
+                        sizes="(max-width: 640px) 50vw, 25vw"
+                      />
+                    </div>
+                  )}
+                </ShimmerMedia>
+                {/* Caption + zoom hint muncul pas hover/focus — nunjukkin
+                    galeri ini bisa diklik buat lihat lebih besar. */}
+                <div
+                  className="pointer-events-none absolute inset-0 flex items-end rounded-xl bg-gradient-to-t from-black/70 via-black/0 to-black/0 opacity-0 transition-opacity duration-200 group-hover:opacity-100 group-focus-visible:opacity-100"
+                  aria-hidden="true"
+                >
+                  <p className="p-3 text-xs font-medium text-white">{t.gallery.alt[i]}</p>
+                </div>
+              </button>
             ))}
           </Reveal>
         </div>
@@ -1010,15 +1256,7 @@ export function LandingPageClient() {
 
       <section id="faq" className="py-24" style={{ backgroundColor: COLOR.bgAlt }}>
         <div className="mx-auto max-w-3xl px-4">
-          <p className="text-center text-xs font-semibold uppercase tracking-[0.2em]" style={{ color: COLOR.accent }}>
-            {t.faq.eyebrow}
-          </p>
-          <h2
-            className="mt-3 text-center text-4xl leading-tight tracking-tight sm:text-5xl"
-            style={{ fontFamily: "var(--font-display)", fontWeight: 600 }}
-          >
-            {t.faq.heading}
-          </h2>
+          <SectionHeading eyebrow={t.faq.eyebrow} heading={t.faq.heading} align="center" accentColor={COLOR.accent} accent2Color={COLOR.accent2} />
           <div className="mt-12 divide-y" style={{ borderColor: hairline }}>
             {t.faq.items.map((f) => (
               <details key={f.q} className="group py-5" style={{ borderColor: hairline }}>
@@ -1039,12 +1277,7 @@ export function LandingPageClient() {
 
       <section id="lokasi" className="py-24 text-center">
         <div className="mx-auto max-w-2xl px-4">
-          <p className="text-xs font-semibold uppercase tracking-[0.2em]" style={{ color: COLOR.accent }}>
-            {t.location.eyebrow}
-          </p>
-          <h2 className="mt-3 text-4xl leading-tight tracking-tight sm:text-5xl" style={{ fontFamily: "var(--font-display)", fontWeight: 600 }}>
-            {t.location.heading}
-          </h2>
+          <SectionHeading eyebrow={t.location.eyebrow} heading={t.location.heading} align="center" accentColor={COLOR.accent} accent2Color={COLOR.accent2} />
           <p className="mt-3" style={{ color: COLOR.muted }}>
             {CLINIC_ADDRESS}
           </p>
@@ -1187,6 +1420,83 @@ export function LandingPageClient() {
         >
           ↑
         </button>
+      )}
+
+      {/* Lightbox galeri — klik thumbnail buka versi gede + caption, bukan
+          cuma grid kecil polos yang nggak bisa di-apa-apain. */}
+      {lightboxIndex !== null && (
+        <div
+          className="fixed inset-0 z-[60] flex items-center justify-center bg-black/90 p-4"
+          role="dialog"
+          aria-modal="true"
+          aria-label={t.gallery.heading}
+          onClick={() => setLightboxIndex(null)}
+        >
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              setLightboxIndex(null);
+            }}
+            className="absolute right-4 top-4 flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20"
+            aria-label={t.close}
+          >
+            <CloseIcon />
+          </button>
+
+          {lightboxIndex > 0 && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                setLightboxIndex(lightboxIndex - 1);
+              }}
+              className="absolute left-2 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20 sm:left-4"
+              aria-label="Previous"
+            >
+              <ChevronIcon direction="left" />
+            </button>
+          )}
+          {lightboxIndex < GALLERY.length - 1 && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                setLightboxIndex(lightboxIndex + 1);
+              }}
+              className="absolute right-2 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20 sm:right-4"
+              aria-label="Next"
+            >
+              <ChevronIcon direction="right" />
+            </button>
+          )}
+
+          <div className="w-full max-w-4xl" onClick={(e) => e.stopPropagation()}>
+            {GALLERY[lightboxIndex].type === "video" ? (
+              <video
+                src={GALLERY[lightboxIndex].src}
+                controls
+                autoPlay
+                loop
+                muted
+                playsInline
+                className="max-h-[75vh] w-full rounded-lg object-contain"
+              />
+            ) : (
+              <div className="relative h-[75vh] w-full">
+                <Image
+                  src={GALLERY[lightboxIndex].src}
+                  alt={t.gallery.alt[lightboxIndex] ?? t.gallery.heading}
+                  fill
+                  className="rounded-lg object-contain"
+                  style={{ filter: PHOTO_FILTER }}
+                  sizes="100vw"
+                />
+              </div>
+            )}
+            <p className="mt-4 text-center text-sm text-white/80">{t.gallery.alt[lightboxIndex]}</p>
+          </div>
+        </div>
       )}
     </div>
   );
