@@ -111,13 +111,25 @@ const TEAM = [
   { name: "Dhea", photo: "/team/dhea.jpg" },
 ];
 
-// Angka buat stat band — SENGAJA cuma fakta yang bisa diverifikasi dari
-// data yang udah ada di halaman ini juga (jumlah TEAM, durasi sesi di FAQ,
-// jam operasional di section Lokasi) — BUKAN klaim jumlah pasien/rating
-// kepuasan yang nggak ada datanya (klinik ini masih early-stage, lihat
-// CLAUDE.md soal ramp-up). "4" dihitung dari TEAM.length biar otomatis
-// ke-update kalau roster berubah, bukan angka lepas yang bisa basi.
+// Angka FAKTUAL buat stat band — bisa diverifikasi dari data yang udah ada
+// di halaman ini juga (jumlah TEAM, durasi sesi di FAQ, jam operasional di
+// section Lokasi). "4" dihitung dari TEAM.length biar otomatis ke-update
+// kalau roster berubah, bukan angka lepas yang bisa basi.
 const STATS_VALUES = [String(TEAM.length), "50", "7"];
+
+// Angka PLACEHOLDER — user eksplisit minta ditambah "jumlah klien" & "rating
+// kepuasan" (kayak referensi web bisnis lain), tapi klinik ini nyata & masih
+// early-stage, BELUM ada data pasien/review asli buat angka ini (beda kasus
+// sama STATS_VALUES di atas yang semuanya bisa diverifikasi dari halaman
+// sendiri). User udah dikasih tau & pilih eksplisit "placeholder dulu" —
+// WAJIB diganti angka asli (atau section-nya disesuaikan) sebelum go-live
+// publik, dicatat juga di TODO CLAUDE.md.
+const PLACEHOLDER_STATS_VALUES = ["150+", "95%"];
+
+// Urutan gabungan harus PERSIS sama kayak urutan `stats.items` di CONTENT.*
+// (placeholder duluan, baru yang faktual) — dipisah dari deklarasi array-nya
+// sendiri biar nggak ke-alokasi ulang tiap render (list-nya statis).
+const ALL_STATS_VALUES = [...PLACEHOLDER_STATS_VALUES, ...STATS_VALUES];
 
 // Testimoni PLACEHOLDER — nama & kutipan REKAAN, belum ada testimoni pasien
 // asli. Sama kayak foto tim, ini WAJIB diganti sebelum go-live publik (lihat
@@ -168,6 +180,8 @@ const CONTENT: Record<
     },
     stats: {
       items: [
+        { label: "Pasien Ditangani" },
+        { label: "Kepuasan Pasien" },
         { label: "Fisioterapis Berlisensi (STR)" },
         { label: "Menit per Sesi" },
         { label: "Hari Buka per Minggu" },
@@ -294,6 +308,8 @@ const CONTENT: Record<
     },
     stats: {
       items: [
+        { label: "Patients Treated" },
+        { label: "Patient Satisfaction" },
         { label: "Licensed Physiotherapists (STR)" },
         { label: "Minutes per Session" },
         { label: "Days Open per Week" },
@@ -945,18 +961,20 @@ export function LandingPageClient() {
 
       {/* Stat band — SENGAJA selalu dark (LIGHT_COLOR.ink, sama kayak
           footer), lepas dari tema light/dark, biar jadi "jeda" visual yang
-          kontras habis hero, bukan ngikutin tema section sekitarnya. Angka
-          diambil dari STATS_VALUES (fakta yang udah ada di halaman ini
-          juga — lihat komentar di deklarasinya), bukan klaim dikarang. */}
+          kontras habis hero, bukan ngikutin tema section sekitarnya.
+          2 angka pertama (Pasien Ditangani, Kepuasan) PLACEHOLDER atas
+          permintaan eksplisit user — lihat komentar PLACEHOLDER_STATS_VALUES
+          & TODO CLAUDE.md. 3 sisanya FAKTUAL, dari STATS_VALUES. flex-wrap
+          (bukan grid kaku) biar jumlah item ganjil/genap tetap rapi center. */}
       <section className="py-14" style={{ backgroundColor: LIGHT_COLOR.ink }}>
-        <div className="mx-auto grid max-w-6xl grid-cols-1 gap-8 px-4 text-center sm:grid-cols-3">
+        <div className="mx-auto flex max-w-6xl flex-wrap justify-center gap-x-10 gap-y-8 px-4 text-center">
           {t.stats.items.map((item, i) => (
-            <div key={item.label}>
+            <div key={item.label} className="min-w-[130px]">
               <p
                 className="text-6xl tracking-tight sm:text-7xl"
                 style={{ fontFamily: "var(--font-display)", fontWeight: 600, color: DARK_COLOR.accentBright }}
               >
-                {STATS_VALUES[i]}
+                {ALL_STATS_VALUES[i]}
               </p>
               <p className="mt-2 text-sm font-medium uppercase tracking-wide" style={{ color: "rgba(255,255,255,0.65)" }}>
                 {item.label}
