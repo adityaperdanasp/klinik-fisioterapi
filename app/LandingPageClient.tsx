@@ -109,7 +109,7 @@ const CONTENT: Record<
     testimonials: { heading: string; items: { name: string; note: string; quote: string }[] };
     gallery: { heading: string; alt: string[] };
     faq: { heading: string; items: { q: string; a: string }[] };
-    location: { heading: string; mapLink: string; chatBtn: string; hoursHeading: string; hoursSchedule: string; hoursNote: string };
+    location: { heading: string; mapLink: string; chatBtn: string; hoursHeading: string; hoursSchedule: string };
     footer: { desc: string; navHeading: string; contactHeading: string; loginStaff: string };
     whatsapp: { book: string; ask: string; visit: string; consultPrefix: (title: string) => string };
     backToTop: string;
@@ -196,8 +196,7 @@ const CONTENT: Record<
       mapLink: "Buka di Google Maps",
       chatBtn: "Chat WhatsApp",
       hoursHeading: "Jam Operasional",
-      hoursSchedule: "Senin – Sabtu, 08.00 – 20.00",
-      hoursNote: "(placeholder — konfirmasi jam pasti sebelum publikasi)",
+      hoursSchedule: "Senin – Minggu, 08.30 – 21.00",
     },
     footer: {
       desc: "Klinik fisioterapi spesialis cedera otot, ditangani fisioterapis berlisensi (STR).",
@@ -294,8 +293,7 @@ const CONTENT: Record<
       mapLink: "Open in Google Maps",
       chatBtn: "Chat on WhatsApp",
       hoursHeading: "Opening Hours",
-      hoursSchedule: "Mon – Sat, 8:00 AM – 8:00 PM",
-      hoursNote: "(placeholder — confirm exact hours before publishing)",
+      hoursSchedule: "Mon – Sun, 8:30 AM – 9:00 PM",
     },
     footer: {
       desc: "A muscle injury specialist physiotherapy clinic, treated by licensed (STR) physiotherapists.",
@@ -996,9 +994,6 @@ export function LandingPageClient() {
               {t.location.hoursHeading}
             </p>
             <p className="mt-1 text-sm font-medium">{t.location.hoursSchedule}</p>
-            <p className="mt-1 text-xs" style={{ color: COLOR.muted }}>
-              {t.location.hoursNote}
-            </p>
           </div>
 
           <div className="mt-8">
