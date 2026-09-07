@@ -709,11 +709,11 @@ export function LandingPageClient() {
         </div>
 
         <div className="mx-auto max-w-6xl px-4 py-24 sm:py-32 lg:py-40">
-          <div className="max-w-xl">
+          <div className="max-w-2xl">
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-white/90">{t.hero.badge}</p>
             <h1
-              className="mt-5 text-4xl leading-[1.15] text-white sm:text-5xl"
-              style={{ fontFamily: "var(--font-display)", fontWeight: 500 }}
+              className="mt-5 text-5xl leading-[1.05] tracking-tight text-white sm:text-6xl lg:text-7xl"
+              style={{ fontFamily: "var(--font-display)", fontWeight: 600 }}
             >
               {t.hero.titleLine1}
               <br />
@@ -747,7 +747,7 @@ export function LandingPageClient() {
         <Reveal className="mx-auto grid max-w-6xl grid-cols-1 gap-10 px-4 sm:grid-cols-3">
           {t.features.map((f) => (
             <div key={f.title} className="text-center sm:text-left">
-              <h3 className="text-lg" style={{ fontFamily: "var(--font-display)", fontWeight: 500 }}>
+              <h3 className="text-xl tracking-tight" style={{ fontFamily: "var(--font-display)", fontWeight: 600 }}>
                 {f.title}
               </h3>
               <p className="mt-2 text-sm leading-relaxed" style={{ color: COLOR.muted }}>
@@ -765,8 +765,8 @@ export function LandingPageClient() {
             style={{ borderColor: hairline, backgroundColor: COLOR.bgAlt }}
           >
             <span
-              className="text-7xl sm:text-8xl"
-              style={{ fontFamily: "var(--font-display)", fontWeight: 500, color: COLOR.accentBright }}
+              className="text-7xl tracking-tight sm:text-8xl"
+              style={{ fontFamily: "var(--font-display)", fontWeight: 600, color: COLOR.accentBright }}
             >
               STR
             </span>
@@ -779,7 +779,7 @@ export function LandingPageClient() {
           <p className="text-xs font-semibold uppercase tracking-[0.2em]" style={{ color: COLOR.accent }}>
             {t.trust.eyebrow}
           </p>
-          <h2 className="mt-3 text-3xl sm:text-4xl" style={{ fontFamily: "var(--font-display)", fontWeight: 500 }}>
+          <h2 className="mt-3 text-4xl leading-tight tracking-tight sm:text-5xl" style={{ fontFamily: "var(--font-display)", fontWeight: 600 }}>
             {t.trust.heading}
           </h2>
           <p className="mt-4 leading-relaxed" style={{ color: COLOR.muted }}>
@@ -801,8 +801,8 @@ export function LandingPageClient() {
             {t.steps.eyebrow}
           </p>
           <h2
-            className="mt-3 text-center text-3xl sm:text-4xl"
-            style={{ fontFamily: "var(--font-display)", fontWeight: 500 }}
+            className="mt-3 text-center text-4xl leading-tight tracking-tight sm:text-5xl"
+            style={{ fontFamily: "var(--font-display)", fontWeight: 600 }}
           >
             {t.steps.heading}
           </h2>
@@ -815,7 +815,9 @@ export function LandingPageClient() {
                 >
                   {s.number}
                 </span>
-                <h3 className="mt-3 text-base font-semibold">{s.title}</h3>
+                <h3 className="mt-3 text-lg tracking-tight" style={{ fontFamily: "var(--font-display)", fontWeight: 600 }}>
+                  {s.title}
+                </h3>
                 <p className="mt-2 text-sm leading-relaxed" style={{ color: COLOR.muted }}>
                   {s.description}
                 </p>
@@ -830,7 +832,7 @@ export function LandingPageClient() {
           <p className="text-xs font-semibold uppercase tracking-[0.2em]" style={{ color: COLOR.accent }}>
             {t.services.eyebrow}
           </p>
-          <h2 className="mt-3 text-3xl sm:text-4xl" style={{ fontFamily: "var(--font-display)", fontWeight: 500 }}>
+          <h2 className="mt-3 text-4xl leading-tight tracking-tight sm:text-5xl" style={{ fontFamily: "var(--font-display)", fontWeight: 600 }}>
             {t.services.heading}
           </h2>
           <Reveal className="mt-12 grid grid-cols-1 gap-8 sm:grid-cols-2">
@@ -850,7 +852,9 @@ export function LandingPageClient() {
                     />
                   </div>
                   <div className="p-7">
-                    <h3 className="text-lg font-semibold">{s.title}</h3>
+                    <h3 className="text-xl tracking-tight" style={{ fontFamily: "var(--font-display)", fontWeight: 600 }}>
+                      {s.title}
+                    </h3>
                     <p className="mt-2 text-sm leading-relaxed" style={{ color: COLOR.muted }}>
                       {s.description}
                     </p>
@@ -874,7 +878,7 @@ export function LandingPageClient() {
           <p className="text-xs font-semibold uppercase tracking-[0.2em]" style={{ color: COLOR.accent }}>
             {t.about.eyebrow}
           </p>
-          <h2 className="mt-3 text-3xl sm:text-4xl" style={{ fontFamily: "var(--font-display)", fontWeight: 500 }}>
+          <h2 className="mt-3 text-4xl leading-tight tracking-tight sm:text-5xl" style={{ fontFamily: "var(--font-display)", fontWeight: 600 }}>
             {t.about.heading}
           </h2>
           <p className="mt-4 leading-relaxed" style={{ color: COLOR.muted }}>
@@ -888,7 +892,7 @@ export function LandingPageClient() {
           <p className="text-xs font-semibold uppercase tracking-[0.2em]" style={{ color: COLOR.accent }}>
             {t.team.eyebrow}
           </p>
-          <h2 className="mt-3 text-3xl sm:text-4xl" style={{ fontFamily: "var(--font-display)", fontWeight: 500 }}>
+          <h2 className="mt-3 text-4xl leading-tight tracking-tight sm:text-5xl" style={{ fontFamily: "var(--font-display)", fontWeight: 600 }}>
             {t.team.heading}
           </h2>
           <Reveal className="mt-12 grid grid-cols-2 gap-6 sm:grid-cols-4">
@@ -906,7 +910,9 @@ export function LandingPageClient() {
                   />
                 </div>
                 <div className="p-4">
-                  <h3 className="text-base font-semibold">{m.name}</h3>
+                  <h3 className="text-lg tracking-tight" style={{ fontFamily: "var(--font-display)", fontWeight: 600 }}>
+                    {m.name}
+                  </h3>
                   <p className="mt-1 text-sm" style={{ color: COLOR.muted }}>
                     {t.team.role}
                   </p>
@@ -925,7 +931,7 @@ export function LandingPageClient() {
           <p className="text-xs font-semibold uppercase tracking-[0.2em]" style={{ color: COLOR.accent }}>
             {t.testimonials.eyebrow}
           </p>
-          <h2 className="mt-3 text-3xl sm:text-4xl" style={{ fontFamily: "var(--font-display)", fontWeight: 500 }}>
+          <h2 className="mt-3 text-4xl leading-tight tracking-tight sm:text-5xl" style={{ fontFamily: "var(--font-display)", fontWeight: 600 }}>
             {t.testimonials.heading}
           </h2>
           <Reveal className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-3">
@@ -960,7 +966,7 @@ export function LandingPageClient() {
           <p className="text-xs font-semibold uppercase tracking-[0.2em]" style={{ color: COLOR.accent }}>
             {t.gallery.eyebrow}
           </p>
-          <h2 className="mt-3 text-3xl sm:text-4xl" style={{ fontFamily: "var(--font-display)", fontWeight: 500 }}>
+          <h2 className="mt-3 text-4xl leading-tight tracking-tight sm:text-5xl" style={{ fontFamily: "var(--font-display)", fontWeight: 600 }}>
             {t.gallery.heading}
           </h2>
           <Reveal className="mt-10 grid grid-cols-2 gap-4 sm:grid-cols-4">
@@ -1006,8 +1012,8 @@ export function LandingPageClient() {
             {t.faq.eyebrow}
           </p>
           <h2
-            className="mt-3 text-center text-3xl sm:text-4xl"
-            style={{ fontFamily: "var(--font-display)", fontWeight: 500 }}
+            className="mt-3 text-center text-4xl leading-tight tracking-tight sm:text-5xl"
+            style={{ fontFamily: "var(--font-display)", fontWeight: 600 }}
           >
             {t.faq.heading}
           </h2>
@@ -1034,7 +1040,7 @@ export function LandingPageClient() {
           <p className="text-xs font-semibold uppercase tracking-[0.2em]" style={{ color: COLOR.accent }}>
             {t.location.eyebrow}
           </p>
-          <h2 className="mt-3 text-3xl sm:text-4xl" style={{ fontFamily: "var(--font-display)", fontWeight: 500 }}>
+          <h2 className="mt-3 text-4xl leading-tight tracking-tight sm:text-5xl" style={{ fontFamily: "var(--font-display)", fontWeight: 600 }}>
             {t.location.heading}
           </h2>
           <p className="mt-3" style={{ color: COLOR.muted }}>
