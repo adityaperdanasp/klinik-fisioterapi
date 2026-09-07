@@ -101,15 +101,15 @@ const CONTENT: Record<
     banner: { text: string; link: string };
     hero: { badge: string; titleLine1: string; titleItalic: string; desc: string; cta: string; trustChips: string[] };
     features: { title: string; description: string }[];
-    trust: { label: string; heading: string; desc: string; link: string };
-    steps: { heading: string; items: { number: string; title: string; description: string }[] };
-    services: { heading: string; ctaLabel: string; items: { title: string; description: string }[] };
-    about: { heading: string; desc: string };
-    team: { heading: string; role: string };
-    testimonials: { heading: string; items: { name: string; note: string; quote: string }[] };
-    gallery: { heading: string; alt: string[] };
-    faq: { heading: string; items: { q: string; a: string }[] };
-    location: { heading: string; mapLink: string; chatBtn: string; hoursHeading: string; hoursSchedule: string };
+    trust: { eyebrow: string; label: string; heading: string; desc: string; link: string };
+    steps: { eyebrow: string; heading: string; items: { number: string; title: string; description: string }[] };
+    services: { eyebrow: string; heading: string; ctaLabel: string; items: { title: string; description: string }[] };
+    about: { eyebrow: string; heading: string; desc: string };
+    team: { eyebrow: string; heading: string; role: string };
+    testimonials: { eyebrow: string; heading: string; items: { name: string; note: string; quote: string }[] };
+    gallery: { eyebrow: string; heading: string; alt: string[] };
+    faq: { eyebrow: string; heading: string; items: { q: string; a: string }[] };
+    location: { eyebrow: string; heading: string; mapLink: string; chatBtn: string; hoursHeading: string; hoursSchedule: string };
     footer: { desc: string; navHeading: string; contactHeading: string; loginStaff: string };
     whatsapp: { book: string; ask: string; visit: string; consultPrefix: (title: string) => string };
     backToTop: string;
@@ -119,7 +119,7 @@ const CONTENT: Record<
 > = {
   id: {
     nav: { layanan: "Layanan", alur: "Alur Pelayanan", tim: "Tim", faq: "FAQ", lokasi: "Lokasi" },
-    bookBtn: "Book Appointment",
+    bookBtn: "Booking Sekarang",
     banner: { text: "Kini hadir di Ciangsana, Gunung Putri —", link: "lihat lokasi" },
     hero: {
       badge: "Spesialis Cedera Otot · Bekasi",
@@ -135,12 +135,14 @@ const CONTENT: Record<
       { title: "Fisioterapis Berlisensi", description: "Ditangani oleh fisioterapis dengan STR (Surat Tanda Registrasi) resmi." },
     ],
     trust: {
+      eyebrow: "Kenapa Pulih Fisioterapi",
       label: "Fisioterapis Bersertifikat & Berlisensi Resmi",
       heading: "Fisioterapi yang disesuaikan untuk Anda",
       desc: "Setiap pasien punya riwayat dan kondisi yang berbeda. Kami menyusun evaluasi dan rencana terapi secara personal — bukan satu program untuk semua orang — supaya pemulihan Anda lebih tepat sasaran.",
       link: "Lihat layanan kami →",
     },
     steps: {
+      eyebrow: "Cara Kerja",
       heading: "Empat langkah menuju pulih",
       items: [
         { number: "01", title: "Konsultasi Awal", description: "Ceritakan keluhan Anda ke fisioterapis kami. Kami periksa langsung untuk menemukan akar masalah cedera otot Anda." },
@@ -150,6 +152,7 @@ const CONTENT: Record<
       ],
     },
     services: {
+      eyebrow: "Apa yang Kami Tangani",
       heading: "Layanan kami",
       ctaLabel: "Konsultasi sekarang →",
       items: [
@@ -160,11 +163,13 @@ const CONTENT: Record<
       ],
     },
     about: {
+      eyebrow: "Profil Klinik",
       heading: "Tentang Pulih Fisioterapi",
       desc: "Kami klinik fisioterapi yang fokus menangani cedera otot — dari cedera olahraga sampai nyeri akibat aktivitas harian. Pendekatan kami mengutamakan evaluasi menyeluruh dan gerak aktif sebagai bagian dari proses pemulihan, bukan sekadar modalitas pasif.",
     },
-    team: { heading: "Tim fisioterapis kami", role: "Fisioterapis" },
+    team: { eyebrow: "Kenalan dengan Tim", heading: "Tim fisioterapis kami", role: "Fisioterapis" },
     testimonials: {
+      eyebrow: "Cerita Pasien",
       heading: "Kata pasien kami",
       items: [
         { name: "Budi S.", note: "Pemulihan cedera lutut lari", quote: "Setelah beberapa sesi, lutut saya jauh lebih stabil buat lari lagi. Fisioterapisnya sabar jelasin tiap gerakan." },
@@ -173,6 +178,7 @@ const CONTENT: Record<
       ],
     },
     gallery: {
+      eyebrow: "Suasana di Klinik",
       heading: "Galeri",
       alt: [
         "Terapi manual pada tangan pasien",
@@ -182,6 +188,7 @@ const CONTENT: Record<
       ],
     },
     faq: {
+      eyebrow: "Bantuan",
       heading: "Pertanyaan umum",
       items: [
         { q: "Apakah saya perlu rujukan dokter untuk booking sesi fisioterapi?", a: "Tidak wajib. Anda bisa langsung booking konsultasi awal, fisioterapis kami akan melakukan evaluasi untuk menentukan rencana terapi yang tepat." },
@@ -192,6 +199,7 @@ const CONTENT: Record<
       ],
     },
     location: {
+      eyebrow: "Kunjungi Kami",
       heading: "Lokasi",
       mapLink: "Buka di Google Maps",
       chatBtn: "Chat WhatsApp",
@@ -232,12 +240,14 @@ const CONTENT: Record<
       { title: "Licensed Physiotherapists", description: "Treated by physiotherapists holding an official STR registration license." },
     ],
     trust: {
+      eyebrow: "Why Pulih Fisioterapi",
       label: "Certified & Officially Licensed Physiotherapists",
       heading: "Physiotherapy tailored to you",
       desc: "Every patient has a different history and condition. We build each evaluation and treatment plan individually — never one program for everyone — so your recovery stays on target.",
       link: "See our services →",
     },
     steps: {
+      eyebrow: "How It Works",
       heading: "Four steps to recovery",
       items: [
         { number: "01", title: "Initial Consultation", description: "Tell our physiotherapist about your complaint. We examine you directly to find the root cause of your muscle injury." },
@@ -247,6 +257,7 @@ const CONTENT: Record<
       ],
     },
     services: {
+      eyebrow: "What We Treat",
       heading: "Our Services",
       ctaLabel: "Consult now →",
       items: [
@@ -257,11 +268,13 @@ const CONTENT: Record<
       ],
     },
     about: {
+      eyebrow: "Clinic Profile",
       heading: "About Pulih Fisioterapi",
       desc: "We're a physiotherapy clinic focused on muscle injuries — from sports injuries to pain from everyday activity. Our approach prioritizes thorough evaluation and active movement as part of recovery, not just passive treatment.",
     },
-    team: { heading: "Our Physiotherapy Team", role: "Physiotherapist" },
+    team: { eyebrow: "Meet the Team", heading: "Our Physiotherapy Team", role: "Physiotherapist" },
     testimonials: {
+      eyebrow: "Patient Stories",
       heading: "What our patients say",
       items: [
         { name: "Budi S.", note: "Recovered from a running knee injury", quote: "After a few sessions my knee felt far more stable for running again. The physiotherapist patiently explained every movement." },
@@ -270,6 +283,7 @@ const CONTENT: Record<
       ],
     },
     gallery: {
+      eyebrow: "Inside the Clinic",
       heading: "Gallery",
       alt: [
         "Manual therapy on a patient's hand",
@@ -279,6 +293,7 @@ const CONTENT: Record<
       ],
     },
     faq: {
+      eyebrow: "Help",
       heading: "Frequently Asked Questions",
       items: [
         { q: "Do I need a doctor's referral to book a physiotherapy session?", a: "Not required. You can book an initial consultation directly — our physiotherapist will evaluate you to determine the right treatment plan." },
@@ -289,6 +304,7 @@ const CONTENT: Record<
       ],
     },
     location: {
+      eyebrow: "Visit Us",
       heading: "Location",
       mapLink: "Open in Google Maps",
       chatBtn: "Chat on WhatsApp",
@@ -626,23 +642,6 @@ export function LandingPageClient() {
         </div>
       </header>
 
-      <div
-        id="main-content"
-        className="border-b py-3 text-center text-sm"
-        style={{ borderColor: hairline, backgroundColor: COLOR.bgAlt, color: COLOR.muted }}
-      >
-        {t.banner.text}{" "}
-        <a
-          href={GOOGLE_MAPS_URL}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="font-semibold underline"
-          style={{ color: COLOR.accent }}
-        >
-          {t.banner.link}
-        </a>
-      </div>
-
       {/* Hero full-bleed video — dulu foto statis di kotak sisi kanan, sekarang
           video treatment jadi background section penuh (pola yang sama kayak
           arsygas.id / pltsmandiri.com: video/gambar full-width + scrim gelap +
@@ -670,6 +669,22 @@ export function LandingPageClient() {
           className="absolute inset-0 -z-10 bg-gradient-to-t from-black/75 via-black/45 to-black/25"
           aria-hidden="true"
         />
+
+        {/* Banner pengumuman dulu bar solid terpisah di antara header & hero
+            (bikin 2 "seam" solid sebelum videonya sendiri kelihatan) —
+            sekarang jadi strip translucent yang menyatu di atas video,
+            konsisten sama treatment teks hero (warna tetap terang, lepas
+            dari tema light/dark). */}
+        <div
+          id="main-content"
+          className="relative border-b border-white/10 bg-black/20 py-3 text-center text-sm text-white/85 backdrop-blur-sm"
+        >
+          {t.banner.text}{" "}
+          <a href={GOOGLE_MAPS_URL} target="_blank" rel="noopener noreferrer" className="font-semibold text-white underline">
+            {t.banner.link}
+          </a>
+        </div>
+
         <div className="mx-auto max-w-6xl px-4 py-24 sm:py-32 lg:py-40">
           <div className="max-w-xl">
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-white/90">{t.hero.badge}</p>
@@ -721,19 +736,27 @@ export function LandingPageClient() {
       </section>
 
       <section className="mx-auto grid max-w-6xl grid-cols-1 items-center gap-16 px-4 py-24 lg:grid-cols-2">
-        <div className="order-2 text-center lg:order-1 lg:text-left">
-          <span
-            className="text-7xl sm:text-8xl"
-            style={{ fontFamily: "var(--font-display)", fontWeight: 500, color: COLOR.accentBright }}
+        <div className="order-2 lg:order-1">
+          <div
+            className="mx-auto flex max-w-sm flex-col items-center rounded-3xl border px-10 py-12 text-center lg:mx-0 lg:items-start lg:text-left"
+            style={{ borderColor: hairline, backgroundColor: COLOR.bgAlt }}
           >
-            STR
-          </span>
-          <p className="mt-2 text-sm" style={{ color: COLOR.muted }}>
-            {t.trust.label}
-          </p>
+            <span
+              className="text-7xl sm:text-8xl"
+              style={{ fontFamily: "var(--font-display)", fontWeight: 500, color: COLOR.accentBright }}
+            >
+              STR
+            </span>
+            <p className="mt-3 text-sm font-medium" style={{ color: COLOR.muted }}>
+              {t.trust.label}
+            </p>
+          </div>
         </div>
         <div className="order-1 lg:order-2">
-          <h2 className="text-3xl sm:text-4xl" style={{ fontFamily: "var(--font-display)", fontWeight: 500 }}>
+          <p className="text-xs font-semibold uppercase tracking-[0.2em]" style={{ color: COLOR.accent }}>
+            {t.trust.eyebrow}
+          </p>
+          <h2 className="mt-3 text-3xl sm:text-4xl" style={{ fontFamily: "var(--font-display)", fontWeight: 500 }}>
             {t.trust.heading}
           </h2>
           <p className="mt-4 leading-relaxed" style={{ color: COLOR.muted }}>
@@ -751,8 +774,11 @@ export function LandingPageClient() {
 
       <section id="alur" className="py-24" style={{ backgroundColor: COLOR.bgAlt }}>
         <div className="mx-auto max-w-6xl px-4">
+          <p className="text-center text-xs font-semibold uppercase tracking-[0.2em]" style={{ color: COLOR.accent }}>
+            {t.steps.eyebrow}
+          </p>
           <h2
-            className="text-center text-3xl sm:text-4xl"
+            className="mt-3 text-center text-3xl sm:text-4xl"
             style={{ fontFamily: "var(--font-display)", fontWeight: 500 }}
           >
             {t.steps.heading}
@@ -778,7 +804,10 @@ export function LandingPageClient() {
 
       <section id="layanan" className="py-24">
         <div className="mx-auto max-w-6xl px-4">
-          <h2 className="text-3xl sm:text-4xl" style={{ fontFamily: "var(--font-display)", fontWeight: 500 }}>
+          <p className="text-xs font-semibold uppercase tracking-[0.2em]" style={{ color: COLOR.accent }}>
+            {t.services.eyebrow}
+          </p>
+          <h2 className="mt-3 text-3xl sm:text-4xl" style={{ fontFamily: "var(--font-display)", fontWeight: 500 }}>
             {t.services.heading}
           </h2>
           <Reveal className="mt-12 grid grid-cols-1 gap-8 sm:grid-cols-2">
@@ -817,9 +846,12 @@ export function LandingPageClient() {
         </div>
       </section>
 
-      <section className="py-20" style={{ backgroundColor: COLOR.bgAlt }}>
+      <section className="py-24" style={{ backgroundColor: COLOR.bgAlt }}>
         <div className="mx-auto max-w-3xl px-4 text-center">
-          <h2 className="text-3xl sm:text-4xl" style={{ fontFamily: "var(--font-display)", fontWeight: 500 }}>
+          <p className="text-xs font-semibold uppercase tracking-[0.2em]" style={{ color: COLOR.accent }}>
+            {t.about.eyebrow}
+          </p>
+          <h2 className="mt-3 text-3xl sm:text-4xl" style={{ fontFamily: "var(--font-display)", fontWeight: 500 }}>
             {t.about.heading}
           </h2>
           <p className="mt-4 leading-relaxed" style={{ color: COLOR.muted }}>
@@ -830,7 +862,10 @@ export function LandingPageClient() {
 
       <section id="tim" className="py-24">
         <div className="mx-auto max-w-6xl px-4">
-          <h2 className="text-3xl sm:text-4xl" style={{ fontFamily: "var(--font-display)", fontWeight: 500 }}>
+          <p className="text-xs font-semibold uppercase tracking-[0.2em]" style={{ color: COLOR.accent }}>
+            {t.team.eyebrow}
+          </p>
+          <h2 className="mt-3 text-3xl sm:text-4xl" style={{ fontFamily: "var(--font-display)", fontWeight: 500 }}>
             {t.team.heading}
           </h2>
           <Reveal className="mt-12 grid grid-cols-2 gap-6 sm:grid-cols-4">
@@ -861,7 +896,10 @@ export function LandingPageClient() {
 
       <section className="py-24" style={{ backgroundColor: COLOR.bgAlt }}>
         <div className="mx-auto max-w-6xl px-4">
-          <h2 className="text-3xl sm:text-4xl" style={{ fontFamily: "var(--font-display)", fontWeight: 500 }}>
+          <p className="text-xs font-semibold uppercase tracking-[0.2em]" style={{ color: COLOR.accent }}>
+            {t.testimonials.eyebrow}
+          </p>
+          <h2 className="mt-3 text-3xl sm:text-4xl" style={{ fontFamily: "var(--font-display)", fontWeight: 500 }}>
             {t.testimonials.heading}
           </h2>
           <Reveal className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-3">
@@ -893,7 +931,10 @@ export function LandingPageClient() {
 
       <section className="py-24">
         <div className="mx-auto max-w-6xl px-4">
-          <h2 className="text-3xl sm:text-4xl" style={{ fontFamily: "var(--font-display)", fontWeight: 500 }}>
+          <p className="text-xs font-semibold uppercase tracking-[0.2em]" style={{ color: COLOR.accent }}>
+            {t.gallery.eyebrow}
+          </p>
+          <h2 className="mt-3 text-3xl sm:text-4xl" style={{ fontFamily: "var(--font-display)", fontWeight: 500 }}>
             {t.gallery.heading}
           </h2>
           <Reveal className="mt-10 grid grid-cols-2 gap-4 sm:grid-cols-4">
@@ -935,8 +976,11 @@ export function LandingPageClient() {
 
       <section id="faq" className="py-24" style={{ backgroundColor: COLOR.bgAlt }}>
         <div className="mx-auto max-w-3xl px-4">
+          <p className="text-center text-xs font-semibold uppercase tracking-[0.2em]" style={{ color: COLOR.accent }}>
+            {t.faq.eyebrow}
+          </p>
           <h2
-            className="text-center text-3xl sm:text-4xl"
+            className="mt-3 text-center text-3xl sm:text-4xl"
             style={{ fontFamily: "var(--font-display)", fontWeight: 500 }}
           >
             {t.faq.heading}
@@ -961,7 +1005,10 @@ export function LandingPageClient() {
 
       <section id="lokasi" className="py-24 text-center">
         <div className="mx-auto max-w-2xl px-4">
-          <h2 className="text-3xl sm:text-4xl" style={{ fontFamily: "var(--font-display)", fontWeight: 500 }}>
+          <p className="text-xs font-semibold uppercase tracking-[0.2em]" style={{ color: COLOR.accent }}>
+            {t.location.eyebrow}
+          </p>
+          <h2 className="mt-3 text-3xl sm:text-4xl" style={{ fontFamily: "var(--font-display)", fontWeight: 500 }}>
             {t.location.heading}
           </h2>
           <p className="mt-3" style={{ color: COLOR.muted }}>
