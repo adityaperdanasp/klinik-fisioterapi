@@ -105,7 +105,7 @@ const CONTENT: Record<
     steps: { eyebrow: string; heading: string; items: { number: string; title: string; description: string }[] };
     services: { eyebrow: string; heading: string; ctaLabel: string; items: { title: string; description: string }[] };
     about: { eyebrow: string; heading: string; desc: string };
-    team: { eyebrow: string; heading: string; role: string };
+    team: { eyebrow: string; heading: string; role: string; bios: string[] };
     testimonials: { eyebrow: string; heading: string; items: { name: string; note: string; quote: string }[] };
     gallery: { eyebrow: string; heading: string; alt: string[] };
     faq: { eyebrow: string; heading: string; items: { q: string; a: string }[] };
@@ -167,7 +167,20 @@ const CONTENT: Record<
       heading: "Tentang Pulih Fisioterapi",
       desc: "Kami klinik fisioterapi yang fokus menangani cedera otot — dari cedera olahraga sampai nyeri akibat aktivitas harian. Pendekatan kami mengutamakan evaluasi menyeluruh dan gerak aktif sebagai bagian dari proses pemulihan, bukan sekadar modalitas pasif.",
     },
-    team: { eyebrow: "Kenalan dengan Tim", heading: "Tim fisioterapis kami", role: "Fisioterapis" },
+    team: {
+      eyebrow: "Kenalan dengan Tim",
+      heading: "Tim fisioterapis kami",
+      role: "Fisioterapis",
+      // PLACEHOLDER — sama kayak foto & nama TEAM (belum staff asli, lihat
+      // CLAUDE.md), teks spesialisasi & lama pengalaman di bawah ini karangan
+      // sementara, WAJIB diganti data staff asli bareng foto sebelum go-live.
+      bios: [
+        "Spesialis cedera olahraga & rehabilitasi pasca operasi, 6+ tahun pengalaman.",
+        "Spesialis nyeri punggung & postur kerja, 8+ tahun pengalaman.",
+        "Spesialis terapi manual & mobilisasi sendi, 5+ tahun pengalaman.",
+        "Spesialis rehabilitasi lansia & terapi di rumah, 4+ tahun pengalaman.",
+      ],
+    },
     testimonials: {
       eyebrow: "Cerita Pasien",
       heading: "Kata pasien kami",
@@ -272,7 +285,17 @@ const CONTENT: Record<
       heading: "About Pulih Fisioterapi",
       desc: "We're a physiotherapy clinic focused on muscle injuries — from sports injuries to pain from everyday activity. Our approach prioritizes thorough evaluation and active movement as part of recovery, not just passive treatment.",
     },
-    team: { eyebrow: "Meet the Team", heading: "Our Physiotherapy Team", role: "Physiotherapist" },
+    team: {
+      eyebrow: "Meet the Team",
+      heading: "Our Physiotherapy Team",
+      role: "Physiotherapist",
+      bios: [
+        "Sports injury & post-surgery rehab specialist, 6+ years of experience.",
+        "Back pain & work posture specialist, 8+ years of experience.",
+        "Manual therapy & joint mobilization specialist, 5+ years of experience.",
+        "Elderly rehab & home therapy specialist, 4+ years of experience.",
+      ],
+    },
     testimonials: {
       eyebrow: "Patient Stories",
       heading: "What our patients say",
@@ -869,7 +892,7 @@ export function LandingPageClient() {
             {t.team.heading}
           </h2>
           <Reveal className="mt-12 grid grid-cols-2 gap-6 sm:grid-cols-4">
-            {TEAM.map((m) => (
+            {TEAM.map((m, i) => (
               <div key={m.name} className="overflow-hidden rounded-2xl text-center" style={{ backgroundColor: COLOR.bgAlt }}>
                 <div className="relative h-56 w-full">
                   <Image
@@ -886,6 +909,9 @@ export function LandingPageClient() {
                   <h3 className="text-base font-semibold">{m.name}</h3>
                   <p className="mt-1 text-sm" style={{ color: COLOR.muted }}>
                     {t.team.role}
+                  </p>
+                  <p className="mt-1 text-xs leading-relaxed" style={{ color: COLOR.muted }}>
+                    {t.team.bios[i]}
                   </p>
                 </div>
               </div>
