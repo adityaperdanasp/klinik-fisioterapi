@@ -115,7 +115,7 @@ const TEAM = [
 // di halaman ini juga (jumlah TEAM, durasi sesi di FAQ, jam operasional di
 // section Lokasi). "4" dihitung dari TEAM.length biar otomatis ke-update
 // kalau roster berubah, bukan angka lepas yang bisa basi.
-const STATS_VALUES = [String(TEAM.length), "50", "7"];
+const STATS_VALUES = [String(TEAM.length), "60", "7"];
 
 // Angka PLACEHOLDER — user eksplisit minta ditambah "jumlah klien" & "rating
 // kepuasan" (kayak referensi web bisnis lain), tapi klinik ini nyata & masih
@@ -184,7 +184,7 @@ const CONTENT: Record<
         { label: "Kepuasan Pasien" },
         { label: "Fisioterapis Berlisensi (STR)" },
         { label: "Menit per Sesi" },
-        { label: "Hari Buka per Minggu" },
+        { label: "Buka Setiap Hari" },
       ],
     },
     features: [
@@ -263,7 +263,7 @@ const CONTENT: Record<
       heading: "Pertanyaan umum",
       items: [
         { q: "Apakah saya perlu rujukan dokter untuk booking sesi fisioterapi?", a: "Tidak wajib. Anda bisa langsung booking konsultasi awal, fisioterapis kami akan melakukan evaluasi untuk menentukan rencana terapi yang tepat." },
-        { q: "Berapa lama satu sesi terapi berlangsung?", a: "Setiap sesi berlangsung sekitar 50 menit, mencakup evaluasi kondisi terkini dan penanganan langsung oleh fisioterapis." },
+        { q: "Berapa lama satu sesi terapi berlangsung?", a: "Setiap sesi berlangsung sekitar 60 menit, mencakup evaluasi kondisi terkini dan penanganan langsung oleh fisioterapis." },
         { q: "Bagaimana cara reschedule atau membatalkan jadwal?", a: "Hubungi kami via WhatsApp sesegera mungkin sebelum jadwal Anda, kami akan bantu atur ulang sesuai ketersediaan ruang dan fisioterapis." },
         { q: "Apakah fisioterapis di sini berlisensi resmi?", a: "Ya, seluruh fisioterapis kami memiliki STR (Surat Tanda Registrasi) yang aktif." },
         { q: "Apa yang harus saya bawa atau kenakan saat sesi pertama?", a: "Kenakan pakaian yang nyaman dan memungkinkan pergerakan bebas pada area yang akan ditangani. Bawa hasil pemeriksaan medis sebelumnya jika ada." },
@@ -312,7 +312,7 @@ const CONTENT: Record<
         { label: "Patient Satisfaction" },
         { label: "Licensed Physiotherapists (STR)" },
         { label: "Minutes per Session" },
-        { label: "Days Open per Week" },
+        { label: "Open Every Day" },
       ],
     },
     features: [
@@ -388,7 +388,7 @@ const CONTENT: Record<
       heading: "Frequently Asked Questions",
       items: [
         { q: "Do I need a doctor's referral to book a physiotherapy session?", a: "Not required. You can book an initial consultation directly — our physiotherapist will evaluate you to determine the right treatment plan." },
-        { q: "How long does one therapy session last?", a: "Each session lasts about 50 minutes, including a check on your current condition and hands-on treatment from your physiotherapist." },
+        { q: "How long does one therapy session last?", a: "Each session lasts about 60 minutes, including a check on your current condition and hands-on treatment from your physiotherapist." },
         { q: "How do I reschedule or cancel my appointment?", a: "Message us on WhatsApp as early as possible before your appointment, and we'll help reschedule based on room and physiotherapist availability." },
         { q: "Are the physiotherapists here officially licensed?", a: "Yes, all our physiotherapists hold an active STR (official registration license)." },
         { q: "What should I bring or wear for my first session?", a: "Wear comfortable clothing that allows free movement in the area being treated. Bring any previous medical exam results, if you have them." },

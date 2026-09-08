@@ -1,4 +1,4 @@
-const SESSION_MINUTES = 50;
+const SESSION_MINUTES = 60;
 
 export function getWeekRange(anchor: Date) {
   const day = anchor.getDay();

@@ -72,8 +72,8 @@ async function seedSettings() {
     ["tarif_default", "175000", "Tarif default per sesi (Rupiah)"],
     [
       "kapasitas_max_sesi_bulan",
-      "874",
-      "Kapasitas maksimum sesi per bulan (4 fisio x 4 ruang x sesi efektif)",
+      "728",
+      "Kapasitas maksimum sesi per bulan (4 fisio x 4 ruang x sesi efektif, sesi 60 menit)",
     ],
     ["target_bep_sesi_bulan", "290", "Target BEP (break-even point) sesi per bulan"],
     [

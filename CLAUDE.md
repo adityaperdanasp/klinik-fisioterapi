@@ -6,8 +6,8 @@ App name: **Pulih Fisioterapi**. Status: semua 5 fitur asli sudah dibangun dan l
 
 Klinik fisioterapi spesialisasi cedera otot di Bekasi. Partner: Adit (fisioterapis, STR ada), Erwin, Maikel.
 
-- Kapasitas: 4 fisioterapis × 4 ruang, sesi 50 menit, 7 jam efektif/hari, 26 hari/bulan → maksimum 874 sesi/bulan.
-- BEP: 290 sesi/bulan (~33% dari kapasitas maksimum).
+- Kapasitas: 4 fisioterapis × 4 ruang, sesi **60 menit** (diubah dari 50 menit — lihat `lib/week.ts` `SESSION_MINUTES`), 7 jam efektif/hari, 26 hari/bulan → maksimum **728 sesi/bulan** (turunan matematis murni dari formula di atas: 7 jam × 60 menit ÷ 60 menit/sesi = 7 sesi/ruang/hari × 4 ruang × 26 hari).
+- BEP: **290 sesi/bulan (perlu dicek ulang)** — angka sesi absolut ini belum di-recalculate ulang setelah durasi sesi berubah jadi 60 menit (BEP session count tergantung biaya tetap/tarif di model finansial Google Sheet yang nggak diakses dari sini). Persentase "~33% dari kapasitas maksimum" JELAS BERUBAH sekarang jadi 290/728 ≈ 40% karena kapasitas maksimumnya turun (874→728) — tapi jangan asumsikan angka 290 sesi-nya sendiri tetap sama tanpa konfirmasi Adit dulu.
 - Tarif default: Rp175.000/sesi — disimpan di tabel `settings` (key `tarif_default`), bukan hardcode.
 - Ramp-up asumsi: utilisasi 15% → 65% linear bulan 1–12. Bulan ke-1 dihitung dari `settings.bulan_mulai_operasional` (lihat TODO di bawah — masih placeholder).
 - Model finansial lengkap ada di Google Sheet (link tidak disertakan di sini — tanya Adit kalau perlu referensi angka).

@@ -49,7 +49,12 @@ export default async function DashboardPage() {
 
   const monthBookingDocs = monthBookingsSnap.docs;
   const sesiAktualBulanIni = monthBookingDocs.length;
-  const kapasitas = Number(kapasitasMax ?? 874);
+  // Fallback 728 dihitung ulang dari 4 ruang x (7 jam x 60 menit / 60
+  // menit-per-sesi) x 26 hari, sejak SESSION_MINUTES berubah dari 50→60
+  // (lihat lib/week.ts). Fallback ini CUMA kepake kalau
+  // settings/kapasitas_max_sesi_bulan belum ada — nilai live di Firestore
+  // tetap yang menang kalau udah ke-seed (lihat catatan CLAUDE.md).
+  const kapasitas = Number(kapasitasMax ?? 728);
   const bep = Number(targetBep ?? 290);
 
   // payments/{bookingId} — batch-get langsung by id (getAll), bukan query.

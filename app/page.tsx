@@ -80,7 +80,7 @@ const FAQ_JSON_LD = {
       name: "Berapa lama satu sesi terapi berlangsung?",
       acceptedAnswer: {
         "@type": "Answer",
-        text: "Setiap sesi berlangsung sekitar 50 menit, mencakup evaluasi kondisi terkini dan penanganan langsung oleh fisioterapis.",
+        text: "Setiap sesi berlangsung sekitar 60 menit, mencakup evaluasi kondisi terkini dan penanganan langsung oleh fisioterapis.",
       },
     },
     {

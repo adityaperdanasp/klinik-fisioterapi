@@ -74,7 +74,7 @@ export function BookingForm({
 
       <div>
         <label className="block text-xs font-medium text-slate-600">
-          Mulai (sesi 50 menit)
+          Mulai (sesi 60 menit)
         </label>
         <input
           type="datetime-local"
