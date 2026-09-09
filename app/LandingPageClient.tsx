@@ -16,33 +16,39 @@ const GOOGLE_MAPS_EMBED_URL = `https://www.google.com/maps?q=${encodeURIComponen
 // (dark), inspired by the calm luxury-wellness reference the user shared —
 // colors and layout genre are ours to reuse, copy/photos are original.
 //
-// Kontras warna (WCAG) di-audit pakai perhitungan luminance manual buat
-// dua-duanya. Light: `accent` (#8A5A2E, 5.4-5.6:1 vs bg/bgAlt, 5.9:1 buat
-// teks putih di atasnya) dipakai buat semua teks/tombol kecil, `accentBright`
-// (#B05D2A, 4.1-4.5:1) yang lebih vivid/terracotta cuma buat dekorasi besar
-// (large text WCAG, ambang 3:1 — di sini malah lolos ambang teks normal
-// juga, jadi aman dipakai lebih lebar). Warna ini di-refresh dari versi
-// sebelumnya (lebih coklat-muram, #7A5D39/#96754A) atas permintaan eksplisit
-// user ("warna web bikin lebih lembut dan cerah") — sama-sama earth-tone,
-// cuma lebih hangat/vivid, tanpa ngorbanin kontras AA (nilai baru malah
-// SEMUA di atas ambang, nggak cuma pas-pasan lolos kayak sebelumnya). `bg`/
-// `bgAlt` juga dinaikin sedikit lightness-nya biar section berselang-seling
-// kerasa lebih "cerah" (sebelumnya bgAlt #F1E6D6 kerasa agak gelap/tan
-// tua). Dark: semua pasangan di bawah lolos AA (7-14.5:1), sengaja
-// dibiarin (user cuma komplain soal tampilan light mode di screenshot).
+// Palet light di-refresh LAGI (iterasi ke-2) atas permintaan eksplisit user
+// ("bikin warna web lebih light dan seger... calm dan elegan", referensi
+// sirka.co.id — bukan buat ditiru identik, cuma arah mood-nya: bg nyaris
+// putih, aksen lebih ringan, jarak dari teks gelap ke bg gede). Iterasi
+// pertama (#8A5A2E/#B05D2A di atas #FDFAF5/#F7EEE0) masih kerasa "berat"/
+// coklat tua — sekarang digeser lagi lebih terang & kurang muram: bg nyaris
+// putih hangat, bgAlt jadi krem sangat tipis, accent & accentBright digeser
+// ke terracotta yang lebih cerah, ink & muted juga sedikit dilunakin
+// (dari nyaris hitam #231F1A ke charcoal hangat #2E2A26) biar teks nggak
+// kerasa "keras" di sebelah bg yang sekarang jauh lebih terang.
+//
+// Kontras warna (WCAG) di-audit ulang pakai perhitungan luminance manual.
+// Light: `accent` (#9C5530, 5.5:1 vs bg, 5.2:1 vs bgAlt, 5.6:1 buat teks
+// putih di atasnya) dipakai buat semua teks/tombol kecil, `accentBright`
+// (#BD6836, 4.0:1 vs bg, 3.8:1 vs bgAlt) yang lebih terang/segar cuma buat
+// dekorasi besar (large text WCAG, ambang 3:1 — di sini ada margin aman
+// ~1:1 di atas ambang, bukan pas-pasan). `ink` (#2E2A26, 14:1) & `muted`
+// (#635C50, 6.5:1) masih jauh di atas ambang meski dilunakin. Dark: semua
+// pasangan di bawah lolos AA (7-14.5:1), sengaja dibiarin (user cuma
+// komplain soal tampilan light mode di tiap screenshot).
 // `accent2` = warna komplemen (deep sage) buat variasi/penekanan kecil —
 // icon badge, garis penyambung section, quote mark testimoni — biar nggak
 // "coklat semua" tapi tetap satu keluarga earth-tone. Sama kayak accent,
 // diambil di lightness yang mirip biar kontras AA-nya konsisten (light:
 // dark buat teks/bg-kecil, dark: terang buat kontras di background gelap).
 const LIGHT_COLOR = {
-  bg: "#FDFAF5",
-  bgAlt: "#F7EEE0",
-  accentBright: "#B05D2A",
-  accent: "#8A5A2E",
-  accent2: "#3F5C4E",
-  ink: "#231F1A",
-  muted: "#57503F",
+  bg: "#FFFDF9",
+  bgAlt: "#FBF6EE",
+  accentBright: "#BD6836",
+  accent: "#9C5530",
+  accent2: "#4E6E5F",
+  ink: "#2E2A26",
+  muted: "#635C50",
 };
 
 const DARK_COLOR = {
@@ -1041,19 +1047,34 @@ export function LandingPageClient() {
 
       <section className="mx-auto grid max-w-6xl grid-cols-1 items-center gap-16 px-4 py-24 lg:grid-cols-2">
         <div className="order-2 lg:order-1">
+          {/* Dulu badge "STR" gede sendiri (text-7xl/8xl, kartu penuh setengah
+              section) — user minta credential kayak gini ditulis kecil/low-key
+              aja (referensi Sirka: "Dokter STR Aktif" cuma baris kecil di
+              antara checklist lain), bukan jadi elemen hero-sized. Sekarang
+              jadi badge kompak (ikon + teks kecil), tetap di posisi yang sama
+              tapi nggak lagi mendominasi visual. */}
           <div
-            className="mx-auto flex max-w-sm flex-col items-center rounded-3xl border px-10 py-12 text-center lg:mx-0 lg:items-start lg:text-left"
+            className="mx-auto flex max-w-[240px] items-center gap-4 rounded-2xl border px-6 py-5 lg:mx-0"
             style={{ borderColor: hairline, backgroundColor: COLOR.bgAlt }}
           >
             <span
-              className="text-7xl tracking-tight sm:text-8xl"
-              style={{ fontFamily: "var(--font-display)", fontWeight: 600, color: COLOR.accentBright }}
+              className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full"
+              style={{ backgroundColor: `${COLOR.accent2}1F`, color: COLOR.accent2 }}
+              aria-hidden="true"
             >
-              STR
+              <ShieldCheckIcon />
             </span>
-            <p className="mt-3 text-sm font-medium" style={{ color: COLOR.muted }}>
-              {t.trust.label}
-            </p>
+            <div className="text-left">
+              <p
+                className="text-lg font-semibold tracking-tight"
+                style={{ fontFamily: "var(--font-display)", color: COLOR.accentBright }}
+              >
+                STR
+              </p>
+              <p className="text-xs" style={{ color: COLOR.muted }}>
+                {t.trust.label}
+              </p>
+            </div>
           </div>
         </div>
         <div className="order-1 lg:order-2">
