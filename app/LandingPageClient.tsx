@@ -164,10 +164,9 @@ const CONTENT: Record<
     hero: { badge: string; titleLine1: string; titleItalic: string; desc: string; cta: string; trustChips: string[] };
     stats: { items: { label: string }[] };
     features: { title: string; description: string }[];
-    trust: { eyebrow: string; heading: string; desc: string; link: string };
+    trust: { eyebrow: string; heading: string; desc: string };
     steps: { eyebrow: string; heading: string; items: { number: string; title: string; description: string }[] };
     services: { eyebrow: string; heading: string; ctaLabel: string; items: { title: string; description: string }[] };
-    about: { eyebrow: string; heading: string; desc: string };
     team: { role: string; bios: string[] };
     testimonials: { eyebrow: string; heading: string; disclaimer: string; items: { name: string; note: string; quote: string }[] };
     gallery: { eyebrow: string; heading: string; alt: string[] };
@@ -210,7 +209,6 @@ const CONTENT: Record<
       eyebrow: "Kenapa Pulih Fisioterapi",
       heading: "Fisioterapi yang disesuaikan untuk Anda",
       desc: "Setiap pasien punya riwayat dan kondisi yang berbeda. Kami menyusun evaluasi dan rencana terapi secara personal — bukan satu program untuk semua orang — supaya pemulihan Anda lebih tepat sasaran.",
-      link: "Lihat layanan kami →",
     },
     steps: {
       eyebrow: "Cara Kerja",
@@ -232,11 +230,6 @@ const CONTENT: Record<
         { title: "Terapi Nyeri Otot & Sendi", description: "Penanganan nyeri punggung, bahu, lutut, dan sendi lain akibat aktivitas atau postur." },
         { title: "Konsultasi & Evaluasi Awal", description: "Pemeriksaan awal untuk menentukan diagnosa dan rencana terapi yang tepat." },
       ],
-    },
-    about: {
-      eyebrow: "Profil Klinik",
-      heading: "Tentang Pulih Fisioterapi",
-      desc: "Kami klinik fisioterapi yang fokus menangani cedera otot — dari cedera olahraga sampai nyeri akibat aktivitas harian. Pendekatan kami mengutamakan evaluasi menyeluruh dan gerak aktif sebagai bagian dari proses pemulihan, bukan sekadar modalitas pasif.",
     },
     team: {
       role: "Fisioterapis",
@@ -335,7 +328,6 @@ const CONTENT: Record<
       eyebrow: "Why Pulih Fisioterapi",
       heading: "Physiotherapy tailored to you",
       desc: "Every patient has a different history and condition. We build each evaluation and treatment plan individually — never one program for everyone — so your recovery stays on target.",
-      link: "See our services →",
     },
     steps: {
       eyebrow: "How It Works",
@@ -357,11 +349,6 @@ const CONTENT: Record<
         { title: "Muscle & Joint Pain Therapy", description: "Treatment for back, shoulder, knee, and other joint pain caused by activity or posture." },
         { title: "Consultation & Initial Evaluation", description: "An initial exam to determine the right diagnosis and treatment plan." },
       ],
-    },
-    about: {
-      eyebrow: "Clinic Profile",
-      heading: "About Pulih Fisioterapi",
-      desc: "We're a physiotherapy clinic focused on muscle injuries — from sports injuries to pain from everyday activity. Our approach prioritizes thorough evaluation and active movement as part of recovery, not just passive treatment.",
     },
     team: {
       role: "Physiotherapist",
@@ -1049,13 +1036,6 @@ export function LandingPageClient() {
           <p className="mt-4 max-w-2xl leading-relaxed" style={{ color: COLOR.muted }}>
             {t.trust.desc}
           </p>
-          <a
-            href="#layanan"
-            className="mt-5 inline-flex items-center gap-1 text-sm font-semibold"
-            style={{ color: COLOR.accent }}
-          >
-            {t.trust.link}
-          </a>
           <Reveal className="mt-12 grid grid-cols-2 gap-6 sm:grid-cols-4">
             {TEAM.map((m, i) => (
               <div
@@ -1173,15 +1153,6 @@ export function LandingPageClient() {
               );
             })}
           </Reveal>
-        </div>
-      </section>
-
-      <section className="py-24" style={{ backgroundColor: COLOR.bgAlt }}>
-        <div className="mx-auto max-w-3xl px-4 text-center">
-          <SectionHeading eyebrow={t.about.eyebrow} heading={t.about.heading} align="center" accentColor={COLOR.accent} accent2Color={COLOR.accent2} />
-          <p className="mt-4 leading-relaxed" style={{ color: COLOR.muted }}>
-            {t.about.desc}
-          </p>
         </div>
       </section>
 
