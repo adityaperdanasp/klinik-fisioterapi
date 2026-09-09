@@ -168,7 +168,7 @@ const CONTENT: Record<
     steps: { eyebrow: string; heading: string; items: { number: string; title: string; description: string }[] };
     services: { eyebrow: string; heading: string; ctaLabel: string; items: { title: string; description: string }[] };
     about: { eyebrow: string; heading: string; desc: string };
-    team: { eyebrow: string; heading: string; role: string; bios: string[] };
+    team: { role: string; bios: string[] };
     testimonials: { eyebrow: string; heading: string; disclaimer: string; items: { name: string; note: string; quote: string }[] };
     gallery: { eyebrow: string; heading: string; alt: string[] };
     faq: { eyebrow: string; heading: string; items: { q: string; a: string }[] };
@@ -239,8 +239,6 @@ const CONTENT: Record<
       desc: "Kami klinik fisioterapi yang fokus menangani cedera otot — dari cedera olahraga sampai nyeri akibat aktivitas harian. Pendekatan kami mengutamakan evaluasi menyeluruh dan gerak aktif sebagai bagian dari proses pemulihan, bukan sekadar modalitas pasif.",
     },
     team: {
-      eyebrow: "Kenalan dengan Tim",
-      heading: "Tim fisioterapis kami",
       role: "Fisioterapis",
       // PLACEHOLDER — sama kayak foto & nama TEAM (belum staff asli, lihat
       // CLAUDE.md), teks spesialisasi & lama pengalaman di bawah ini karangan
@@ -366,8 +364,6 @@ const CONTENT: Record<
       desc: "We're a physiotherapy clinic focused on muscle injuries — from sports injuries to pain from everyday activity. Our approach prioritizes thorough evaluation and active movement as part of recovery, not just passive treatment.",
     },
     team: {
-      eyebrow: "Meet the Team",
-      heading: "Our Physiotherapy Team",
       role: "Physiotherapist",
       bios: [
         "Sports injury & post-surgery rehab specialist, 6+ years of experience.",
@@ -1040,47 +1036,17 @@ export function LandingPageClient() {
         </Reveal>
       </section>
 
-      <section className="mx-auto grid max-w-6xl grid-cols-1 items-center gap-16 px-4 py-24 lg:grid-cols-2">
-        <div className="order-2 lg:order-1">
-          {/* Badge "STR" dihapus — infonya udah kepakai di trust chip hero
-              ("Fisioterapis berlisensi (STR)"), jadi duplikat di sini.
-              Diganti preview 1 anggota tim (foto + peran + bio singkat,
-              pola sama kayak card di section "Tim" beneran) biar section
-              "Fisioterapi yang disesuaikan untuk Anda" ini kerasa konkret
-              (nunjukin SIAPA yang nanganin), bukan cuma teks abstrak +
-              label sertifikasi doang. `t.trust.heading/desc/link` di kolom
-              sebelah TETAP nggak diubah sesuai instruksi user. */}
-          <div
-            className="mx-auto max-w-sm overflow-hidden rounded-2xl text-center transition-all duration-200 hover:-translate-y-1 hover:shadow-lg lg:mx-0 lg:text-left"
-            style={{ backgroundColor: COLOR.bgAlt }}
-          >
-            <div className="relative h-64 w-full">
-              <Image
-                src={TEAM[0].photo}
-                alt={`${TEAM[0].name} — ${t.team.role}`}
-                fill
-                loading="lazy"
-                className="object-cover"
-                style={{ objectPosition: "50% 15%", filter: PHOTO_FILTER }}
-                sizes="(max-width: 1024px) 100vw, 384px"
-              />
-            </div>
-            <div className="p-5">
-              <h3 className="text-lg tracking-tight" style={{ fontFamily: "var(--font-display)", fontWeight: 600 }}>
-                {TEAM[0].name}
-              </h3>
-              <p className="mt-1 text-sm" style={{ color: COLOR.muted }}>
-                {t.team.role}
-              </p>
-              <p className="mt-1 text-xs leading-relaxed" style={{ color: COLOR.muted }}>
-                {t.team.bios[0]}
-              </p>
-            </div>
-          </div>
-        </div>
-        <div className="order-1 lg:order-2">
+      {/* Digabung sama section "Tim" (dulu section terpisah di bawah,
+          heading sendiri "Kenalan dengan Tim"/"Tim fisioterapis kami") —
+          user maksudnya bukan preview 1 orang doang, tapi SEMUA foto+
+          keterangan terapis dijejer di sini, dengan teks trust ("Fisioterapi
+          yang disesuaikan untuk Anda" dst) jadi judul & sub-judul section
+          gabungan ini. Heading terpisah punya `team` (eyebrow/heading)
+          jadi redundan → dihapus dari CONTENT. */}
+      <section id="tim" className="py-24">
+        <div className="mx-auto max-w-6xl px-4">
           <SectionHeading eyebrow={t.trust.eyebrow} heading={t.trust.heading} accentColor={COLOR.accent} accent2Color={COLOR.accent2} />
-          <p className="mt-4 leading-relaxed" style={{ color: COLOR.muted }}>
+          <p className="mt-4 max-w-2xl leading-relaxed" style={{ color: COLOR.muted }}>
             {t.trust.desc}
           </p>
           <a
@@ -1090,6 +1056,38 @@ export function LandingPageClient() {
           >
             {t.trust.link}
           </a>
+          <Reveal className="mt-12 grid grid-cols-2 gap-6 sm:grid-cols-4">
+            {TEAM.map((m, i) => (
+              <div
+                key={m.name}
+                className="overflow-hidden rounded-2xl text-center transition-all duration-200 hover:-translate-y-1 hover:shadow-lg"
+                style={{ backgroundColor: COLOR.bgAlt }}
+              >
+                <div className="relative h-56 w-full">
+                  <Image
+                    src={m.photo}
+                    alt={`${m.name} — ${t.team.role}`}
+                    fill
+                    loading="lazy"
+                    className="object-cover"
+                    style={{ objectPosition: "50% 15%", filter: PHOTO_FILTER }}
+                    sizes="(max-width: 640px) 50vw, 25vw"
+                  />
+                </div>
+                <div className="p-4">
+                  <h3 className="text-lg tracking-tight" style={{ fontFamily: "var(--font-display)", fontWeight: 600 }}>
+                    {m.name}
+                  </h3>
+                  <p className="mt-1 text-sm" style={{ color: COLOR.muted }}>
+                    {t.team.role}
+                  </p>
+                  <p className="mt-1 text-xs leading-relaxed" style={{ color: COLOR.muted }}>
+                    {t.team.bios[i]}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </Reveal>
         </div>
       </section>
 
@@ -1184,44 +1182,6 @@ export function LandingPageClient() {
           <p className="mt-4 leading-relaxed" style={{ color: COLOR.muted }}>
             {t.about.desc}
           </p>
-        </div>
-      </section>
-
-      <section id="tim" className="py-24">
-        <div className="mx-auto max-w-6xl px-4">
-          <SectionHeading eyebrow={t.team.eyebrow} heading={t.team.heading} accentColor={COLOR.accent} accent2Color={COLOR.accent2} />
-          <Reveal className="mt-12 grid grid-cols-2 gap-6 sm:grid-cols-4">
-            {TEAM.map((m, i) => (
-              <div
-                key={m.name}
-                className="overflow-hidden rounded-2xl text-center transition-all duration-200 hover:-translate-y-1 hover:shadow-lg"
-                style={{ backgroundColor: COLOR.bgAlt }}
-              >
-                <div className="relative h-56 w-full">
-                  <Image
-                    src={m.photo}
-                    alt={`${m.name} — ${t.team.role}`}
-                    fill
-                    loading="lazy"
-                    className="object-cover"
-                    style={{ objectPosition: "50% 15%", filter: PHOTO_FILTER }}
-                    sizes="(max-width: 640px) 50vw, 25vw"
-                  />
-                </div>
-                <div className="p-4">
-                  <h3 className="text-lg tracking-tight" style={{ fontFamily: "var(--font-display)", fontWeight: 600 }}>
-                    {m.name}
-                  </h3>
-                  <p className="mt-1 text-sm" style={{ color: COLOR.muted }}>
-                    {t.team.role}
-                  </p>
-                  <p className="mt-1 text-xs leading-relaxed" style={{ color: COLOR.muted }}>
-                    {t.team.bios[i]}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </Reveal>
         </div>
       </section>
 
