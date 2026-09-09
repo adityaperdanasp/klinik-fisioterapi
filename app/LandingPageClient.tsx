@@ -164,7 +164,7 @@ const CONTENT: Record<
     hero: { badge: string; titleLine1: string; titleItalic: string; desc: string; cta: string; trustChips: string[] };
     stats: { items: { label: string }[] };
     features: { title: string; description: string }[];
-    trust: { eyebrow: string; label: string; heading: string; desc: string; link: string };
+    trust: { eyebrow: string; heading: string; desc: string; link: string };
     steps: { eyebrow: string; heading: string; items: { number: string; title: string; description: string }[] };
     services: { eyebrow: string; heading: string; ctaLabel: string; items: { title: string; description: string }[] };
     about: { eyebrow: string; heading: string; desc: string };
@@ -176,14 +176,13 @@ const CONTENT: Record<
     footer: { desc: string; navHeading: string; contactHeading: string; loginStaff: string };
     whatsapp: { book: string; ask: string; visit: string; consultPrefix: (title: string) => string };
     backToTop: string;
-    floatingCta: string;
     themeToggle: string;
     close: string;
   }
 > = {
   id: {
     nav: { layanan: "Layanan", alur: "Alur Pelayanan", tim: "Tim", faq: "FAQ", lokasi: "Lokasi" },
-    bookBtn: "Booking Sekarang",
+    bookBtn: "Konsultasi Gratis",
     banner: { text: "Kini hadir di Ciangsana, Gunung Putri —", link: "lihat lokasi", hoursPrefix: "Buka" },
     hero: {
       badge: "Spesialis Cedera Otot · Bekasi",
@@ -209,7 +208,6 @@ const CONTENT: Record<
     ],
     trust: {
       eyebrow: "Kenapa Pulih Fisioterapi",
-      label: "Fisioterapis Bersertifikat & Berlisensi Resmi",
       heading: "Fisioterapi yang disesuaikan untuk Anda",
       desc: "Setiap pasien punya riwayat dan kondisi yang berbeda. Kami menyusun evaluasi dan rencana terapi secara personal — bukan satu program untuk semua orang — supaya pemulihan Anda lebih tepat sasaran.",
       link: "Lihat layanan kami →",
@@ -306,13 +304,12 @@ const CONTENT: Record<
       consultPrefix: (title) => `Halo, saya ingin konsultasi soal ${title.toLowerCase()}.`,
     },
     backToTop: "Kembali ke atas",
-    floatingCta: "Konsultasi Gratis",
     themeToggle: "Ganti tampilan gelap/terang",
     close: "Tutup",
   },
   en: {
     nav: { layanan: "Services", alur: "Our Process", tim: "Team", faq: "FAQ", lokasi: "Location" },
-    bookBtn: "Book Appointment",
+    bookBtn: "Free Consultation",
     banner: { text: "Now open in Ciangsana, Gunung Putri —", link: "view location", hoursPrefix: "Open" },
     hero: {
       badge: "Muscle Injury Specialist · Bekasi",
@@ -338,7 +335,6 @@ const CONTENT: Record<
     ],
     trust: {
       eyebrow: "Why Pulih Fisioterapi",
-      label: "Certified & Officially Licensed Physiotherapists",
       heading: "Physiotherapy tailored to you",
       desc: "Every patient has a different history and condition. We build each evaluation and treatment plan individually — never one program for everyone — so your recovery stays on target.",
       link: "See our services →",
@@ -432,7 +428,6 @@ const CONTENT: Record<
       consultPrefix: (title) => `Hi, I'd like to consult about ${title.toLowerCase()}.`,
     },
     backToTop: "Back to top",
-    floatingCta: "Free Consultation",
     themeToggle: "Toggle dark/light mode",
     close: "Close",
   },
@@ -1047,32 +1042,38 @@ export function LandingPageClient() {
 
       <section className="mx-auto grid max-w-6xl grid-cols-1 items-center gap-16 px-4 py-24 lg:grid-cols-2">
         <div className="order-2 lg:order-1">
-          {/* Dulu badge "STR" gede sendiri (text-7xl/8xl, kartu penuh setengah
-              section) — user minta credential kayak gini ditulis kecil/low-key
-              aja (referensi Sirka: "Dokter STR Aktif" cuma baris kecil di
-              antara checklist lain), bukan jadi elemen hero-sized. Sekarang
-              jadi badge kompak (ikon + teks kecil), tetap di posisi yang sama
-              tapi nggak lagi mendominasi visual. */}
+          {/* Badge "STR" dihapus — infonya udah kepakai di trust chip hero
+              ("Fisioterapis berlisensi (STR)"), jadi duplikat di sini.
+              Diganti preview 1 anggota tim (foto + peran + bio singkat,
+              pola sama kayak card di section "Tim" beneran) biar section
+              "Fisioterapi yang disesuaikan untuk Anda" ini kerasa konkret
+              (nunjukin SIAPA yang nanganin), bukan cuma teks abstrak +
+              label sertifikasi doang. `t.trust.heading/desc/link` di kolom
+              sebelah TETAP nggak diubah sesuai instruksi user. */}
           <div
-            className="mx-auto flex max-w-[240px] items-center gap-4 rounded-2xl border px-6 py-5 lg:mx-0"
-            style={{ borderColor: hairline, backgroundColor: COLOR.bgAlt }}
+            className="mx-auto max-w-sm overflow-hidden rounded-2xl text-center transition-all duration-200 hover:-translate-y-1 hover:shadow-lg lg:mx-0 lg:text-left"
+            style={{ backgroundColor: COLOR.bgAlt }}
           >
-            <span
-              className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full"
-              style={{ backgroundColor: `${COLOR.accent2}1F`, color: COLOR.accent2 }}
-              aria-hidden="true"
-            >
-              <ShieldCheckIcon />
-            </span>
-            <div className="text-left">
-              <p
-                className="text-lg font-semibold tracking-tight"
-                style={{ fontFamily: "var(--font-display)", color: COLOR.accentBright }}
-              >
-                STR
+            <div className="relative h-64 w-full">
+              <Image
+                src={TEAM[0].photo}
+                alt={`${TEAM[0].name} — ${t.team.role}`}
+                fill
+                loading="lazy"
+                className="object-cover"
+                style={{ objectPosition: "50% 15%", filter: PHOTO_FILTER }}
+                sizes="(max-width: 1024px) 100vw, 384px"
+              />
+            </div>
+            <div className="p-5">
+              <h3 className="text-lg tracking-tight" style={{ fontFamily: "var(--font-display)", fontWeight: 600 }}>
+                {TEAM[0].name}
+              </h3>
+              <p className="mt-1 text-sm" style={{ color: COLOR.muted }}>
+                {t.team.role}
               </p>
-              <p className="text-xs" style={{ color: COLOR.muted }}>
-                {t.trust.label}
+              <p className="mt-1 text-xs leading-relaxed" style={{ color: COLOR.muted }}>
+                {t.team.bios[0]}
               </p>
             </div>
           </div>
@@ -1481,37 +1482,17 @@ export function LandingPageClient() {
         </div>
       </footer>
 
-      {/* Dulu 2 CTA mengambang terpisah — bar full-width khusus mobile
-          ("Booking Sekarang", warna brand) DAN bubble bulat WA terpisah
-          (ijo WhatsApp) yang tampil di semua breakpoint — user bilang
-          kerasa "kebanyakan CTA" & warnanya nggak senada sama web (ijo vs
-          earth-tone). Sekarang digabung jadi SATU pill mengambang: warna
-          brand (`COLOR.accent`, bukan ijo WA lagi — ijo cuma cocok kalau
-          emang bukanya app WhatsApp asli, di sini cukup diwakilin ikon
-          kecilnya aja), label "Konsultasi Gratis" (`t.floatingCta`, bukan
-          "Booking Sekarang" lagi — kesannya lebih ringan/nggak mengikat),
-          dipakai SAMA di semua breakpoint (nggak ada lagi versi mobile vs
-          desktop beda). Ring animate-ping tetap ada (di warna brand juga)
-          buat kesan "hidup", otomatis nonaktif di reduce-motion. */}
-      <a
-        href={whatsappLink(t.whatsapp.book)}
-        className="fixed bottom-6 right-6 z-50 flex items-center gap-2 rounded-full py-3.5 pl-4 pr-5 text-sm font-semibold text-white shadow-lg transition-transform hover:scale-105"
-        style={{ backgroundColor: COLOR.accent }}
-      >
-        <span
-          className="absolute inset-0 animate-ping rounded-full"
-          style={{ backgroundColor: COLOR.accent, opacity: 0.4 }}
-          aria-hidden="true"
-        />
-        <WhatsAppIcon />
-        {t.floatingCta}
-      </a>
-
+      {/* Pill CTA mengambang (WA "Konsultasi Gratis") DIHAPUS atas
+          permintaan eksplisit user — udah ada CTA "Konsultasi Gratis" di
+          header (persistent) + "Jadwalkan Konsultasi" di hero, floating
+          pill dianggap CTA berlebih. Back-to-top jadi satu-satunya elemen
+          mengambang yang tersisa, balik ke posisi standar bottom-6 (dulu
+          bottom-24 buat ngasih ruang pill di bawahnya). */}
       {showBackToTop && (
         <button
           type="button"
           onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-          className="fixed bottom-24 right-6 z-50 flex h-11 w-11 items-center justify-center rounded-full text-lg shadow-lg transition-transform hover:scale-105"
+          className="fixed bottom-6 right-6 z-50 flex h-11 w-11 items-center justify-center rounded-full text-lg shadow-lg transition-transform hover:scale-105"
           style={{ backgroundColor: COLOR.ink, color: COLOR.bg }}
           aria-label={t.backToTop}
         >
