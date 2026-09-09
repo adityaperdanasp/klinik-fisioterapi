@@ -791,27 +791,34 @@ export function LandingPageClient() {
     setMediaReady((prev) => (prev[i] ? prev : { ...prev, [i]: true }));
   }
 
+  {/* Dulu 2 elemen terpisah (lingkaran tema + pil bahasa) mepet-mepetan,
+      kerasa ramai di header mobile — sekarang digabung jadi 1 pil aja,
+      dipisah garis tipis di tengah biar tetap kebaca 2 aksi berbeda. */}
   const ToolbarToggles = (
-    <>
+    <div
+      className="flex items-center overflow-hidden rounded-full border"
+      style={{ borderColor: COLOR.accent }}
+    >
       <button
         type="button"
         onClick={toggleTheme}
-        className="flex h-8 w-8 items-center justify-center rounded-full border"
-        style={{ borderColor: COLOR.accent, color: COLOR.accent }}
+        className="flex h-8 w-8 items-center justify-center"
+        style={{ color: COLOR.accent }}
         aria-label={t.themeToggle}
       >
         {theme === "light" ? <MoonIcon /> : <SunIcon />}
       </button>
+      <span aria-hidden="true" className="h-4 w-px" style={{ backgroundColor: COLOR.accent, opacity: 0.4 }} />
       <button
         type="button"
         onClick={toggleLang}
-        className="rounded-full border px-3 py-1.5 text-xs font-semibold"
-        style={{ borderColor: COLOR.accent, color: COLOR.accent }}
+        className="flex h-8 items-center px-3 text-xs font-semibold"
+        style={{ color: COLOR.accent }}
         aria-label={lang === "id" ? "Switch to English" : "Ganti ke Bahasa Indonesia"}
       >
         {lang === "id" ? "EN" : "ID"}
       </button>
-    </>
+    </div>
   );
 
   return (
@@ -872,7 +879,7 @@ export function LandingPageClient() {
                 ada hierarki primary vs secondary. */}
             <a
               href={whatsappLink(t.whatsapp.book)}
-              className="rounded-full border px-5 py-2.5 text-sm font-semibold"
+              className="whitespace-nowrap rounded-full border px-3 py-2 text-xs font-semibold sm:px-5 sm:py-2.5 sm:text-sm"
               style={{ borderColor: COLOR.accent, color: COLOR.accent }}
             >
               {t.bookBtn}
@@ -968,17 +975,17 @@ export function LandingPageClient() {
           permintaan eksplisit user — lihat komentar PLACEHOLDER_STATS_VALUES
           & TODO CLAUDE.md. 3 sisanya FAKTUAL, dari STATS_VALUES. flex-wrap
           (bukan grid kaku) biar jumlah item ganjil/genap tetap rapi center. */}
-      <section className="py-14" style={{ backgroundColor: LIGHT_COLOR.ink }}>
-        <div className="mx-auto flex max-w-6xl flex-wrap justify-center gap-x-10 gap-y-8 px-4 text-center">
+      <section className="py-10 sm:py-14" style={{ backgroundColor: LIGHT_COLOR.ink }}>
+        <div className="mx-auto flex max-w-6xl flex-wrap justify-center gap-x-8 gap-y-6 px-4 text-center sm:gap-x-10 sm:gap-y-8">
           {t.stats.items.map((item, i) => (
-            <div key={item.label} className="min-w-[130px]">
+            <div key={item.label} className="min-w-[100px] sm:min-w-[130px]">
               <p
-                className="text-6xl tracking-tight sm:text-7xl"
+                className="text-4xl tracking-tight sm:text-6xl md:text-7xl"
                 style={{ fontFamily: "var(--font-display)", fontWeight: 600, color: DARK_COLOR.accentBright }}
               >
                 {ALL_STATS_VALUES[i]}
               </p>
-              <p className="mt-2 text-sm font-medium uppercase tracking-wide" style={{ color: "rgba(255,255,255,0.65)" }}>
+              <p className="mt-1 text-xs font-medium uppercase tracking-wide sm:mt-2 sm:text-sm" style={{ color: "rgba(255,255,255,0.65)" }}>
                 {item.label}
               </p>
             </div>
