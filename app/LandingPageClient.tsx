@@ -154,7 +154,7 @@ const CONTENT: Record<
     services: { eyebrow: string; heading: string; ctaLabel: string; items: { title: string; description: string }[] };
     about: { eyebrow: string; heading: string; desc: string };
     team: { eyebrow: string; heading: string; role: string; bios: string[] };
-    testimonials: { eyebrow: string; heading: string; items: { name: string; note: string; quote: string }[] };
+    testimonials: { eyebrow: string; heading: string; disclaimer: string; items: { name: string; note: string; quote: string }[] };
     gallery: { eyebrow: string; heading: string; alt: string[] };
     faq: { eyebrow: string; heading: string; items: { q: string; a: string }[] };
     location: { eyebrow: string; heading: string; mapLink: string; chatBtn: string; hoursHeading: string; hoursSchedule: string };
@@ -242,6 +242,7 @@ const CONTENT: Record<
     testimonials: {
       eyebrow: "Cerita Pasien",
       heading: "Kata pasien kami",
+      disclaimer: "*Testimoni pasien Pulih Fisioterapi. Hasil dapat berbeda tergantung kondisi masing-masing.",
       items: [
         { name: "Budi S.", note: "Pemulihan cedera lutut lari", quote: "Setelah beberapa sesi, lutut saya jauh lebih stabil buat lari lagi. Fisioterapisnya sabar jelasin tiap gerakan." },
         { name: "Rina W.", note: "Nyeri punggung kerja kantoran", quote: "Nyeri punggung yang udah bertahun-tahun akhirnya ketemu akar masalahnya. Programnya jelas, bukan cuma dipijat doang." },
@@ -367,6 +368,7 @@ const CONTENT: Record<
     testimonials: {
       eyebrow: "Patient Stories",
       heading: "What our patients say",
+      disclaimer: "*Pulih Fisioterapi patient testimonial. Results may vary by individual condition.",
       items: [
         { name: "Budi S.", note: "Recovered from a running knee injury", quote: "After a few sessions my knee felt far more stable for running again. The physiotherapist patiently explained every movement." },
         { name: "Rina W.", note: "Office-work back pain", quote: "Years of back pain and we finally found the root cause. The program was structured, not just a massage." },
@@ -1176,45 +1178,79 @@ export function LandingPageClient() {
       <section className="py-24" style={{ backgroundColor: COLOR.bgAlt }}>
         <div className="mx-auto max-w-6xl px-4">
           <SectionHeading eyebrow={t.testimonials.eyebrow} heading={t.testimonials.heading} accentColor={COLOR.accent} accent2Color={COLOR.accent2} />
-          <Reveal className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-3">
-            {t.testimonials.items.map((ts, i) => (
-              <div
-                key={ts.name}
-                className="rounded-2xl p-7 transition-all duration-200 hover:-translate-y-1 hover:shadow-lg"
-                style={{ backgroundColor: COLOR.bg }}
+          <Reveal className="mt-12 grid grid-cols-1 gap-6 lg:grid-cols-3">
+            {/* Kartu unggulan: kutipan pertama ditonjolkan sebagai headline besar,
+                meniru pola bento (1 kartu besar + beberapa kartu kecil) yang diminta user. */}
+            <div
+              className="flex flex-col justify-between rounded-2xl p-8 transition-all duration-200 hover:-translate-y-1 hover:shadow-lg sm:p-10 lg:col-span-2"
+              style={{ backgroundColor: COLOR.bg }}
+            >
+              <p
+                className="text-2xl leading-snug sm:text-3xl"
+                style={{ fontFamily: "var(--font-display)", color: COLOR.ink }}
               >
-                <span
-                  className="block text-6xl italic leading-none"
-                  style={{ fontFamily: "var(--font-display)", color: COLOR.accent2, opacity: 0.35 }}
-                  aria-hidden="true"
-                >
-                  &ldquo;
-                </span>
-                <div className="-mt-2 flex gap-0.5" aria-hidden="true">
+                &ldquo;{t.testimonials.items[0].quote}&rdquo;
+              </p>
+              <div className="mt-8 flex items-center justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  <div
+                    className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-sm font-semibold text-white"
+                    style={{ backgroundColor: COLOR.accent }}
+                    aria-hidden="true"
+                  >
+                    {TESTIMONIAL_ASSETS[0].initials}
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold">{t.testimonials.items[0].name}</p>
+                    <p className="text-xs" style={{ color: COLOR.muted }}>
+                      {t.testimonials.items[0].note}
+                    </p>
+                  </div>
+                </div>
+                <div className="hidden gap-0.5 sm:flex" aria-hidden="true">
                   {Array.from({ length: 5 }).map((_, star) => (
                     <StarIcon key={star} />
                   ))}
                 </div>
-                <p className="mt-3 text-sm leading-relaxed italic" style={{ color: COLOR.ink }}>
-                  &ldquo;{ts.quote}&rdquo;
-                </p>
-                <div className="mt-5 flex items-center gap-3">
-                  <div
-                    className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-semibold text-white"
-                    style={{ backgroundColor: COLOR.accent }}
-                    aria-hidden="true"
-                  >
-                    {TESTIMONIAL_ASSETS[i].initials}
+              </div>
+              <p className="mt-6 text-xs italic" style={{ color: COLOR.accent }}>
+                {t.testimonials.disclaimer}
+              </p>
+            </div>
+
+            <div className="flex flex-col gap-6">
+              {t.testimonials.items.slice(1).map((ts, i) => (
+                <div
+                  key={ts.name}
+                  className="flex-1 rounded-2xl p-6 transition-all duration-200 hover:-translate-y-1 hover:shadow-lg"
+                  style={{ backgroundColor: COLOR.bg }}
+                >
+                  <div className="flex gap-0.5" aria-hidden="true">
+                    {Array.from({ length: 5 }).map((_, star) => (
+                      <StarIcon key={star} />
+                    ))}
                   </div>
-                  <div>
-                    <p className="text-sm font-semibold">{ts.name}</p>
-                    <p className="text-xs" style={{ color: COLOR.muted }}>
-                      {ts.note}
-                    </p>
+                  <p className="mt-3 text-sm leading-relaxed italic" style={{ color: COLOR.ink }}>
+                    &ldquo;{ts.quote}&rdquo;
+                  </p>
+                  <div className="mt-5 flex items-center gap-3">
+                    <div
+                      className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-xs font-semibold text-white"
+                      style={{ backgroundColor: COLOR.accent }}
+                      aria-hidden="true"
+                    >
+                      {TESTIMONIAL_ASSETS[i + 1].initials}
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold">{ts.name}</p>
+                      <p className="text-xs" style={{ color: COLOR.muted }}>
+                        {ts.note}
+                      </p>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </Reveal>
         </div>
       </section>
