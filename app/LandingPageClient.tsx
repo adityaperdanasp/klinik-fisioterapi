@@ -1457,17 +1457,34 @@ export function LandingPageClient() {
         </a>
       </div>
 
-      {/* Tombol mengambang: WhatsApp selalu keliatan (desktop — di mobile
-          kegantiin bar sticky di atas), "kembali ke atas" cuma muncul
-          setelah scroll jauh. Ijo #25D366 sengaja dipertahankan (bukan
-          earth-tone) — itu warna resmi WhatsApp, orang langsung kenal
-          ikonnya, sama kayak badge status emerald yang juga dipertahankan. */}
+      {/* Tombol mengambang: WhatsApp sekarang keliatan di mobile JUGA (dulu
+          `hidden sm:flex`, disembunyiin di mobile karena udah ada bar
+          sticky di bawah) — user minta CTA jangan "diem statis doang",
+          nunjukin referensi bubble chat WA ngambang yang tetap keliatan
+          nempel pas discroll (khas widget live-chat). Sengaja TETAP jalan
+          bareng bar sticky (bukan gantiin) — bar itu buat aksi "booking"
+          (CTA konversi utama), bubble ini buat "tanya-tanya" cepat
+          (`t.whatsapp.ask`, beda pesan dari `t.whatsapp.book`), sama kayak
+          pola CTA header (WA book) + bubble desktop (WA ask) yang udah ada.
+          Ring animate-ping di belakang ikon = sinyal visual "hidup"/bisa
+          diklik, bukan cuma badge diam — otomatis nonaktif kalau user
+          pilih "reduce motion" (lihat aturan global di globals.css). Posisi
+          mobile digeser ke atas bar sticky (bottom-[84px]), balik ke
+          bottom-6 di sm:+ karena nggak ada bar di situ. Ijo #25D366 sengaja
+          dipertahankan (bukan earth-tone) — warna resmi WhatsApp, orang
+          langsung kenal ikonnya, sama kayak badge status emerald yang juga
+          dipertahankan. */}
       <a
         href={whatsappLink(t.whatsapp.ask)}
-        className="fixed bottom-6 right-6 z-50 hidden h-14 w-14 items-center justify-center rounded-full shadow-lg transition-transform hover:scale-105 sm:flex"
+        className="fixed bottom-[84px] right-6 z-50 flex h-14 w-14 items-center justify-center rounded-full shadow-lg transition-transform hover:scale-105 sm:bottom-6"
         style={{ backgroundColor: "#25D366" }}
         aria-label={t.waFloatLabel}
       >
+        <span
+          className="absolute inset-0 animate-ping rounded-full"
+          style={{ backgroundColor: "#25D366", opacity: 0.5 }}
+          aria-hidden="true"
+        />
         <WhatsAppIcon />
       </a>
 
@@ -1475,7 +1492,7 @@ export function LandingPageClient() {
         <button
           type="button"
           onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-          className="fixed bottom-[88px] right-6 z-50 flex h-11 w-11 items-center justify-center rounded-full text-lg shadow-lg transition-transform hover:scale-105 sm:bottom-24"
+          className="fixed bottom-[152px] right-6 z-50 flex h-11 w-11 items-center justify-center rounded-full text-lg shadow-lg transition-transform hover:scale-105 sm:bottom-24"
           style={{ backgroundColor: COLOR.ink, color: COLOR.bg }}
           aria-label={t.backToTop}
         >
