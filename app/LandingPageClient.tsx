@@ -17,20 +17,29 @@ const GOOGLE_MAPS_EMBED_URL = `https://www.google.com/maps?q=${encodeURIComponen
 // colors and layout genre are ours to reuse, copy/photos are original.
 //
 // Kontras warna (WCAG) di-audit pakai perhitungan luminance manual buat
-// dua-duanya. Light: `earth` (#96754A) di atas cream cuma ~3.4-3.9:1, GAGAL
-// AA teks normal — dipakai `earthDark` (#7A5D39, 4.9-6.1:1) buat semua teks/
-// tombol kecil, `earth` yang lebih terang cuma buat dekorasi besar (large
-// text WCAG, ambang 3:1). Dark: semua pasangan di bawah lolos AA (7-14.5:1).
+// dua-duanya. Light: `accent` (#8A5A2E, 5.4-5.6:1 vs bg/bgAlt, 5.9:1 buat
+// teks putih di atasnya) dipakai buat semua teks/tombol kecil, `accentBright`
+// (#B05D2A, 4.1-4.5:1) yang lebih vivid/terracotta cuma buat dekorasi besar
+// (large text WCAG, ambang 3:1 — di sini malah lolos ambang teks normal
+// juga, jadi aman dipakai lebih lebar). Warna ini di-refresh dari versi
+// sebelumnya (lebih coklat-muram, #7A5D39/#96754A) atas permintaan eksplisit
+// user ("warna web bikin lebih lembut dan cerah") — sama-sama earth-tone,
+// cuma lebih hangat/vivid, tanpa ngorbanin kontras AA (nilai baru malah
+// SEMUA di atas ambang, nggak cuma pas-pasan lolos kayak sebelumnya). `bg`/
+// `bgAlt` juga dinaikin sedikit lightness-nya biar section berselang-seling
+// kerasa lebih "cerah" (sebelumnya bgAlt #F1E6D6 kerasa agak gelap/tan
+// tua). Dark: semua pasangan di bawah lolos AA (7-14.5:1), sengaja
+// dibiarin (user cuma komplain soal tampilan light mode di screenshot).
 // `accent2` = warna komplemen (deep sage) buat variasi/penekanan kecil —
 // icon badge, garis penyambung section, quote mark testimoni — biar nggak
 // "coklat semua" tapi tetap satu keluarga earth-tone. Sama kayak accent,
 // diambil di lightness yang mirip biar kontras AA-nya konsisten (light:
 // dark buat teks/bg-kecil, dark: terang buat kontras di background gelap).
 const LIGHT_COLOR = {
-  bg: "#FAF5EE",
-  bgAlt: "#F1E6D6",
-  accentBright: "#96754A",
-  accent: "#7A5D39",
+  bg: "#FDFAF5",
+  bgAlt: "#F7EEE0",
+  accentBright: "#B05D2A",
+  accent: "#8A5A2E",
   accent2: "#3F5C4E",
   ink: "#231F1A",
   muted: "#57503F",
@@ -161,7 +170,7 @@ const CONTENT: Record<
     footer: { desc: string; navHeading: string; contactHeading: string; loginStaff: string };
     whatsapp: { book: string; ask: string; visit: string; consultPrefix: (title: string) => string };
     backToTop: string;
-    waFloatLabel: string;
+    floatingCta: string;
     themeToggle: string;
     close: string;
   }
@@ -291,7 +300,7 @@ const CONTENT: Record<
       consultPrefix: (title) => `Halo, saya ingin konsultasi soal ${title.toLowerCase()}.`,
     },
     backToTop: "Kembali ke atas",
-    waFloatLabel: "Chat WhatsApp",
+    floatingCta: "Konsultasi Gratis",
     themeToggle: "Ganti tampilan gelap/terang",
     close: "Tutup",
   },
@@ -417,7 +426,7 @@ const CONTENT: Record<
       consultPrefix: (title) => `Hi, I'd like to consult about ${title.toLowerCase()}.`,
     },
     backToTop: "Back to top",
-    waFloatLabel: "Chat on WhatsApp",
+    floatingCta: "Free Consultation",
     themeToggle: "Toggle dark/light mode",
     close: "Close",
   },
@@ -572,6 +581,18 @@ function SectionHeading({
         {heading}
       </h2>
     </div>
+  );
+}
+
+// Ikon centang buat baris ringkasan angka/kredibilitas — dulu angka-angka
+// ini gede-gede di section gelap terpisah (lihat gotcha di section stat
+// band), sekarang jadi list kecil dengan centang, mengikuti pola referensi
+// user (baris checklist ringkas, bukan blok statistik raksasa).
+function CheckIcon({ color }: { color: string }) {
+  return (
+    <svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke={color} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M4 10.5l3.5 3.5L16 5.5" />
+    </svg>
   );
 }
 
@@ -823,7 +844,7 @@ export function LandingPageClient() {
 
   return (
     <div
-      className={`${fraunces.variable} ${plexSans.variable} min-h-screen pb-[76px] sm:pb-0`}
+      className={`${fraunces.variable} ${plexSans.variable} min-h-screen`}
       style={{ backgroundColor: COLOR.bg, color: COLOR.ink, fontFamily: "var(--font-body)", transition: "background-color 0.2s ease, color 0.2s ease" }}
     >
       {/* React 19 otomatis hoist <link>/<meta> ke <head> biarpun dirender dari
@@ -926,7 +947,12 @@ export function LandingPageClient() {
           className="relative border-b border-white/10 bg-black/20 px-4 py-3 text-center text-sm text-white/85 backdrop-blur-sm"
         >
           {t.banner.text}{" "}
-          <a href={GOOGLE_MAPS_URL} target="_blank" rel="noopener noreferrer" className="font-semibold text-white underline">
+          <a
+            href={GOOGLE_MAPS_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="whitespace-nowrap font-semibold text-white underline"
+          >
             {t.banner.link}
           </a>
           <span className="mx-2 text-white/40">·</span>
@@ -968,27 +994,22 @@ export function LandingPageClient() {
         </div>
       </section>
 
-      {/* Stat band — SENGAJA selalu dark (LIGHT_COLOR.ink, sama kayak
-          footer), lepas dari tema light/dark, biar jadi "jeda" visual yang
-          kontras habis hero, bukan ngikutin tema section sekitarnya.
-          2 angka pertama (Pasien Ditangani, Kepuasan) PLACEHOLDER atas
-          permintaan eksplisit user — lihat komentar PLACEHOLDER_STATS_VALUES
-          & TODO CLAUDE.md. 3 sisanya FAKTUAL, dari STATS_VALUES. flex-wrap
-          (bukan grid kaku) biar jumlah item ganjil/genap tetap rapi center. */}
-      <section className="py-10 sm:py-14" style={{ backgroundColor: LIGHT_COLOR.ink }}>
-        <div className="mx-auto flex max-w-6xl flex-wrap justify-center gap-x-8 gap-y-6 px-4 text-center sm:gap-x-10 sm:gap-y-8">
+      {/* Dulu "stat band" gede-gedean (angka Fraunces raksasa di section
+          dark ink penuh) — user minta "angka keberhasilan ditulis kecil-
+          kecil aja" kayak referensi (baris checklist ringkas dengan
+          centang), sekalian bikin section-nya nggak segelap/seberat
+          sebelumnya. Sekarang jadi 1 baris ringkas, wrap kalau sempit,
+          bg terang (bgAlt) konsisten sama tema section, bukan section
+          gelap terpisah lagi. 2 item pertama (Pasien Ditangani, Kepuasan)
+          masih PLACEHOLDER atas permintaan eksplisit user — lihat komentar
+          PLACEHOLDER_STATS_VALUES & TODO CLAUDE.md. 3 sisanya FAKTUAL. */}
+      <section className="py-6" style={{ backgroundColor: COLOR.bgAlt }}>
+        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-center gap-x-6 gap-y-2.5 px-4 text-sm">
           {t.stats.items.map((item, i) => (
-            <div key={item.label} className="min-w-[100px] sm:min-w-[130px]">
-              <p
-                className="text-4xl tracking-tight sm:text-6xl md:text-7xl"
-                style={{ fontFamily: "var(--font-display)", fontWeight: 600, color: DARK_COLOR.accentBright }}
-              >
-                {ALL_STATS_VALUES[i]}
-              </p>
-              <p className="mt-1 text-xs font-medium uppercase tracking-wide sm:mt-2 sm:text-sm" style={{ color: "rgba(255,255,255,0.65)" }}>
-                {item.label}
-              </p>
-            </div>
+            <span key={item.label} className="flex items-center gap-1.5 font-medium" style={{ color: COLOR.ink }}>
+              <CheckIcon color={COLOR.accent} />
+              <strong style={{ color: COLOR.accent }}>{ALL_STATS_VALUES[i]}</strong> {item.label}
+            </span>
           ))}
         </div>
       </section>
@@ -1439,60 +1460,37 @@ export function LandingPageClient() {
         </div>
       </footer>
 
-      {/* Bar CTA sticky KHUSUS mobile — booking jadi selalu 1 jempolan
-          diraih pas scroll panjang di HP. Tombol WA mengambang (di bawah)
-          sengaja di-hide di mobile (`sm:hidden` di situ) biar nggak
-          numpuk/tabrakan visual sama bar ini — fungsinya udah kegantiin. */}
-      <div
-        className="fixed inset-x-0 bottom-0 z-50 border-t p-3 sm:hidden"
-        style={{ backgroundColor: COLOR.bg, borderColor: hairline }}
-      >
-        <a
-          href={whatsappLink(t.whatsapp.book)}
-          className="flex items-center justify-center gap-2 rounded-full py-3 text-sm font-semibold text-white"
-          style={{ backgroundColor: COLOR.accent }}
-        >
-          <WhatsAppIcon />
-          {t.bookBtn}
-        </a>
-      </div>
-
-      {/* Tombol mengambang: WhatsApp sekarang keliatan di mobile JUGA (dulu
-          `hidden sm:flex`, disembunyiin di mobile karena udah ada bar
-          sticky di bawah) — user minta CTA jangan "diem statis doang",
-          nunjukin referensi bubble chat WA ngambang yang tetap keliatan
-          nempel pas discroll (khas widget live-chat). Sengaja TETAP jalan
-          bareng bar sticky (bukan gantiin) — bar itu buat aksi "booking"
-          (CTA konversi utama), bubble ini buat "tanya-tanya" cepat
-          (`t.whatsapp.ask`, beda pesan dari `t.whatsapp.book`), sama kayak
-          pola CTA header (WA book) + bubble desktop (WA ask) yang udah ada.
-          Ring animate-ping di belakang ikon = sinyal visual "hidup"/bisa
-          diklik, bukan cuma badge diam — otomatis nonaktif kalau user
-          pilih "reduce motion" (lihat aturan global di globals.css). Posisi
-          mobile digeser ke atas bar sticky (bottom-[84px]), balik ke
-          bottom-6 di sm:+ karena nggak ada bar di situ. Ijo #25D366 sengaja
-          dipertahankan (bukan earth-tone) — warna resmi WhatsApp, orang
-          langsung kenal ikonnya, sama kayak badge status emerald yang juga
-          dipertahankan. */}
+      {/* Dulu 2 CTA mengambang terpisah — bar full-width khusus mobile
+          ("Booking Sekarang", warna brand) DAN bubble bulat WA terpisah
+          (ijo WhatsApp) yang tampil di semua breakpoint — user bilang
+          kerasa "kebanyakan CTA" & warnanya nggak senada sama web (ijo vs
+          earth-tone). Sekarang digabung jadi SATU pill mengambang: warna
+          brand (`COLOR.accent`, bukan ijo WA lagi — ijo cuma cocok kalau
+          emang bukanya app WhatsApp asli, di sini cukup diwakilin ikon
+          kecilnya aja), label "Konsultasi Gratis" (`t.floatingCta`, bukan
+          "Booking Sekarang" lagi — kesannya lebih ringan/nggak mengikat),
+          dipakai SAMA di semua breakpoint (nggak ada lagi versi mobile vs
+          desktop beda). Ring animate-ping tetap ada (di warna brand juga)
+          buat kesan "hidup", otomatis nonaktif di reduce-motion. */}
       <a
-        href={whatsappLink(t.whatsapp.ask)}
-        className="fixed bottom-[84px] right-6 z-50 flex h-14 w-14 items-center justify-center rounded-full shadow-lg transition-transform hover:scale-105 sm:bottom-6"
-        style={{ backgroundColor: "#25D366" }}
-        aria-label={t.waFloatLabel}
+        href={whatsappLink(t.whatsapp.book)}
+        className="fixed bottom-6 right-6 z-50 flex items-center gap-2 rounded-full py-3.5 pl-4 pr-5 text-sm font-semibold text-white shadow-lg transition-transform hover:scale-105"
+        style={{ backgroundColor: COLOR.accent }}
       >
         <span
           className="absolute inset-0 animate-ping rounded-full"
-          style={{ backgroundColor: "#25D366", opacity: 0.5 }}
+          style={{ backgroundColor: COLOR.accent, opacity: 0.4 }}
           aria-hidden="true"
         />
         <WhatsAppIcon />
+        {t.floatingCta}
       </a>
 
       {showBackToTop && (
         <button
           type="button"
           onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-          className="fixed bottom-[152px] right-6 z-50 flex h-11 w-11 items-center justify-center rounded-full text-lg shadow-lg transition-transform hover:scale-105 sm:bottom-24"
+          className="fixed bottom-24 right-6 z-50 flex h-11 w-11 items-center justify-center rounded-full text-lg shadow-lg transition-transform hover:scale-105"
           style={{ backgroundColor: COLOR.ink, color: COLOR.bg }}
           aria-label={t.backToTop}
         >
