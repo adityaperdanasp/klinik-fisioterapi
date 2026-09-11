@@ -74,6 +74,24 @@ const STAR_COLOR = "#D6A94A";
 // di logo atau ikon.
 const PHOTO_FILTER = "saturate(1.08) contrast(1.03) sepia(0.08)";
 
+// Grain/noise super-halus di atas video hero — trik editorial (majalah/film)
+// biar full-bleed video nggak kerasa "flat digital", dipakai opacity sangat
+// rendah (~5%) + mix-blend-overlay biar cuma nambah tekstur, nggak
+// mengaburkan video di baliknya. feTurbulence di-generate sekali sebagai
+// data URI (bukan file terpisah) biar nggak nambah request network.
+const GRAIN_SVG = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(#n)'/></svg>`;
+const GRAIN_DATA_URI = `data:image/svg+xml;utf8,${encodeURIComponent(GRAIN_SVG)}`;
+
+// Shadow hover kartu — dulu tiap kartu (layanan/tim/testimoni/steps/CTA)
+// pakai `hover:shadow-lg` bawaan Tailwind (abu-abu netral), sekarang
+// diseragamin ke satu token shadow bertona ink/earth (bukan abu-abu generik)
+// biar konsisten sama palet brand di semua 5 tempat yang makenya, bukan cuma
+// "kartu hover doang" tapi kerasa satu sistem. Warnanya persis LIGHT_COLOR.ink
+// (#2E2A26 = rgb(46,42,38)) — sengaja fixed (bukan ikut COLOR.ink dark mode)
+// karena efek shadow gelap ini yang penting cuma di light mode; di dark mode
+// dampaknya nggak kerasa (background udah gelap duluan).
+const CARD_SHADOW = "hover:shadow-[0_20px_45px_-20px_rgba(46,42,38,0.35)]";
+
 const fraunces = Fraunces({
   subsets: ["latin"],
   weight: ["400", "500", "600"],
@@ -165,6 +183,7 @@ const CONTENT: Record<
     stats: { items: { label: string }[] };
     features: { title: string; description: string }[];
     trust: { eyebrow: string; heading: string; desc: string };
+    pullQuote: string;
     steps: { eyebrow: string; heading: string; items: { number: string; title: string; description: string }[] };
     services: { eyebrow: string; heading: string; ctaLabel: string; items: { title: string; description: string }[] };
     team: { role: string; bios: string[] };
@@ -210,6 +229,11 @@ const CONTENT: Record<
       heading: "Fisioterapi yang disesuaikan untuk Anda",
       desc: "Setiap pasien punya riwayat dan kondisi yang berbeda. Kami menyusun evaluasi dan rencana terapi secara personal — bukan satu program untuk semua orang — supaya pemulihan Anda lebih tepat sasaran.",
     },
+    // Kalimat filosofi/brand voice — BUKAN kutipan pasien (jangan disamain
+    // sama testimonials, yang emang eksplisit karangan/placeholder). Ini
+    // pernyataan sikap klinik sendiri, aman ditampilkan besar sebagai
+    // pull-quote editorial di tengah halaman.
+    pullQuote: "Pemulihan bukan cuma soal hilangnya nyeri — tapi kembalinya kepercayaan diri untuk bergerak.",
     steps: {
       eyebrow: "Cara Kerja",
       heading: "Empat langkah menuju pulih",
@@ -329,6 +353,7 @@ const CONTENT: Record<
       heading: "Physiotherapy tailored to you",
       desc: "Every patient has a different history and condition. We build each evaluation and treatment plan individually — never one program for everyone — so your recovery stays on target.",
     },
+    pullQuote: "Recovery isn't just about the pain going away — it's about regaining the confidence to move again.",
     steps: {
       eyebrow: "How It Works",
       heading: "Four steps to recovery",
@@ -504,6 +529,72 @@ function ShimmerMedia({
   );
 }
 
+// Animasi "hitung naik" buat angka di baris stat (150+, 95%, dst) — dari 0
+// ke angka aslinya begitu barisnya pertama kali kelihatan di layar. Parse
+// manual "angka di depan + sisa teks" (regex) biar tetep kerja buat "150+"
+// atau "95%", bukan cuma angka polos. Sama kayak Reveal, hormatin reduce-motion
+// (langsung tampilin angka final, nggak nunggu animasi).
+function CountUp({ value }: { value: string }) {
+  const ref = useRef<HTMLSpanElement>(null);
+  const [display, setDisplay] = useState(value);
+
+  useEffect(() => {
+    const match = value.match(/^(\d+)(.*)$/);
+    const el = ref.current;
+    if (!match || !el) {
+      setDisplay(value);
+      return;
+    }
+    const target = parseInt(match[1], 10);
+    const suffix = match[2];
+
+    if (typeof IntersectionObserver === "undefined" || window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) {
+      setDisplay(value);
+      return;
+    }
+
+    const obs = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting) return;
+        obs.disconnect();
+        const duration = 900;
+        const start = performance.now();
+        function tick(now: number) {
+          const progress = Math.min(1, (now - start) / duration);
+          setDisplay(`${Math.round(target * progress)}${suffix}`);
+          if (progress < 1) requestAnimationFrame(tick);
+        }
+        requestAnimationFrame(tick);
+      },
+      { threshold: 0.4 }
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, [value]);
+
+  return <span ref={ref}>{display}</span>;
+}
+
+// Motif dekoratif abstrak (bukan logo asli — logo cuma ada sebagai file PNG
+// wordmark, bukan mark vektor terpisah yang bisa dipakai gede tanpa pecah)
+// dipasang tipis-tipis di pojok 1-2 section buat nambah "signature" visual
+// yang berulang, tanpa ganggu keterbacaan konten di atasnya (opacity rendah,
+// pointer-events none, aria-hidden — murni dekorasi).
+function WatermarkMotif({ color, className = "" }: { color: string; className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 120 120"
+      className={`pointer-events-none absolute ${className}`}
+      aria-hidden="true"
+    >
+      <circle cx="60" cy="14" r="5" fill={color} />
+      <circle cx="60" cy="38" r="6.5" fill={color} />
+      <circle cx="60" cy="64" r="8" fill={color} />
+      <circle cx="60" cy="92" r="9.5" fill={color} />
+    </svg>
+  );
+}
+
 function WhatsAppIcon() {
   return (
     <svg viewBox="0 0 32 32" width="26" height="26" fill="#fff" aria-hidden="true">
@@ -549,8 +640,17 @@ function SectionHeading({
 }) {
   const centered = align === "center";
   return (
-    <div className={centered ? "text-center" : ""}>
-      <p className="text-xs font-semibold uppercase tracking-[0.2em]" style={{ color: accentColor }}>
+    <div className={`relative ${centered ? "text-center" : ""}`}>
+      {/* Tekstur dot-grid super-halus di belakang eyebrow — nambah "grain"
+          visual kecil biar section heading nggak flat warna solid doang,
+          tapi opacity-nya sengaja rendah banget biar tetep kebaca "tekstur",
+          bukan pola yang keliatan jelas/ganggu. */}
+      <span
+        aria-hidden="true"
+        className={`pointer-events-none absolute -top-3 h-12 w-24 opacity-[0.12] ${centered ? "left-1/2 -translate-x-1/2" : "-left-2"}`}
+        style={{ backgroundImage: `radial-gradient(${accent2Color} 1px, transparent 1px)`, backgroundSize: "8px 8px" }}
+      />
+      <p className="relative text-xs font-semibold uppercase tracking-[0.2em]" style={{ color: accentColor }}>
         {eyebrow}
       </p>
       <span
@@ -618,7 +718,7 @@ function ShieldCheckIcon() {
 
 function ChatIcon() {
   return (
-    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
       <path d="M4 5h16v11H8l-4 4V5Z" />
     </svg>
   );
@@ -626,7 +726,7 @@ function ChatIcon() {
 
 function ClipboardIcon() {
   return (
-    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
       <rect x="6" y="4" width="12" height="17" rx="1.5" />
       <path d="M9 4V3a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v1M9 11h6M9 15h6" />
     </svg>
@@ -635,7 +735,7 @@ function ClipboardIcon() {
 
 function ActivityIcon() {
   return (
-    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
       <path d="M3 12h4l2 7 4-14 2 7h6" />
     </svg>
   );
@@ -643,7 +743,7 @@ function ActivityIcon() {
 
 function TrendingUpIcon() {
   return (
-    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
       <path d="M3 17l6-6 4 4 8-8" />
       <path d="M15 7h6v6" />
     </svg>
@@ -671,9 +771,11 @@ export function LandingPageClient() {
   const [theme, setTheme] = useState<Theme>("light");
   const [activeSection, setActiveSection] = useState<string | null>(null);
   const [showBackToTop, setShowBackToTop] = useState(false);
+  const [scrollProgress, setScrollProgress] = useState(0);
   const [mediaReady, setMediaReady] = useState<Record<number, boolean>>({});
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const heroVideoRef = useRef<HTMLVideoElement>(null);
+  const heroSectionRef = useRef<HTMLElement>(null);
 
   // Toggle bahasa client-side — SSR/first paint selalu Indonesia (default),
   // baru dikoreksi ke pilihan tersimpan (kalau ada) setelah hydrate. Ini
@@ -737,11 +839,34 @@ export function LandingPageClient() {
     return () => observers.forEach((o) => o?.disconnect());
   }, []);
 
-  // Tombol "kembali ke atas" cuma muncul setelah scroll lumayan jauh.
+  // Tombol "kembali ke atas" cuma muncul setelah scroll lumayan jauh. Digabung
+  // sekalian sama 2 hal baru yang sama-sama butuh listen scroll (biar nggak
+  // pasang 3 listener terpisah buat event yang sama):
+  // 1. Progress bar tipis di atas — persentase scroll halaman.
+  // 2. Parallax video hero — video digeser dikit lebih lambat dari halaman
+  //    (translate3d, langsung ke DOM via ref, BUKAN lewat state — parallax
+  //    butuh update tiap scroll event, taruh di state bakal re-render seluruh
+  //    komponen tiap piksel scroll, mahal banget). Cuma dihitung selagi hero
+  //    section-nya sendiri kelihatan di viewport (skip kalau udah lewat jauh).
   useEffect(() => {
+    const reduceMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
     function onScroll() {
-      setShowBackToTop(window.scrollY > 600);
+      const y = window.scrollY;
+      setShowBackToTop(y > 600);
+
+      const doc = document.documentElement;
+      const max = doc.scrollHeight - doc.clientHeight;
+      setScrollProgress(max > 0 ? Math.min(100, (y / max) * 100) : 0);
+
+      if (!reduceMotion && heroSectionRef.current && heroVideoRef.current) {
+        const rect = heroSectionRef.current.getBoundingClientRect();
+        if (rect.bottom > 0 && rect.top < window.innerHeight) {
+          const translate = rect.top * 0.15;
+          heroVideoRef.current.style.transform = `scale(1.08) translate3d(0, ${translate}px, 0)`;
+        }
+      }
     }
+    onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
@@ -811,7 +936,15 @@ export function LandingPageClient() {
         style={{ color: COLOR.accent }}
         aria-label={t.themeToggle}
       >
-        {theme === "light" ? <MoonIcon /> : <SunIcon />}
+        {/* Dulu ganti ikon instan (Moon <-> Sun) pas diklik, kerasa "patah" —
+            sekarang di-bungkus rotate transition (0deg <-> 180deg) biar
+            transisinya kerasa kayak morph, bukan cuma tukar elemen. */}
+        <span
+          className="inline-flex transition-transform duration-500"
+          style={{ transform: theme === "light" ? "rotate(0deg)" : "rotate(180deg)" }}
+        >
+          {theme === "light" ? <MoonIcon /> : <SunIcon />}
+        </span>
       </button>
       <span aria-hidden="true" className="h-4 w-px" style={{ backgroundColor: COLOR.accent, opacity: 0.4 }} />
       <button
@@ -838,6 +971,16 @@ export function LandingPageClient() {
       <link rel="preconnect" href="https://wa.me" />
       <link rel="dns-prefetch" href="https://wa.me" />
 
+      {/* Progress bar tipis nunjukin udah scroll berapa persen dari halaman —
+          z-[70], di atas header (z-40) & lightbox (z-[60]) biar selalu
+          keliatan paling atas. width diupdate langsung dari `scrollProgress`
+          (lihat effect scroll gabungan di atas). */}
+      <div
+        className="fixed left-0 top-0 z-[70] h-[3px]"
+        style={{ width: `${scrollProgress}%`, backgroundColor: COLOR.accent, transition: "width 0.1s linear" }}
+        aria-hidden="true"
+      />
+
       {/* Skip-to-content — standar aksesibilitas dasar buat pengguna keyboard/
           screen-reader, biar nggak wajib Tab lewatin semua link nav dulu.
           Tersembunyi visual sampai di-fokus (klik Tab pertama kali). */}
@@ -859,19 +1002,19 @@ export function LandingPageClient() {
             className="hidden items-center gap-8 text-sm font-semibold sm:flex"
             style={{ color: COLOR.ink }}
           >
-            <a href="#layanan" style={navLinkStyle("layanan")}>
+            <a href="#layanan" className="pf-nav-link" style={navLinkStyle("layanan")}>
               {t.nav.layanan}
             </a>
-            <a href="#alur" style={navLinkStyle("alur")}>
+            <a href="#alur" className="pf-nav-link" style={navLinkStyle("alur")}>
               {t.nav.alur}
             </a>
-            <a href="#tim" style={navLinkStyle("tim")}>
+            <a href="#tim" className="pf-nav-link" style={navLinkStyle("tim")}>
               {t.nav.tim}
             </a>
-            <a href="#faq" style={navLinkStyle("faq")}>
+            <a href="#faq" className="pf-nav-link" style={navLinkStyle("faq")}>
               {t.nav.faq}
             </a>
-            <a href="#lokasi" style={navLinkStyle("lokasi")}>
+            <a href="#lokasi" className="pf-nav-link" style={navLinkStyle("lokasi")}>
               {t.nav.lokasi}
             </a>
           </nav>
@@ -902,7 +1045,14 @@ export function LandingPageClient() {
           kedua tema. Video di-mute+autoplay+playsInline (wajib biar autoplay
           jalan di Safari iOS) + poster (frame pertama video, dikompres) biar
           ada sesuatu yang langsung ke-paint sebelum video-nya sendiri load. */}
-      <section className="relative isolate overflow-hidden">
+      <section ref={heroSectionRef} className="relative isolate overflow-hidden">
+        {/* `scale(1.08)` di video sengaja dipasang lewat inline style default
+            (bukan Tailwind class) — scroll effect di atas nge-override
+            `transform` elemen ini langsung via ref buat efek parallax
+            (video gerak dikit lebih lambat dari halaman pas discroll), jadi
+            base scale-nya harus ikut ditulis di situ juga (lihat komentar di
+            effect scroll) supaya video sedikit "over-size" dan nggak
+            nyisain celah putih pas ke-translate. */}
         <video
           ref={heroVideoRef}
           autoPlay
@@ -913,11 +1063,18 @@ export function LandingPageClient() {
           preload="auto"
           aria-hidden="true"
           className="absolute inset-0 -z-10 h-full w-full object-cover"
+          style={{ transform: "scale(1.08)" }}
         >
           <source src={HERO_VIDEO} type="video/mp4" />
         </video>
         <div
           className="absolute inset-0 -z-10 bg-gradient-to-t from-black/75 via-black/45 to-black/25"
+          aria-hidden="true"
+        />
+        {/* Grain super-halus — lihat komentar GRAIN_DATA_URI di atas. */}
+        <div
+          className="pointer-events-none absolute inset-0 -z-10 opacity-[0.05] mix-blend-overlay"
+          style={{ backgroundImage: `url("${GRAIN_DATA_URI}")`, backgroundSize: "180px 180px" }}
           aria-hidden="true"
         />
 
@@ -976,6 +1133,22 @@ export function LandingPageClient() {
             </ul>
           </div>
         </div>
+
+        {/* Divider organik di bawah hero — dulu potongan lurus dari video ke
+            section berikutnya (kotak ketemu kotak), sekarang lengkung tipis
+            biar transisinya nggak kerasa "digunting". Warna fill-nya ikutin
+            bg section SETELAHNYA (bgAlt, sama kayak stat checklist di bawah
+            hero), bukan warna sembarang, biar nyambung persis nggak ada
+            garis kelihatan. */}
+        <svg
+          className="absolute -bottom-px left-0 w-full"
+          viewBox="0 0 1440 60"
+          preserveAspectRatio="none"
+          style={{ height: "48px", display: "block" }}
+          aria-hidden="true"
+        >
+          <path d="M0,32 C240,60 480,0 720,18 C960,36 1200,60 1440,28 L1440,60 L0,60 Z" fill={COLOR.bgAlt} />
+        </svg>
       </section>
 
       {/* Dulu "stat band" gede-gedean (angka Fraunces raksasa di section
@@ -992,7 +1165,10 @@ export function LandingPageClient() {
           {t.stats.items.map((item, i) => (
             <span key={item.label} className="flex items-center gap-1.5 font-medium" style={{ color: COLOR.ink }}>
               <CheckIcon color={COLOR.accent} />
-              <strong style={{ color: COLOR.accent }}>{ALL_STATS_VALUES[i]}</strong> {item.label}
+              <strong style={{ color: COLOR.accent }}>
+                <CountUp value={ALL_STATS_VALUES[i]} />
+              </strong>{" "}
+              {item.label}
             </span>
           ))}
         </div>
@@ -1040,7 +1216,7 @@ export function LandingPageClient() {
             {TEAM.map((m, i) => (
               <div
                 key={m.name}
-                className="overflow-hidden rounded-2xl text-center transition-all duration-200 hover:-translate-y-1 hover:shadow-lg"
+                className={`overflow-hidden rounded-2xl text-center transition-all duration-200 hover:-translate-y-1 ${CARD_SHADOW}`}
                 style={{ backgroundColor: COLOR.bgAlt }}
               >
                 <div className="relative h-56 w-full">
@@ -1071,6 +1247,21 @@ export function LandingPageClient() {
         </div>
       </section>
 
+      {/* Pull-quote editorial — jeda visual gaya majalah di tengah halaman,
+          BUKAN kutipan pasien (jangan disamain sama testimonials yang
+          eksplisit karangan/placeholder) — ini pernyataan sikap/filosofi
+          klinik sendiri (`CONTENT.*.pullQuote`), aman ditampilkan besar.
+          WatermarkMotif dipasang di sini juga (dekorasi, aria-hidden). */}
+      <section className="relative overflow-hidden py-20">
+        <WatermarkMotif color={COLOR.accent2} className="right-6 top-6 h-24 w-24 opacity-[0.15] sm:right-12 sm:h-32 sm:w-32" />
+        <p
+          className="relative mx-auto max-w-3xl px-4 text-center text-3xl italic leading-snug sm:text-4xl"
+          style={{ fontFamily: "var(--font-display)", color: COLOR.ink }}
+        >
+          &ldquo;{t.pullQuote}&rdquo;
+        </p>
+      </section>
+
       <section id="alur" className="py-24" style={{ backgroundColor: COLOR.bgAlt }}>
         <div className="mx-auto max-w-6xl px-4">
           <SectionHeading eyebrow={t.steps.eyebrow} heading={t.steps.heading} align="center" accentColor={COLOR.accent} accent2Color={COLOR.accent2} />
@@ -1080,7 +1271,7 @@ export function LandingPageClient() {
               return (
               <div
                 key={s.number}
-                className="rounded-2xl p-7 transition-all duration-200 hover:-translate-y-1 hover:shadow-lg"
+                className={`rounded-2xl p-7 transition-all duration-200 hover:-translate-y-1 ${CARD_SHADOW}`}
                 style={{ backgroundColor: COLOR.bg }}
               >
                 <div className="flex items-center gap-3">
@@ -1120,10 +1311,14 @@ export function LandingPageClient() {
               return (
                 <div
                   key={s.title}
-                  className="overflow-hidden rounded-2xl transition-all duration-200 hover:-translate-y-1 hover:shadow-lg"
+                  // Kartu genap (i%2===1) digeser turun dikit di desktop
+                  // (`sm:mt-10`) — grid 2 kolom yang dulu rata rapi sekarang
+                  // sedikit "staggered" kayak masonry, ngasih ritme visual
+                  // biar nggak kerasa kaku/kotak-kotak seragam semua.
+                  className={`overflow-hidden rounded-2xl transition-all duration-200 hover:-translate-y-1 ${i % 2 === 1 ? "sm:mt-10" : ""} ${CARD_SHADOW}`}
                   style={{ backgroundColor: COLOR.bgAlt }}
                 >
-                  <div className="relative h-48 w-full">
+                  <div className={`relative w-full ${i % 2 === 1 ? "h-56" : "h-48"}`}>
                     <Image
                       src={asset.image}
                       alt={s.title}
@@ -1163,7 +1358,7 @@ export function LandingPageClient() {
             {/* Kartu unggulan: kutipan pertama ditonjolkan sebagai headline besar,
                 meniru pola bento (1 kartu besar + beberapa kartu kecil) yang diminta user. */}
             <div
-              className="flex flex-col justify-between rounded-2xl p-8 transition-all duration-200 hover:-translate-y-1 hover:shadow-lg sm:p-10 lg:col-span-2"
+              className={`flex flex-col justify-between rounded-2xl p-8 transition-all duration-200 hover:-translate-y-1 sm:p-10 lg:col-span-2 ${CARD_SHADOW}`}
               style={{ backgroundColor: COLOR.bg }}
             >
               <p
@@ -1203,7 +1398,7 @@ export function LandingPageClient() {
               {t.testimonials.items.slice(1).map((ts, i) => (
                 <div
                   key={ts.name}
-                  className="flex-1 rounded-2xl p-6 transition-all duration-200 hover:-translate-y-1 hover:shadow-lg"
+                  className={`flex-1 rounded-2xl p-6 transition-all duration-200 hover:-translate-y-1 ${CARD_SHADOW}`}
                   style={{ backgroundColor: COLOR.bg }}
                 >
                   <div className="flex gap-0.5" aria-hidden="true">
@@ -1276,9 +1471,13 @@ export function LandingPageClient() {
                   )}
                 </ShimmerMedia>
                 {/* Caption + zoom hint muncul pas hover/focus — nunjukkin
-                    galeri ini bisa diklik buat lihat lebih besar. */}
+                    galeri ini bisa diklik buat lihat lebih besar. Class
+                    `pf-caption-reveal` (globals.css) bikin ini SELALU
+                    kebuka di device layar-sentuh (nggak punya hover), biar
+                    pengguna HP juga bisa liat caption-nya, bukan cuma
+                    kebuka di desktop yang punya mouse. */}
                 <div
-                  className="pointer-events-none absolute inset-0 flex items-end rounded-xl bg-gradient-to-t from-black/70 via-black/0 to-black/0 opacity-0 transition-opacity duration-200 group-hover:opacity-100 group-focus-visible:opacity-100"
+                  className="pf-caption-reveal pointer-events-none absolute inset-0 flex items-end rounded-xl bg-gradient-to-t from-black/70 via-black/0 to-black/0 opacity-0 transition-opacity duration-200 group-hover:opacity-100 group-focus-visible:opacity-100"
                   aria-hidden="true"
                 >
                   <p className="p-3 text-xs font-medium text-white">{t.gallery.alt[i]}</p>
@@ -1412,6 +1611,30 @@ export function LandingPageClient() {
           </a>
         </div>
       </footer>
+
+      {/* Scroll-spy dot nav — cuma desktop (lg:flex), titik kecil di sisi
+          kanan nunjukin section aktif (`activeSection`, state yang sama
+          dipakai buat bold-in nav header) + bisa diklik buat lompat.
+          Disembunyiin di mobile karena ruangnya sempit & udah ada nav
+          header sendiri buat navigasi. */}
+      <nav
+        aria-label="Section navigation"
+        className="fixed right-6 top-1/2 z-40 hidden -translate-y-1/2 flex-col gap-3 lg:flex"
+      >
+        {SECTION_IDS.map((id) => (
+          <a
+            key={id}
+            href={`#${id}`}
+            aria-label={t.nav[id]}
+            aria-current={activeSection === id ? "true" : undefined}
+            className="block h-2.5 w-2.5 rounded-full transition-all duration-200"
+            style={{
+              backgroundColor: activeSection === id ? COLOR.accent : hairline,
+              transform: activeSection === id ? "scale(1.4)" : "scale(1)",
+            }}
+          />
+        ))}
+      </nav>
 
       {/* Pill CTA mengambang (WA "Konsultasi Gratis") DIHAPUS atas
           permintaan eksplisit user — udah ada CTA "Konsultasi Gratis" di

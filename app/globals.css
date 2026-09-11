@@ -57,6 +57,44 @@ body {
 }
 
 /* ============================================
+   Landing page (app/LandingPageClient.tsx) — cuma 2 hal kecil yang lebih
+   gampang ditulis sebagai CSS asli daripada utility Tailwind: underline
+   hover yang "tumbuh" dari tengah (perlu ::after + transform, bukan cuma
+   toggle warna) dan caption galeri yang otomatis kebuka di device
+   layar-sentuh (Tailwind nggak punya varian bawaan buat media query
+   `hover: none`). Prefix `pf-` (Pulih Fisioterapi) biar jelas ini punya
+   landing page, bukan ke-mix sama class `.app-shell` di atas.
+   ============================================ */
+.pf-nav-link {
+  position: relative;
+}
+.pf-nav-link::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -4px;
+  height: 2px;
+  background: currentColor;
+  border-radius: 999px;
+  transform: scaleX(0);
+  transition: transform 0.25s ease;
+}
+.pf-nav-link:hover::after,
+.pf-nav-link:focus-visible::after {
+  transform: scaleX(1);
+}
+
+/* Caption galeri: hover-only di device yang beneran punya hover (mouse),
+   tapi SELALU kebuka di device layar-sentuh (hover: none) — HP/tablet
+   nggak punya cara "hover" buat nemuin captionnya kalau tetep hover-only. */
+@media (hover: none) {
+  .pf-caption-reveal {
+    opacity: 1 !important;
+  }
+}
+
+/* ============================================
    Komponen UI internal app (/jadwal, /pasien, dst) — dipakai bareng biar
    nggak ada campuran warna slate-* di sana-sini. Landing page (app/page.tsx)
    TIDAK pakai class-class ini, dia punya styling sendiri (nggak disentuh).
